@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma de Estudos TJCE - Personalizado</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Novo esquema de cores e variáveis */
+        :root {
+            --primary-color: #007bff; /* Azul padrão mais vibrante */
+            --accent-color: #28a745; /* Verde para sucesso/botões */
+            --danger-color: #dc3545; /* Vermelho para exclusão */
+            --background-light: #f9f9f9;
+            --card-background: #ffffff;
+            --border-soft: #2f59c6;
+            
+            /* VARIÁVEIS DE COMPACTAÇÃO E LEGIBILIDADE */
+            --font-size-base: 1.00em;
+            --font-size-table: 1.00em; 
+            --padding-table: 5px 6px; 
+        }
+
+        /* Estilos Base (Mais compacto) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; 
+            background-color: var(--background-light);
+            color: #333;
+            padding: 10px;
+            /* ALTERADO: Aumento do padding-top para 200px */
+            padding-top: 225px; 
+            font-size: var(--font-size-base);
+        }
+
+        /* NOVO: Container Fixo que engloba tudo (Dashboard, Título, Controles E AS ABAS) */
+        .fixed-header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000; 
+            background-color: #f2f1f4; /* Fundo do dashboard */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 5px 10px 0; /* Padding inferior removido para usar o da aba */
+        }
+        
+        /* Título dentro do header fixo (mais discreto) */
+        .fixed-header-title {
+            font-size: 1.2em; 
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            /* AJUSTE FINO: Redução da margem inferior */
+            margin: 5px 0 5px 0; 
+        }
+
+        /* Dashboard Fixo de Resumo - Compacto */
+        .dashboard-summary {
+            position: static; 
+            padding: 0px 0px; 
+            box-shadow: none;
+            /* AJUSTE FINO: Removida a margem inferior */
+            margin-bottom: 0px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 0 5px; 
+            min-width: 100px;
+        }
+        
+        .summary-item h3 {
+            margin: 0 0 1px 0;
+            font-size: 1.2em; 
+            color: var(--primary-color); 
+            font-weight: 500;
+        }
+        
+        .summary-item p {
+            /* ALTERADO: Redução da fonte para otimizar espaço */
+            font-size: 1.2em; 
+            font-weight: 700;
+            color: var(--accent-color); 
+        }
+        
+        /* NOVO: Wrapper que coloca Configuração e Controles lado a lado */
+        .fixed-controls-wrapper {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 10px; 
+            /* AJUSTE FINO: Removida a margem inferior */
+            margin-bottom: 5px; /* Adicionado 5px para separar das abas */
+        }
+
+        /* Controles Principais e Configurações - Mais compactos */
+        .review-config-box, .controls {
+            margin: 0; /* Remove margin vertical, usa gap do wrapper */
+            background-color: var(--card-background);
+            padding: 8px 10px; 
+            border-radius: 4px; 
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
+            border: 1px solid #cce5ff; 
+        }
+        
+        .review-config-box {
+            flex: 1 1 500px; 
+            min-width: 45%; 
+        }
+
+        .controls {
+            flex: 1 1 400px; 
+            min-width: 45%;
+            display: flex; 
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        /* Botões, Inputs e Selects */
+        .controls button, .controls input[type="file"], .controls input[type="text"], 
+        .review-config-box button, .review-config-box input[type="text"],
+        .controls select {
+            /* ALTERADO: Redução do padding para maior compactação */
+            padding: 4px 8px; 
+            margin: 3px 8px 3px 0; /* Reduz margem vertical */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            /* ALTERADO: Redução da fonte para otimizar espaço */
+            font-size: 0.75em; 
+            font-weight: 500;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+
+        /* Ajuste de ícones nos botões de controle para manter o padding */
+        .controls button i {
+            margin-right: 5px; /* Espaço entre ícone e texto (se houver) */
+        }
+        
+        /* Configuração de Revisão (Compacto) */
+        .review-config-box h4 {
+            font-size: 1em;
+            margin-top: 0; 
+            margin-bottom: 5px; 
+            border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 2px;
+            color: var(--primary-color);
+        }
+        
+        /* Container flex para o conteúdo da revisão */
+        .review-config-box-content {
+            display: flex;
+            flex-wrap: wrap; 
+            align-items: center; 
+            gap: 5px;
+        }
+        
+        .review-config-box label {
+            /* ALTERADO: Redução da fonte para otimizar espaço */
+            font-size: 0.8em; 
+            white-space: nowrap;
+        }
+
+        .review-config-box input[type="text"] {
+            flex-grow: 1; 
+            width: auto !important; 
+            padding: 5px; 
+            border-radius: 5px; 
+            border: 1px solid var(--border-soft);
+        }
+        
+        /* Abas de Navegação - AGORA DENTRO DO HEADER FIXO */
+        #tabNav {
+            display: flex;
+            overflow-x: auto;
+            margin-top: 5px;
+            border-bottom: 2px solid var(--border-soft);
+            padding-bottom: 0px;
+        }
+        
+        /* Botões de Aba */
+        .tab-button {
+            padding: 8px 15px; 
+            margin-right: 5px;
+            border: none;
+            background-color: #e9ecef; 
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+
+        /* Conteúdo das Seções */
+        .semana-section {
+            background-color: var(--card-background);
+            padding: 15px; 
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            display: none; 
+            border: 1px solid #cce5ff; 
+            margin-top: 10px;
+        }
+        
+        /* CRÍTICO: Torna a seção ativa visível */
+        .semana-section.active {
+            display: block; 
+        }
+        
+        .semana-section h2 {
+            font-size: 1.3em;
+            margin-top: 0;
+        }
+
+        /* Estilo da Tabela - COMPACTADA */
+        .cronograma-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed;
+            border: 1px solid var(--border-soft); 
+            border-radius: 4px;
+            overflow: hidden; 
+        }
+        
+        /* ALTERADO: Removida a fixação (sticky) do cabeçalho da tabela */
+        .cronograma-table thead {
+            /* Removidas as propriedades position, top, z-index e box-shadow */
+            background-color: var(--card-background); 
+        }
+
+        .cronograma-table th, .cronograma-table td {
+            border: 1px solid #f0f0f0; 
+            padding: var(--padding-table); /* 5px 6px */
+            text-align: left;
+            vertical-align: top;
+            /* USA A VARIÁVEL MELHORADA */
+            font-size: var(--font-size-table); 
+            line-height: 1.3; 
+        }
+
+        .cronograma-table th {
+            background-color: #f7f7f7;
+            font-size: 1em; /* Aumentado ligeiramente para cabeçalho */
+            padding: 0px 0px;
+            /* FIX: Adiciona explicitamente a cor para corrigir o problema de transparência */
+            color: #333; 
+        }
+        
+        /* NOVO: Estilo para container de múltiplos links */
+        .link-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* Espaçamento pequeno entre os links */
+            max-width: 100%;
+            text-align: center; 
+        }
+
+        /* Largura das Colunas - ATUALIZADAS (Peso removido) */
+        .col-meta { width: 40px; }
+        .col-disciplina { width: 100px; }
+        /* Aumento de 40px (ex-peso) */
+        .col-conteudo { width: 340px; } 
+        /* ALTERADO DE 40PX PARA 60PX PARA ACOMODAR MULTIPLOS LINKS */
+        .col-link { width: 60px; text-align: center;}
+        .col-concluida { width: 60px; text-align: center;}
+        .col-feitas, .col-acertadas { width: 65px; text-align: center;}
+        .col-percent { width: 75px; text-align: center;}
+        /* AUMENTADO DE 85PX PARA 95PX */
+        .col-ultima-revisao, .col-proxima-revisao { width: 100px; font-size: 0.85em;} 
+        .col-acoes { width: 65px; text-align: center;} /* REDUZIDO PARA ACOMODAR ÍCONES MENORES */
+
+        /* NOVO: Aumenta a fonte do link [Tec] e [QC] */
+        .cronograma-table td.col-link a {
+            /* Reduzido para melhor compactação dos múltiplos links */
+            font-size: 0.85em; 
+            font-weight: bold;
+            display: block; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Estilo dos Inputs na Tabela - MAIS COMPACTO */
+        .cronograma-table input[type="text"], .cronograma-table input[type="number"], .cronograma-table textarea {
+            width: 100%;
+            padding: 2px; 
+            border: 1px solid var(--border-soft);
+            border-radius: 3px;
+            box-sizing: border-box;
+            resize: none;
+            overflow: hidden; 
+            min-height: 15px; 
+            line-height: 1.2; 
+            font-size: var(--font-size-table); 
+        }
+        
+        .cronograma-table textarea {
+            min-height: 30px; 
+        }
+        
+        /* Botões de Ação na Tabela - MAIS COMPACTO E COM ÍCONES */
+        .action-btn, .delete-btn {
+            padding: 4px 6px; /* Ajuste para ícones */
+            margin: 1px 0;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.8em; /* Aumenta um pouco para ícones ficarem melhores */
+            line-height: 1; /* Alinhamento vertical do ícone */
+        }
+        
+        /* Ajuste do botão de revisão */
+        .revision-btn { 
+            width: 100%; 
+            padding: 4px 5px !important; 
+            font-size: 0.75em !important; 
+            line-height: 1.2;
+            margin-bottom: 5px; 
+        }
+        /* Cor dos ícones de Revisão */
+        .revision-btn.btn-revisao-urgente { background-color: #ffc107; color: #333; font-weight: bold; }
+        .revision-btn.btn-revisao-agendada { background-color: #17a2b8; }
+        .revision-btn.btn-revisao-completa { background-color: var(--accent-color); }
+        
+        /* Botão de Excluir da Tabela (Lixeira) */
+        .delete-btn { 
+            background-color: var(--danger-color); 
+            color: white; 
+            font-size: 0.9em; /* Ícone um pouco maior */
+            width: 100%;
+        }
+
+        /* OUTROS ESTILOS DE DESTAQUE MANTIDOS... */
+        .controls button:hover { opacity: 0.9; }
+        .tab-button.active { background-color: #e6f2ff; border-bottom: 3px solid var(--primary-color); font-weight: bold; color: var(--primary-color); }
+        .cronograma-table tr.needs-revision { background-color: #fff3cd !important; }
+        .bg-critical { background-color: #f8d7da; color: var(--danger-color); font-weight: bold; }
+        .bg-danger { background-color: #f8d7da; color: var(--danger-color); }
+        .bg-warning { background-color: #fff3cd; color: #856404; }
+        .bg-success { background-color: #d4edda; color: #155724; font-weight: bold; }
+        
+    </style>
+</head>
+<body onload="loadInitialData()">
+
+    <div class="fixed-header-container">
+        
+        <div class="dashboard-summary">
+            <div class="summary-item">
+                <h3>Total de Tarefas</h3>
+                <p id="totalTasksCount">0</p>
+            </div>
+            <div class="summary-item">
+                <h3>Metas Concluídas</h3>
+                <p id="metasConcluidas">0</p>
+            </div>
+            <div class="summary-item">
+                <h3>Progresso Geral</h3>
+                <p id="progressoGeral">0.0%</p>
+            </div>
+            <div class="summary-item">
+                <h3>Acertos Gerais</h3>
+                <p id="acertosGerais">0.0%</p>
+            </div>
+        </div>
+        
+        
+        <div class="fixed-controls-wrapper">
+
+            <div class="review-config-box">
+                <h4>Configuração de Revisões (Ciclos)</h4>
+                <div class="review-config-box-content">
+                    <label for="reviewCyclesInput">
+                        Dias para Revisão (separados por vírgula e ordenados):
+                    </label>
+                    <input type="text" id="reviewCyclesInput" placeholder="Ex: 7, 30, 90, 180">
+                    <button onclick="updateReviewCycles()" style="padding: 5px 10px; background-color: var(--primary-color); color: white; border: none; border-radius: 3px; cursor: pointer;" title="Salvar Ciclos de Revisão">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                </div>
+            <h1 class="fixed-header-title">Meu Cronograma de Estudos Personalizado</h1>
+<label for="userNameInput" style="font-size: 0.9em; font-weight: 600; color: #555;">Nome do Usuário:</label>
+                 <input type="text" id="userNameInput" placeholder="Seu Nome Aqui" onblur="saveUserName()" style="padding: 5px; width: 250px; border: 1px solid var(--border-soft); border-radius: 4px; font-size: 0.9em;">
+            
+            </div>
+
+            <div class="controls">
+                <label for="fileInput" class="controls-label" style="display: none;"></label>
+                
+                <input type="file" id="fileInput" accept=".csv, .xlsx, .xls, .html" style="display: none;" onchange="handleFileUpload()">
+                
+                <button onclick="document.getElementById('fileInput').click()" style="background-color: #6c757d; color: white;" title="Importar Planilha (XLSX, CSV)">
+                    <i class="fa-solid fa-file-arrow-up"></i> Importar
+                </button>
+                
+                <button onclick="exportTemplate()" style="background-color: #20c997; color: white;" title="Exportar Modelo (XLSX) para Importação">
+                    <i class="fa-solid fa-table"></i> Modelo
+                </button>
+                
+                <button onclick="addSection()" style="background-color: var(--primary-color);" title="Adicionar Nova Semana/Aba">
+                    <i class="fa-solid fa-calendar-plus"></i> Nova Aba
+                </button>
+                
+                <input type="text" id="renameInput" placeholder="Novo nome da aba" style="padding: 8px;">
+                <button onclick="renameSection()" style="background-color: #00bcd4; color: white;" title="Renomear Aba Ativa">
+                    <i class="fa-solid fa-pen-to-square"></i> Renomear
+                </button>
+                
+                <button onclick="deleteSection()" style="background-color: var(--danger-color); color: white;" title="Excluir Aba Ativa">
+                    <i class="fa-solid fa-trash-can"></i> Excluir Aba
+                </button>
+                
+                <select id="filterSelect" onchange="applyFilter(activeSemanaId)" style="padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-soft); font-size: 0.8em;">
+                    <option value="all">Mostrar Tudo</option>
+                    <option value="pending">Apenas Pendentes</option>
+                    <option value="review">Apenas Revisão Hoje</option>
+                </select>
+
+                <button class="revision-btn" onclick="toggleRevisionColumns(this)" style="background-color: #6c757d; color: white; margin-right: 0;" title="Mostrar/Ocultar Colunas de Revisão">
+                    <i class="fa-solid fa-eye-slash"></i> Ocultar Revisão
+                </button>
+                
+                <button onclick="exportBackup()" style="background-color: #17a2b8; color: white;" title="Exportar Backup (JSON)">
+                    <i class="fa-solid fa-download"></i> Backup
+                </button>
+                
+                <button onclick="importBackup()" style="background-color: #17a2b8; color: white;" title="Restaurar Backup (JSON)">
+                    <i class="fa-solid fa-upload"></i> Restaurar
+                </button>
+            </div>
+        </div> <div id="tabNav">
+            <button class="tab-button" data-semana="progresso" onclick="showTab('progresso')">Progresso por Disciplina</button>
+        </div>
+    </div> <div id="cronogramaSections">
+        <div id="semana-content-progresso" class="semana-section active">
+            <h2>Progresso por Disciplina</h2>
+            <p style="font-size: 0.9em;">O progresso das Metas e o percentual de acertos são calculados a partir de todas as semanas.</p>
+            <div id="disciplineSummaryTable">
+                </div>
+        </div>
+        </div>
+
+
+    <script>
+    let cronogramaData = []; 
+    const CRONOGRAMA_SECTIONS = document.getElementById('cronogramaSections');
+    const TAB_NAV = document.getElementById('tabNav');
+    const RENAME_INPUT = document.getElementById('renameInput'); 
+    const CACHE_KEY = 'cronogramaTJCEPersonalDataPlus';
+    const REV_COLUMNS_KEY = 'cronogramaTJCE_ShowRevCols';
+    
+    // NOVO: Configuração de Revisão
+    const REV_SETTINGS_KEY = 'cronogramaTJCE_ReviewSettings';
+    let reviewCycles = [7, 30, 90]; // Padrão: 7, 30, 90 dias
+    
+    let activeSemanaId = null; 
+    let isRendering = false; // Flag para evitar re-renderização durante a transição
+    
+    // NOVO: Função para obter a data atual formatada
+    function getTodayFormatted() {
+        return new Date().toISOString().split('T')[0];
+    }
+    
+    // NOVO: Função para adicionar dias a uma data
+    function addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result.toISOString().split('T')[0];
+    }
+
+    // FUNÇÃO CENTRAL PARA O AUTO-RESIZE DA COLUNA CONTEÚDO
+    function autoResizeTextarea(element) {
+        if (element.tagName !== 'TEXTAREA') return;
+        element.style.height = 'auto'; 
+        element.style.height = (element.scrollHeight) + 'px';
+    }
+    
+    // NOVO: Função para aplicar o filtro
+    function applyFilter(semanaId) {
+        const filterValue = document.getElementById('filterSelect').value;
+        if (!semanaId || semanaId === 'progresso') return;
+
+        const contentDiv = document.getElementById(`semana-content-${semanaId.replace(/[^a-zA-Z0-9-]/g, '')}`);
+        if (!contentDiv) return;
+
+        contentDiv.querySelectorAll('.cronograma-table tbody tr').forEach(row => {
+            const isConcluida = row.querySelector('.col-concluida input[type="checkbox"]').checked;
+            
+            // Verifica se a célula de próxima revisão existe antes de tentar acessar o textContent
+            const nextReviewSpan = row.querySelector('.col-proxima-revisao span');
+            const nextReviewDate = nextReviewSpan ? nextReviewSpan.textContent : 'N/A';
+            
+            const today = getTodayFormatted();
+            
+            let show = false;
+
+            switch (filterValue) {
+                case 'all':
+                    show = true;
+                    break;
+                case 'pending':
+                    show = !isConcluida;
+                    break;
+                case 'review':
+                    // Tarefas agendadas para revisão (data de próxima revisão <= hoje) e não concluídas
+                    show = nextReviewDate && nextReviewDate !== 'N/A' && nextReviewDate !== 'Ciclo Completo' && nextReviewDate <= today && !isConcluida;
+                    
+                    // Adiciona estilo de destaque
+                    if (show) {
+                        row.classList.add('needs-revision');
+                    } else {
+                         row.classList.remove('needs-revision');
+                    }
+                    break;
+            }
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+    
+    // NOVO: Alterna visibilidade das colunas de Revisão - ATUALIZADO COM ÍCONES
+    function toggleRevisionColumns(button) {
+        const shouldShow = button.innerHTML.includes('fa-eye-slash');
+        
+        document.querySelectorAll('.col-ultima-revisao, .col-proxima-revisao').forEach(col => {
+            col.style.display = shouldShow ? '' : 'none';
+        });
+        
+        // Alterna o texto e o ícone do botão para refletir a próxima ação
+        if (shouldShow) {
+            button.innerHTML = '<i class="fa-solid fa-eye"></i> Mostrar Revisão';
+            button.title = 'Mostrar Colunas de Revisão';
+        } else {
+            button.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar Revisão';
+            button.title = 'Ocultar Colunas de Revisão';
+        }
+        
+        // Salva o estado no localStorage
+        localStorage.setItem(REV_COLUMNS_KEY, shouldShow ? 'false' : 'true');
+    }
+    
+    // NOVO: Função para atualizar os ciclos de revisão
+    function updateReviewCycles() {
+        const input = document.getElementById('reviewCyclesInput');
+        if (!input) {
+            alert("Erro: O campo de input de ciclos de revisão não foi encontrado no HTML.");
+            return;
+        }
+
+        const rawValue = input.value;
+        const newCycles = rawValue.split(',')
+            .map(s => parseInt(s.trim()))
+            .filter(d => !isNaN(d) && d > 0)
+            .sort((a, b) => a - b); // Ordena para garantir a sequência correta
+        
+        if (newCycles.length === 0) {
+            alert("Por favor, insira pelo menos um número válido para os dias de revisão (ex: 7, 30, 90).");
+            input.value = reviewCycles.join(', '); // Restaura o valor antigo
+            return;
+        }
+
+        reviewCycles = newCycles;
+        saveData();
+        renderAllSections(); // Re-renderiza para atualizar os botões
+        alert("Ciclos de Revisão atualizados: " + reviewCycles.join(', ') + " dias.");
+    }
+
+    // === FUNÇÕES DE PERSISTÊNCIA E RENDERIZAÇÃO ===
+
+    function loadInitialData() {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+            try {
+                cronogramaData = JSON.parse(cachedData);
+            } catch (e) {
+                console.error("Erro ao carregar dados do cache:", e);
+                localStorage.removeItem(CACHE_KEY);
+                cronogramaData = [];
+            }
+        }
+        
+        // NOVO: Carregar Configurações de Revisão
+        const cachedReviewSettings = localStorage.getItem(REV_SETTINGS_KEY);
+        if (cachedReviewSettings) {
+            try {
+                const settings = JSON.parse(cachedReviewSettings);
+                if (Array.isArray(settings.cycles) && settings.cycles.length > 0) {
+                    reviewCycles = settings.cycles.map(d => parseInt(d)).filter(d => !isNaN(d) && d > 0).sort((a, b) => a - b);
+                }
+            } catch (e) {
+                console.error("Erro ao carregar configurações de revisão:", e);
+                localStorage.removeItem(REV_SETTINGS_KEY);
+            }
+        }
+        
+        // NOVO: Atualiza a interface de configuração de revisão
+        const reviewInput = document.getElementById('reviewCyclesInput');
+        if (reviewInput) {
+             reviewInput.value = reviewCycles.join(', ');
+        }
+        
+        renderAllSections();
+        updateSummary();
+        
+        // Aplica o estado de visibilidade das colunas de revisão - ATUALIZADO COM ÍCONES
+        const showRevCols = localStorage.getItem(REV_COLUMNS_KEY) === 'true';
+        const revButton = document.querySelector('.revision-btn');
+        if (revButton) {
+             if (showRevCols) {
+                revButton.innerHTML = '<i class="fa-solid fa-eye"></i> Ocultar Revisão';
+                revButton.title = 'Ocultar Colunas de Revisão';
+                document.querySelectorAll('.col-ultima-revisao, .col-proxima-revisao').forEach(col => {
+                    col.style.display = '';
+                });
+            } else {
+                revButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Mostrar Revisão';
+                revButton.title = 'Ocultar Colunas de Revisão';
+                document.querySelectorAll('.col-ultima-revisao, .col-proxima-revisao').forEach(col => {
+                    col.style.display = 'none';
+                });
+            }
+        }
+    }
+
+    function saveData() {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cronogramaData));
+        // NOVO: Salva os ciclos de revisão
+        localStorage.setItem(REV_SETTINGS_KEY, JSON.stringify({ cycles: reviewCycles }));
+        updateSummary();
+    }
+
+    /**
+     * Alterna a visualização para a aba (semana) selecionada e salva o ID ativo.
+     * Corrigido: atrasa o resize para evitar tremor.
+     */
+    function showTab(semanaId) {
+        if (isRendering) return; 
+        isRendering = true;
+
+        document.querySelectorAll('.semana-section').forEach(content => content.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+
+        const contentId = `semana-content-${semanaId.replace(/[^a-zA-Z0-9-]/g, '')}`;
+        const content = document.getElementById(contentId);
+        if (content) {
+            content.classList.add('active'); // Torna o conteúdo visível
+            
+            const button = document.querySelector(`.tab-button[data-semana="${semanaId}"]`);
+            if (button) {
+                button.classList.add('active');
+            }
+            
+            if (semanaId !== 'progresso') {
+                activeSemanaId = semanaId; 
+            } else {
+                activeSemanaId = null; 
+            }
+            
+            // Atraso CRÍTICO (50ms) para que o navegador renderize a aba ANTES de calcular o resize e o filtro.
+            setTimeout(() => {
+                content.querySelectorAll('.cronograma-table textarea').forEach(autoResizeTextarea);
+                applyFilter(semanaId); 
+                isRendering = false; // Libera o controle
+            }, 50);
+
+            // Atualiza o input de renomear com o nome da aba ativa
+             RENAME_INPUT.value = semanaId === 'progresso' ? '' : semanaId;
+        } else {
+             isRendering = false; // Libera o controle em caso de erro
+        }
+    }
+
+
+    function renderAllSections() {
+        
+        // 1. Limpa e recria a aba de progresso (botão e conteúdo)
+        const progressoButton = TAB_NAV.querySelector('.tab-button[data-semana="progresso"]');
+        TAB_NAV.innerHTML = progressoButton.outerHTML; // Recria apenas o botão Progresso
+
+        // Seção Progresso (o HTML original garante que ela exista para que possamos limpá-la)
+        const progressoContentHTML = `
+            <div id="semana-content-progresso" class="semana-section">
+                <h2>Progresso por Disciplina</h2>
+                <p style="font-size: 0.9em;">O progresso das Metas e o percentual de acertos são calculados a partir de todas as semanas.</p>
+                <div id="disciplineSummaryTable"></div>
+            </div>`;
+        
+        // Remove todos os filhos de CRONOGRAMA_SECTIONS e adiciona Progresso
+        CRONOGRAMA_SECTIONS.innerHTML = progressoContentHTML;
+        
+        
+        if (cronogramaData.length === 0) {
+            if (!document.getElementById('semana-content-progresso')) {
+                CRONOGRAMA_SECTIONS.innerHTML = '<p style="text-align: center;">Importe seu arquivo Excel ou CSV para exibir seu cronograma.</p>';
+            }
+            activeSemanaId = null; 
+            showTab('progresso');
+            return;
+        }
+
+        // 2. Renderiza as abas e seções dinâmicas
+        cronogramaData.forEach((section, index) => {
+            
+            const tabButton = document.createElement('button');
+            tabButton.className = 'tab-button';
+            tabButton.textContent = section.semana;
+            tabButton.setAttribute('data-semana', section.semana); 
+            tabButton.onclick = () => showTab(section.semana);
+            TAB_NAV.appendChild(tabButton);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'semana-section';
+            const normalizedSemanaId = section.semana.replace(/[^a-zA-Z0-9-]/g, '')
+            contentDiv.id = `semana-content-${normalizedSemanaId}`;
+            
+            const title = document.createElement('h2');
+            title.textContent = `Semana: ${section.semana}`;
+            contentDiv.appendChild(title);
+
+            const addBtnTop = document.createElement('button');
+            addBtnTop.className = 'add-btn';
+            addBtnTop.innerHTML = '<i class="fa-solid fa-circle-plus"></i> Adicionar Tarefa';
+            addBtnTop.onclick = () => addMetaToSection(section.semana);
+            addBtnTop.style.marginBottom = '10px';
+            addBtnTop.style.backgroundColor = 'var(--primary-color)';
+            addBtnTop.style.color = 'white';
+            contentDiv.appendChild(addBtnTop);
+
+            // REMOVIDO: Bloco de código para o aviso sobre renumeração manual de Metas
+            // if (index === 0) { ... }
+
+            const table = document.createElement('table');
+            table.className = 'cronograma-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th class="col-meta">Meta</th>
+                        <th class="col-disciplina">Disciplina</th>
+                        <th class="col-conteudo">Conteúdo</th>
+                        
+                        <th class="col-link">Tec</th>
+                        <th class="col-link">QC</th>
+                        
+                        <th class="col-concluida">Cumpriu</th>
+                        <th class="col-feitas">Feitas</th>
+                        <th class="col-acertadas">Acertadas</th>
+                        <th class="col-percent">% Acertos</th>
+                        <th class="col-ultima-revisao">Última Revisão</th>
+                        <th class="col-proxima-revisao">Próxima Revisão</th>
+                        <th class="col-acoes">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            `;
+            
+            const tableBody = table.querySelector('tbody');
+            
+            
+            contentDiv.appendChild(table);
+
+            section.metas.forEach((item, metaIndex) => {
+                renderMetaRow(tableBody, section.semana, item, metaIndex);
+            });
+            
+            const addBtnBottom = document.createElement('button');
+            addBtnBottom.className = 'add-btn';
+            addBtnBottom.innerHTML = '<i class="fa-solid fa-circle-plus"></i> Adicionar Tarefa';
+            addBtnBottom.onclick = () => addMetaToSection(section.semana);
+            addBtnBottom.style.marginTop = '15px'; 
+            addBtnBottom.style.marginBottom = '20px'; 
+            addBtnBottom.style.backgroundColor = 'var(--primary-color)';
+            addBtnBottom.style.color = 'white';
+            contentDiv.appendChild(addBtnBottom);
+            
+            CRONOGRAMA_SECTIONS.appendChild(contentDiv);
+        });
+        
+        // 3. Ativa a aba correta
+        if (activeSemanaId && cronogramaData.some(s => s.semana === activeSemanaId)) {
+            showTab(activeSemanaId);
+        } else if (cronogramaData.length > 0) {
+            showTab(cronogramaData[0].semana);
+        } else {
+             showTab('progresso');
+        }
+    }
+
+    /**
+     * MODIFICADO: Cria a célula de link, reconhecendo múltiplos links separados por , ; ou quebra de linha.
+     */
+    function createLinkCell(urlStr, textBase, className) {
+        const cell = document.createElement('td');
+        cell.className = className;
+        
+        // NOVO: Container para empilhar os links
+        const linkContainer = document.createElement('div');
+        linkContainer.className = 'link-container';
+
+        // NOVO: Divide a string de links, aceitando , ; ou quebra de linha, e remove espaços e vazios
+        const links = urlStr ? String(urlStr).split(/[,;\n]+/).map(s => s.trim()).filter(s => s.length > 0) : [];
+
+        if (links.length > 0) {
+            const baseText = textBase.replace(/[\[\]]/g, ''); // 'Tec' ou 'QC'
+            
+            links.forEach((url, index) => {
+                // Monta o texto do link: Ex: [Tec] para um link, ou Tec 1, Tec 2 para múltiplos (mais compacto)
+                const linkText = links.length > 1 ? `${baseText} ${index + 1}` : textBase;
+                
+                const a = document.createElement('a');
+                // Adiciona o protocolo se não houver
+                a.href = url.startsWith('http') || url.startsWith('https') ? url : `http://${url}`;
+                a.textContent = linkText;
+                a.target = '_blank';
+                a.title = url;
+                
+                linkContainer.appendChild(a);
+            });
+            cell.appendChild(linkContainer);
+            
+        } else {
+            // Caso não haja links
+            cell.textContent = '-';
+            cell.style.color = '#999';
+        }
+        return cell;
+    }
+    
+    // MODIFICADO: Função para agendar a próxima revisão, avançando no ciclo
+    function scheduleRevision(semanaId, metaIndex, item) {
+        let nextStageIndex = (item.currentReviewStage || -1) + 1;
+        
+        if (nextStageIndex >= reviewCycles.length) {
+             alert(`Ciclo de revisão (${reviewCycles.join(', ')} dias) COMPLETO para ${item.disciplina}.`);
+             
+             // Finaliza o ciclo automático
+             item.currentReviewStage = reviewCycles.length - 1; // Último estágio
+             item.proximaRevisao = 'Ciclo Completo';
+             item.ultimaRevisao = getTodayFormatted(); // Marca a última revisão como hoje
+             saveData();
+             renderAllSections(); // Força o re-render para atualizar os botões
+             return;
+        }
+
+        const days = reviewCycles[nextStageIndex];
+        
+        if (!confirm(`Agendar a próxima revisão (Estágio ${nextStageIndex + 1}/${reviewCycles.length}) para ${item.disciplina} em +${days} dias?`)) {
+            return;
+        }
+        
+        const today = getTodayFormatted();
+        const nextReview = addDays(today, days);
+        
+        // Atualiza os dados no objeto
+        item.ultimaRevisao = today;
+        item.proximaRevisao = nextReview;
+        item.currentReviewStage = nextStageIndex; // Avança o estágio
+        
+        saveData();
+        renderAllSections(); // Força o re-render para atualizar os botões/tabelas
+        alert(`Revisão agendada para: ${nextReview} (+${days} dias).`);
+    }
+
+    /**
+     * Renderiza uma única linha (meta/tarefa) na tabela.
+     */
+    function renderMetaRow(tableBody, semanaId, item, metaIndex) {
+        const row = tableBody.insertRow();
+        const normalizedSemanaId = semanaId.replace(/[^a-zA-Z0-9-]/g, '');
+        row.id = `row-${normalizedSemanaId}-${metaIndex}`;
+        
+        // Garante que o campo de estágio de revisão existe no objeto
+        if (item.currentReviewStage === undefined) {
+            item.currentReviewStage = -1;
+        }
+
+
+        // 1. Campo Meta
+        const cellMeta = row.insertCell();
+        cellMeta.className = 'col-meta';
+        const inputMeta = document.createElement('input');
+        inputMeta.type = 'text';
+        inputMeta.value = item.meta || '';
+        inputMeta.onblur = (e) => updateMetaValue(semanaId, metaIndex, 'meta', e.target.value);
+        cellMeta.appendChild(inputMeta);
+
+        // 2. Campo Disciplina
+        const cellDisciplina = row.insertCell();
+        cellDisciplina.className = 'col-disciplina';
+        const inputDisciplina = document.createElement('input');
+        inputDisciplina.type = 'text';
+        inputDisciplina.value = item.disciplina || '';
+        inputDisciplina.onblur = (e) => updateMetaValue(semanaId, metaIndex, 'disciplina', e.target.value);
+        cellDisciplina.appendChild(inputDisciplina);
+
+        // 3. Campo Conteúdo (TEXTAREA com auto-resize)
+        const cellConteudo = row.insertCell();
+        cellConteudo.className = 'col-conteudo';
+        const inputConteudo = document.createElement('textarea');
+        inputConteudo.value = item.conteudo || '';
+        // Permite quebra de linha (Enter) sem sair do campo
+        inputConteudo.onkeydown = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { 
+                e.preventDefault(); 
+                inputConteudo.blur(); // Sai do campo ao apertar Enter
+            } else if (e.key === 'Enter' && e.shiftKey) {
+                // Permite Shift+Enter para quebra de linha manual
+            }
+        };
+        inputConteudo.onblur = (e) => updateMetaValue(semanaId, metaIndex, 'conteudo', e.target.value);
+        inputConteudo.oninput = (e) => autoResizeTextarea(e.target); 
+        
+        cellConteudo.appendChild(inputConteudo);
+        
+        // REMOVIDO: Campo Peso (0-10)
+
+        // 4. Link Tecconcursos 
+        // USANDO A NOVA createLinkCell QUE SUPORTA MÚLTIPLOS LINKS
+        row.appendChild(createLinkCell(item.linkTecconcursos, '[Tec]', 'col-link'));
+
+        // 5. Link Qconcursos 
+        // USANDO A NOVA createLinkCell QUE SUPORTA MÚLTIPLOS LINKS
+        row.appendChild(createLinkCell(item.linkQconcursos, '[QC]', 'col-link'));
+
+
+        // 6. Cumpriu a meta? (Checkbox)
+        const cellConcluida = row.insertCell();
+        cellConcluida.className = 'col-concluida';
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = item.concluida;
+        check.onchange = () => updateMetaValue(semanaId, metaIndex, 'concluida', check.checked);
+        cellConcluida.appendChild(check);
+
+        // 7. Questões Feitas (Input Number)
+        const cellFeitas = row.insertCell();
+        cellFeitas.className = 'col-feitas';
+        const inputFeitas = document.createElement('input');
+        inputFeitas.type = 'number';
+        inputFeitas.min = 0;
+        inputFeitas.value = item.feitas || 0;
+        inputFeitas.onblur = (e) => updateQuestaoValue(semanaId, metaIndex, 'feitas', parseInt(e.target.value) || 0);
+        cellFeitas.appendChild(inputFeitas);
+
+        // 8. Questões Acertadas (Input Number)
+        const cellAcertadas = row.insertCell();
+        cellAcertadas.className = 'col-acertadas';
+        const inputAcertadas = document.createElement('input');
+        inputAcertadas.type = 'number';
+        inputAcertadas.min = 0;
+        inputAcertadas.value = item.acertadas || 0;
+        inputAcertadas.onblur = (e) => updateQuestaoValue(semanaId, metaIndex, 'acertadas', parseInt(e.target.value) || 0);
+        cellAcertadas.appendChild(inputAcertadas);
+
+        // 9. % de Acertos (Cálculo) - ADICIONADO Destaque Visual
+        const cellPercent = row.insertCell();
+        cellPercent.className = 'col-percent';
+        cellPercent.id = `percent-${normalizedSemanaId}-${metaIndex}`;
+        const percentValue = calculatePercentage(item.feitas, item.acertadas);
+        cellPercent.textContent = percentValue;
+        cellPercent.className += ' ' + getPercentClass(percentValue);
+
+        // 10. Última Revisão
+        const cellUltimaRevisao = row.insertCell();
+        cellUltimaRevisao.className = 'col-ultima-revisao';
+        const spanUltimaRevisao = document.createElement('span');
+        spanUltimaRevisao.textContent = item.ultimaRevisao || 'N/A';
+        cellUltimaRevisao.appendChild(spanUltimaRevisao);
+        
+        // 11. Próxima Revisão
+        const cellProximaRevisao = row.insertCell();
+        cellProximaRevisao.className = 'col-proxima-revisao';
+        const spanProximaRevisao = document.createElement('span');
+        spanProximaRevisao.textContent = item.proximaRevisao || 'N/A';
+        cellProximaRevisao.appendChild(spanProximaRevisao);
+        
+        // 12. Ações (Botão Excluir e Revisão)
+        const cellActions = row.insertCell();
+        cellActions.className = 'col-acoes';
+        
+        // Lógica do Botão de Revisão - MANTIDO TEXTO para evitar ícones confusos para ciclos
+        const revBtn = document.createElement('button');
+        revBtn.className = 'action-btn revision-btn';
+        revBtn.style.marginBottom = '5px';
+        
+        let currentStage = item.currentReviewStage || -1;
+        let nextStageIndex = currentStage + 1;
+        let btnText;
+        
+        const today = getTodayFormatted();
+        
+        if (item.proximaRevisao === 'Ciclo Completo') {
+            btnText = 'Ciclo Revisão OK';
+            revBtn.classList.add('btn-revisao-completa');
+            revBtn.onclick = () => alert("Esta meta completou o ciclo de revisões agendadas.");
+            
+        } else if (nextStageIndex >= reviewCycles.length) {
+            btnText = 'Finalizar Ciclo';
+            revBtn.onclick = () => scheduleRevision(semanaId, metaIndex, item); 
+            revBtn.classList.add('btn-revisao-agendada'); 
+            
+        } else {
+            const nextDays = reviewCycles[nextStageIndex];
+            btnText = `Revisão (+${nextDays} dias)`;
+            revBtn.onclick = () => scheduleRevision(semanaId, metaIndex, item);
+
+            if (item.proximaRevisao && item.proximaRevisao <= today && item.proximaRevisao !== 'N/A') {
+                 // REVISÃO VENCIDA OU HOJE
+                 revBtn.classList.add('btn-revisao-urgente');
+                 btnText = `REVISAR HOJE (+${nextDays} dias)`;
+            } else if (currentStage >= 0) {
+                // Estágio atual é > 0 e não é urgente
+                revBtn.classList.add('btn-revisao-agendada');
+                btnText = `Próx: +${nextDays} dias (Fase ${nextStageIndex + 1}/${reviewCycles.length})`;
+            } else {
+                 btnText = `Revisão (Fase 1)`;
+            }
+        }
+        
+        revBtn.textContent = btnText;
+        cellActions.appendChild(revBtn);
+        
+        // Botão Excluir - AGORA COM ÍCONE DE LIXEIRA
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>'; 
+        deleteBtn.title = 'Excluir Tarefa';
+        deleteBtn.onclick = () => deleteMeta(semanaId, metaIndex);
+        cellActions.appendChild(deleteBtn);
+    }
+    
+    function getPercentClass(percentValue) {
+        if (percentValue === 'N/A') return '';
+        const rawPercent = parseFloat(percentValue.replace('%', ''));
+        if (rawPercent < 50) return 'bg-critical';
+        if (rawPercent < 70) return 'bg-danger';
+        if (rawPercent < 85) return 'bg-warning';
+        return 'bg-success';
+    }
+    
+    // === FUNÇÕES CRUD (CREATE, READ, UPDATE, DELETE) ===
+
+    function addMetaToSection(semanaId) {
+        const sectionIndex = cronogramaData.findIndex(s => s.semana === semanaId);
+        if (sectionIndex === -1) return;
+
+        let maxS = 0;
+        cronogramaData[sectionIndex].metas.forEach(m => {
+             const match = String(m.meta).trim().match(/^(\d+)/); 
+             if (match) {
+                maxS = Math.max(maxS, parseInt(match[1]));
+            }
+        });
+        const newMetaNumber = String(maxS + 1);
+
+        const newMeta = { 
+            meta: newMetaNumber,
+            disciplina: 'Nova Disciplina',
+            conteudo: 'Novo Conteúdo/Tarefa (use Enter para sair do campo)',
+            linkTecconcursos: '', 
+            linkQconcursos: '', 
+            concluida: false,
+            feitas: 0,
+            acertadas: 0,
+            ultimaRevisao: '', 
+            proximaRevisao: '',
+            currentReviewStage: -1 
+        };
+
+        cronogramaData[sectionIndex].metas.push(newMeta);
+        saveData();
+        renderAllSections(); 
+        
+        const newIndex = cronogramaData[sectionIndex].metas.length - 1;
+        
+        setTimeout(() => {
+            const normalizedSemanaId = semanaId.replace(/[^a-zA-Z0-9-]/g, '');
+            const newRow = document.getElementById(`row-${normalizedSemanaId}-${newIndex}`);
+            if (newRow) {
+                const textarea = newRow.querySelector('textarea');
+                textarea.focus(); 
+                autoResizeTextarea(textarea);
+            }
+            showTab(semanaId);
+        }, 50);
+    }
+
+    function deleteMeta(semanaId, metaIndex) {
+        const metaDesc = cronogramaData.find(s => s.semana === semanaId)?.metas[metaIndex]?.meta || 'selecionada';
+        if (!confirm(`Tem certeza que deseja excluir a tarefa da Meta ${metaDesc} da ${semanaId}?`)) {
+            return;
+        }
+
+        const sectionIndex = cronogramaData.findIndex(s => s.semana === semanaId);
+        if (sectionIndex === -1) return;
+
+        cronogramaData[sectionIndex].metas.splice(metaIndex, 1);
+        saveData();
+        renderAllSections(); 
+    }
+
+    function updateMetaValue(semanaId, metaIndex, key, value) {
+        const sectionIndex = cronogramaData.findIndex(s => s.semana === semanaId);
+        if (sectionIndex === -1) return;
+        
+        if (key === 'meta' || key === 'disciplina') {
+            cronogramaData[sectionIndex].metas[metaIndex][key] = String(value).trim();
+        } else {
+            cronogramaData[sectionIndex].metas[metaIndex][key] = value;
+        }
+        
+        saveData();
+    }
+
+    function updateQuestaoValue(semanaId, metaIndex, key, value) {
+        const sectionIndex = cronogramaData.findIndex(s => s.semana === semanaId);
+        if (sectionIndex === -1) return;
+
+        const item = cronogramaData[sectionIndex].metas[metaIndex];
+        value = Math.max(0, parseInt(value) || 0);
+        item[key] = value;
+
+        if (item.acertadas > item.feitas) {
+            if (key === 'feitas') {
+                item.acertadas = Math.min(value, item.acertadas);
+                document.querySelector(`#row-${semanaId.replace(/[^a-zA-Z0-9-]/g, '')}-${metaIndex} input[type="number"]:last-of-type`).value = item.acertadas;
+            } 
+            else if (key === 'acertadas') {
+                item.feitas = value;
+                document.querySelector(`#row-${semanaId.replace(/[^a-zA-Z0-9-]/g, '')}-${metaIndex} input[type="number"]:first-of-type`).value = value;
+            }
+        }
+
+        const percent = calculatePercentage(item.feitas, item.acertadas);
+        const normalizedSemanaId = semanaId.replace(/[^a-zA-Z0-9-]/g, '');
+        const percentCell = document.getElementById(`percent-${normalizedSemanaId}-${metaIndex}`);
+        percentCell.textContent = percent;
+        percentCell.className = 'col-percent ' + getPercentClass(percent);
+        
+        saveData();
+    }
+
+    // === FUNÇÕES DE GERENCIAMENTO DE ABAS ===
+
+    function addSection() {
+        let maxS = 0;
+        cronogramaData.forEach(s => {
+            const match = s.semana.match(/S(\d+)/i);
+            if (match) {
+                maxS = Math.max(maxS, parseInt(match[1]));
+            }
+        });
+        const newSemanaId = `Semana S${maxS + 1}`;
+
+        cronogramaData.push({ 
+            semana: newSemanaId, 
+            metas: [] 
+        });
+
+        saveData();
+        renderAllSections();
+        showTab(newSemanaId); 
+    }
+
+    function renameSection() {
+        if (!activeSemanaId) {
+            alert("Nenhuma aba selecionada para renomear. Selecione uma aba de Semana.");
+            return;
+        }
+
+        const newName = RENAME_INPUT.value.trim();
+        if (!newName) {
+            alert("Por favor, insira um nome válido para a aba.");
+            return;
+        }
+
+        if (cronogramaData.some(s => s.semana === newName && s.semana !== activeSemanaId)) {
+            alert(`A aba "${newName}" já existe. Escolha outro nome.`);
+            return;
+        }
+
+        const section = cronogramaData.find(s => s.semana === activeSemanaId);
+        if (section) {
+            section.semana = newName;
+            activeSemanaId = newName; 
+            saveData();
+            renderAllSections();
+            RENAME_INPUT.value = '';
+            alert(`A aba foi renomeada para "${newName}".`);
+        } else {
+            alert("Erro: A aba ativa não foi encontrada no cronograma.");
+        }
+    }
+
+    function deleteSection() {
+        if (!activeSemanaId) {
+            alert("Nenhuma aba selecionada para excluir. Selecione uma aba de Semana.");
+            return;
+        }
+        
+        if (!confirm(`Tem certeza que deseja excluir permanentemente a aba "${activeSemanaId}" e todas as suas tarefas?`)) {
+            return;
+        }
+
+        const sectionIndex = cronogramaData.findIndex(s => s.semana === activeSemanaId);
+        
+        if (sectionIndex !== -1) {
+            const deletedName = cronogramaData[sectionIndex].semana;
+            cronogramaData.splice(sectionIndex, 1); 
+            activeSemanaId = null; 
+            saveData();
+            renderAllSections();
+            alert(`A aba "${deletedName}" foi excluída com sucesso.`);
+        } else {
+            alert("Erro: A aba ativa não foi encontrada no cronograma.");
+        }
+    }
+
+
+    // === FUNÇÕES DE CÁLCULO E RESUMO ===
+
+    function calculatePercentage(feitas, acertadas) {
+        if (!feitas || feitas <= 0) return 'N/A';
+        const percent = (acertadas / feitas) * 100;
+        return `${percent.toFixed(1)}%`;
+    }
+    
+    /**
+     * Agrupa, calcula o percentual de acertos e o progresso por disciplina.
+     */
+    function renderDisciplineSummary() {
+        const disciplineData = {}; 
+
+        cronogramaData.forEach(section => {
+            section.metas.forEach(item => {
+                const discName = String(item.disciplina).trim();
+                const feitas = item.feitas || 0;
+                const acertadas = item.acertadas || 0;
+                const concluida = item.concluida || false;
+                
+                if (discName) {
+                    if (!disciplineData[discName]) {
+                        disciplineData[discName] = { 
+                            feitas: 0, 
+                            acertadas: 0, 
+                            metasTotais: 0,
+                            metasConcluidas: 0
+                        };
+                    }
+                    
+                    disciplineData[discName].feitas += feitas;
+                    disciplineData[discName].acertadas += acertadas;
+                    disciplineData[discName].metasTotais++;
+                    if (concluida) {
+                        disciplineData[discName].metasConcluidas++;
+                    }
+                }
+            });
+        });
+
+        const sortedDisciplines = Object.keys(disciplineData).sort();
+        let tableHTML = `
+            <table class="cronograma-table">
+                <thead>
+                    <tr>
+                        <th class="col-disciplina" style="width: 250px;">Disciplina</th>
+                        <th class="col-peso" style="width: 80px;">Metas Concluídas</th>
+                        <th class="col-peso" style="width: 80px;">Total de Metas</th>
+                        <th class="col-percent" style="width: 100px;">Progresso (%)</th>
+                        <th class="col-feitas" style="width: 150px;">Total de Questões Feitas</th>
+                        <th class="col-acertadas" style="width: 150px;">Total de Questões Acertadas</th>
+                        <th class="col-percent" style="width: 120px;">% de Acertos (Taxa)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        sortedDisciplines.forEach(discName => {
+            const data = disciplineData[discName];
+            const percentAcertos = calculatePercentage(data.feitas, data.acertadas);
+            const percentProgresso = data.metasTotais > 0 ? ((data.metasConcluidas / data.metasTotais) * 100).toFixed(1) : '0.0';
+
+            let percentClass = getPercentClass(percentAcertos);
+
+            tableHTML += `
+                <tr>
+                    <td>${discName}</td>
+                    <td style="text-align: center;">${data.metasConcluidas}</td>
+                    <td style="text-align: center;">${data.metasTotais}</td>
+                    <td style="text-align: center;">${percentProgresso}%</td>
+                    <td style="text-align: center;">${data.feitas}</td>
+                    <td style="text-align: center;">${data.acertadas}</td>
+                    <td ${percentClass.includes('bg') ? `class="${percentClass}"` : ''} style="text-align: center;">${percentAcertos}</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+
+        document.getElementById('disciplineSummaryTable').innerHTML = tableHTML;
+    }
+
+
+    /**
+     * Atualiza o resumo do Dashboard Fixo e renderiza o resumo de disciplinas.
+     */
+    function updateSummary() {
+        let metasConcluidas = 0; 
+        let totalTasks = 0; 
+        let totalFeitas = 0;
+        let totalAcertadas = 0;
+
+        cronogramaData.forEach(section => {
+            section.metas.forEach(item => {
+                
+                if (item.meta || item.disciplina || item.conteudo) {
+                    totalTasks++; 
+                    
+                    if (item.concluida) {
+                        metasConcluidas++;
+                    }
+                }
+
+                totalFeitas += (item.feitas || 0);
+                totalAcertadas += (item.acertadas || 0);
+            });
+        });
+        
+        const progressoGeral = totalTasks > 0 ? (metasConcluidas / totalTasks) * 100 : 0;
+        const acertosGerais = totalFeitas > 0 ? (totalAcertadas / totalFeitas) * 100 : 0;
+
+        // Atualiza os elementos HTML do Dashboard Fixo
+        document.getElementById('totalTasksCount').textContent = totalTasks; 
+        document.getElementById('metasConcluidas').textContent = metasConcluidas;
+        document.getElementById('progressoGeral').textContent = `${progressoGeral.toFixed(1)}%`;
+        document.getElementById('acertosGerais').textContent = `${acertosGerais.toFixed(1)}%`;
+        
+        // Renderiza o resumo de disciplinas
+        renderDisciplineSummary();
+    }
+    
+    // === FUNÇÕES DE IMPORTAÇÃO UNIVERSAL ===
+    
+    function normalizeHeader(text) {
+        if (!text) return '';
+        text = String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        return text.replace(/\s+/g, ' ').trim();
+    }
+
+    // ATUALIZADO: A lógica de importação é a mesma, mas é chamada automaticamente pelo 'onchange' do input.
+    function handleFileUpload() {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) {
+             // Se não há arquivo, significa que o usuário cancelou a seleção.
+             return; 
+        }
+
+        const fileName = file.name;
+        const extension = fileName.split('.').pop().toLowerCase();
+
+        if (extension === 'csv') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                parseCSV(e.target.result, fileName);
+            };
+            reader.readAsText(file, 'UTF-8'); 
+        } else if (extension === 'xlsx' || extension === 'xls') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                processWorkbook(workbook, fileName);
+            };
+            reader.readAsArrayBuffer(file);
+        } else if (extension === 'html' || extension === 'htm') {
+             const reader = new FileReader();
+            reader.onload = function(e) {
+                processHTML(e.target.result, fileName);
+            };
+            reader.readAsText(file);
+        } else {
+            alert(`Extensão de arquivo não suportada: .${extension}. Por favor, use .csv, .xlsx, .xls ou .html.`);
+        }
+        
+        // Limpa o input file para permitir a re-seleção do mesmo arquivo
+        document.getElementById('fileInput').value = '';
+    }
+    
+    // Função de mapeamento de dados (Atualizada com a remoção do Peso)
+    function mapRawDataToCronograma(data, sheetName) {
+        const headerRow = data[0];
+        const colIndex = {};
+        
+        headerRow.forEach((h, i) => { 
+            const normalized = normalizeHeader(String(h || '')); 
+            
+            if (normalized === 'meta') colIndex.meta = i;
+            if (normalized === 'disciplina') colIndex.disciplina = i;
+            if (normalized === 'conteudo') colIndex.conteudo = i;
+            
+            if (normalized.includes('cumpriu a meta')) colIndex.concluida = i;
+            if (normalized.includes('questoes feitas')) colIndex.feitas = i;
+            if (normalized.includes('questoes acertadas')) colIndex.acertadas = i;
+
+            if (normalized.includes('link tecconcursos')) colIndex.linkTecconcursos = i;
+            if (normalized.includes('link qconcurso')) colIndex.linkQconcursos = i; 
+            
+            // Colunas de Revisão
+            if (normalized.includes('ultima revisao') || normalized.includes('data revisao') ) colIndex.ultimaRevisao = i;
+            if (normalized.includes('proxima revisao') || normalized.includes('prox revisao') ) colIndex.proximaRevisao = i;
+        });
+        
+        if (colIndex.meta === undefined || colIndex.disciplina === undefined || colIndex.conteudo === undefined) {
+            console.warn(`Aba "${sheetName}" ignorada: Colunas 'Meta', 'Disciplina' ou 'Conteúdo' não encontradas.`);
+            return [];
+        }
+
+
+        const metas = [];
+        let lastKnownMeta = ''; 
+
+        for (let i = 1; i < data.length; i++) {
+            const values = data[i];
+            
+            const metaRaw = String(values[colIndex.meta] || '').trim().replace('Meta ', '');
+            let metaValue = metaRaw; 
+            
+            const disciplinaValue = String(values[colIndex.disciplina] || '').trim();
+            const conteudoValue = String(values[colIndex.conteudo] || '').trim();
+
+            if (!metaValue && !disciplinaValue && !conteudoValue) {
+                continue; 
+            }
+            
+            if (metaValue.length > 0) {
+                lastKnownMeta = metaValue;
+            } else if (lastKnownMeta.length > 0) {
+                if (disciplinaValue.length > 0 || conteudoValue.length > 0) {
+                    metaValue = lastKnownMeta;
+                }
+            }
+            
+            const concluidaRaw = String(values[colIndex.concluida] || '').toLowerCase();
+            let concluida = false;
+            if (concluidaRaw === 'true' || concluidaRaw === 'verdadeiro' || concluidaRaw === 'sim' || concluidaRaw === '1' || concluidaRaw === 'x') {
+                concluida = true;
+            }
+            
+            const formatRevisaoDate = (dateString) => {
+                if (!dateString) return '';
+                // Tentativa de conversão para YYYY-MM-DD para garantir compatibilidade
+                try {
+                    let date = new Date(dateString);
+                    if (isNaN(date)) {
+                        // Tenta parsear formatos comuns (d/m/y)
+                        const parts = dateString.match(/(\d{1,4})/g);
+                        if (parts && parts.length >= 3) {
+                            // Assume y, m-1, d
+                            date = new Date(parts[2], parts[1] - 1, parts[0]);
+                        }
+                    }
+                    if (isNaN(date)) return dateString; 
+                    return date.toISOString().split('T')[0];
+                } catch {
+                    return dateString;
+                }
+            };
+
+            metas.push({
+                meta: metaValue, 
+                disciplina: disciplinaValue,
+                conteudo: String(values[colIndex.conteudo] || '').replace(/\\n/g, '\n').trim(), 
+                
+                // CRÍTICO: Garantir que os links são tratados como strings
+                linkTecconcursos: String(values[colIndex.linkTecconcursos] || '').trim(), 
+                linkQconcursos: String(values[colIndex.linkQconcursos] || '').trim(), 
+                
+                concluida: concluida,
+                feitas: parseInt(values[colIndex.feitas] || 0) || 0,
+                acertadas: parseInt(values[colIndex.acertadas] || 0) || 0,
+                
+                ultimaRevisao: formatRevisaoDate(values[colIndex.ultimaRevisao]), 
+                proximaRevisao: formatRevisaoDate(values[colIndex.proximaRevisao]),
+                currentReviewStage: -1 
+            });
+        }
+        return metas;
+    }
+
+    function processWorkbook(workbook, fileName) {
+        const importedData = [];
+
+        workbook.SheetNames.forEach(sheetName => {
+            const worksheet = workbook.Sheets[sheetName];
+            const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+            
+            if (excelData.length > 1) { 
+                const metas = mapRawDataToCronograma(excelData, sheetName);
+                if (metas.length > 0) {
+                    const cleanSheetName = sheetName.trim(); 
+                    importedData.push({ semana: cleanSheetName, metas: metas });
+                }
+            }
+        });
+        
+        if (importedData.length > 0) {
+            cronogramaData = importedData;
+            localStorage.removeItem(CACHE_KEY); 
+            saveData(); 
+            renderAllSections();
+            alert(`Planilha "${fileName}" carregada com sucesso! ${importedData.length} seções/semanas encontradas.`);
+        } else {
+            alert("Erro: O arquivo não contém abas com dados válidos no formato esperado. Verifique se as colunas 'Meta', 'Disciplina' e 'Conteúdo' estão presentes na primeira linha.");
+        }
+    }
+    
+    function parseCSV(csvText, fileName) {
+        let separator = ',';
+        const lines = csvText.split('\n').filter(line => line.trim() !== '');
+        
+        if (lines.length > 0 && lines[0].includes(';')) {
+            separator = ';';
+        }
+
+        const splitLine = (line) => {
+            const parts = [];
+            let current = '';
+            let inQuote = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuote = !inQuote;
+                } else if (char === separator && !inQuote) {
+                    parts.push(current.replace(/^"|"$/g, '').replace(/""/g, '"')); 
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            parts.push(current.replace(/^"|"$/g, '').replace(/""/g, '"'));
+            return parts;
+        };
+        
+        const csvData = lines.map(splitLine);
+        
+        if (csvData.length > 1) {
+            const metas = mapRawDataToCronograma(csvData, 'CSV Principal');
+            if (metas.length > 0) {
+                cronogramaData = [{ semana: 'CSV Principal', metas: metas }]; 
+                localStorage.removeItem(CACHE_KEY); 
+                saveData(); 
+                renderAllSections();
+                showTab('CSV Principal'); 
+                alert(`Arquivo CSV "${fileName}" carregado com sucesso! ${metas.length} tarefas encontradas.`);
+            } else {
+                alert("Erro: O CSV não contém tarefas válidas para importação.");
+            }
+        } else {
+            alert("Erro: O arquivo CSV está vazio.");
+        }
+    }
+
+    // === FUNÇÃO NOVA: GERAR MODELO DE IMPORTAÇÃO (XLSX) ===
+    function exportTemplate() {
+        const header = [
+            'Meta', 
+            'Disciplina', 
+            'Conteúdo', 
+            'Cumpriu a Meta?', 
+            'Questões Feitas', 
+            'Questões Acertadas', 
+            'Link Tecconcursos', 
+            'Link Qconcursos', 
+            'Última Revisão (AAAA-MM-DD)', 
+            'Próxima Revisão (AAAA-MM-DD)'
+        ];
+
+        const sampleData = [
+            ['1', 'Direito Constitucional', 'Art. 5º - Direitos e Deveres Individuais e Coletivos', 'Sim', 50, 45, 'https://tec.com/link1', 'https://qc.com/link1', '2025-10-20', '2025-10-27'],
+            // Exemplo de como usar múltiplos links separados por quebra de linha ou vírgula no Excel/CSV
+            ['2', 'Direito Administrativo', 'Poderes Administrativos - Poder de Polícia', 'Não', 30, 15, 'https://tec.com/link2, https://tec.com/link3', '', '2025-10-23', ''],
+            ['3', 'Língua Portuguesa', 'Concordância Nominal e Verbal', 'Não', 0, 0, '', 'https://qc.com/link3', '', ''],
+        ];
+
+        // Adiciona o cabeçalho no início dos dados
+        const sheetData = [header, ...sampleData];
+
+        const ws = XLSX.utils.aoa_to_sheet(sheetData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Modelo");
+        
+        const filename = 'modelo_importacao_cronograma.xlsx';
+        XLSX.writeFile(wb, filename);
+
+        alert("Modelo de importação (XLSX) gerado com sucesso! Preencha as colunas e importe.");
+    }
+    // === FIM DA FUNÇÃO NOVA ===
+
+
+    // === FUNÇÕES DE BACKUP/RESTAURAÇÃO ===
+    
+    function exportBackup() {
+        if (cronogramaData.length === 0) {
+            alert("Não há dados para exportar. Por favor, carregue uma planilha ou insira dados primeiro.");
+            return;
+        }
+        
+        // Inclui reviewCycles no backup para exportar a configuração
+        const dataToExport = {
+             cronograma: cronogramaData,
+             reviewSettings: { cycles: reviewCycles }
+        };
+        
+        const data = JSON.stringify(dataToExport, null, 2); 
+
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').split('-')[0];
+        a.download = `cronograma_backup_plus_${timestamp}.json`;
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert("Backup exportado com sucesso! Arquivo: " + a.download);
+    }
+
+    function importBackup() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    let newCronogramaData;
+                    let newReviewCycles = [7, 30, 90]; 
+
+                    // Suporta o novo formato de backup (com settings) e o antigo (apenas array)
+                    if (Array.isArray(importedData)) {
+                         // Formato antigo
+                         newCronogramaData = importedData;
+                    } else if (importedData.cronograma && Array.isArray(importedData.cronograma)) {
+                        // Novo formato
+                         newCronogramaData = importedData.cronograma;
+                         if (importedData.reviewSettings && Array.isArray(importedData.reviewSettings.cycles)) {
+                             newReviewCycles = importedData.reviewSettings.cycles.map(d => parseInt(d)).filter(d => !isNaN(d) && d > 0).sort((a, b) => a - b);
+                         }
+                    } else {
+                        throw new Error("Estrutura do arquivo JSON inválida. Certifique-se de que é um arquivo de backup gerado por este programa.");
+                    }
+
+                    // Validação básica da estrutura
+                    if (newCronogramaData.length === 0 || !newCronogramaData[0].semana || !Array.isArray(newCronogramaData[0].metas)) {
+                         throw new Error("Estrutura do cronograma inválida.");
+                    }
+
+                    // Restaura os dados
+                    cronogramaData = newCronogramaData;
+                    reviewCycles = newReviewCycles;
+                    
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(cronogramaData));
+                    localStorage.setItem(REV_SETTINGS_KEY, JSON.stringify({ cycles: reviewCycles }));
+
+                    renderAllSections();
+                    updateSummary();
+                    alert(`Backup restaurado com sucesso! ${newCronogramaData.length} seções/semanas carregadas. Ciclos de revisão: ${newReviewCycles.join(', ')} dias.`);
+
+                } catch (error) {
+                    console.error("Erro ao importar backup:", error);
+                    alert(`Erro ao carregar o arquivo de backup. Mensagem: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        input.click();
+    }
+    
+    // Inicia o carregamento dos dados ao carregar a página
+    // loadInitialData() é chamado no <body> onload.
+
+    </script>
+</body>
+</html>
