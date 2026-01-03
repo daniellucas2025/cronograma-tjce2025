@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v39 (Fix Download)</title>
+    <title>Cronograma TJCE - v40 (Notas Boosted)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
@@ -213,12 +215,44 @@
         .sync-status.loading { background: var(--warning); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* REMINDERS / NOTES STYLES */
-        .split-view { display: flex; height: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 10px; }
-        .split-sidebar { width: 250px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
-        .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; }
+        /* ==================== REMINDERS / NOTES STYLES (UPDATED) ==================== */
+        .split-view { 
+            display: flex; height: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 10px; 
+            position: relative;
+        }
         
+        /* Sidebar (Lista de notas) */
+        .split-sidebar { 
+            width: 250px; min-width: 150px; max-width: 500px;
+            background: var(--bg); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; flex-shrink: 0;
+            transition: transform 0.3s ease; /* Animação ao ocultar */
+        }
+        
+        /* Classe para ocultar sidebar */
+        .split-sidebar.collapsed {
+            display: none;
+        }
+
+        /* Resizer Handle (Barra de arrastar) */
+        .resizer-handle {
+            width: 5px; cursor: col-resize; background: var(--border);
+            transition: background 0.2s; z-index: 10; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .resizer-handle:hover, .resizer-handle.active { background: var(--primary); }
+        .resizer-handle::after { content: '⋮'; color: var(--text-sec); font-size: 10px; }
+        
+        .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
+        .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; align-items: center; }
+        
+        .toggle-sidebar-btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-sec);
+            cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem;
+            margin-right: 5px;
+        }
+        .toggle-sidebar-btn:hover { background: var(--highlight); color: var(--primary); }
+
         .editor-toolbar {
             padding: 8px; border-bottom: 1px solid var(--border); background: var(--highlight);
             display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
@@ -226,15 +260,27 @@
         .toolbar-btn {
             background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px;
             cursor: pointer; font-size: 0.8rem; font-weight: bold; color: var(--text); min-width: 28px;
+            display: flex; align-items: center; justify-content: center;
         }
         .toolbar-btn:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
         
-        .editor-area { flex-grow: 1; padding: 20px; outline: none; overflow-y: auto; font-size: 0.95rem; line-height: 1.5; background: var(--surface); color: var(--text); }
+        /* Selects na toolbar */
+        select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; }
+
+        .editor-area { 
+            flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
+            font-size: 0.95rem; line-height: 1.6; background: var(--surface); color: var(--text); 
+            /* Para o PDF sair bonito */
+            print-color-adjust: exact; 
+        }
+        
+        /* Estilos específicos dentro do editor */
         .editor-area img { max-width: 100%; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .editor-area table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
         .editor-area th, .editor-area td { border: 1px solid var(--border); padding: 4px 8px; }
         .editor-area th { background: var(--highlight); font-weight: bold; }
         .editor-area ul, .editor-area ol { padding-left: 20px; }
+        .editor-area blockquote { border-left: 3px solid var(--primary); margin: 10px 0; padding-left: 10px; color: var(--text-sec); background: rgba(37,99,235,0.05); }
         
         .editor-placeholder { color: var(--text-sec); display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; font-size: 0.9rem; }
 
@@ -250,7 +296,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v39</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v40</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
         <div class="header-actions">
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
@@ -341,43 +387,82 @@
 </div>
 
 <div class="modal-overlay" id="remindersModal">
-    <div class="modal" style="width: 95%; max-width: 950px; height: 90vh;">
+    <div class="modal" style="width: 95%; max-width: 1100px; height: 95vh;">
         <h3>📝 Caderno Virtual / Lembretes</h3>
-        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 5px;">Botão direito para mudar ícones. Use a barra para formatar.</p>
+        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 5px;">Botão direito para mudar ícones. Use a barra para redimensionar.</p>
         
         <div class="split-view">
-            <div class="split-sidebar">
+            <div class="split-sidebar" id="notesSidebar">
                 <div class="split-header">
+                    <button class="toggle-sidebar-btn" onclick="toggleNotesSidebar()" title="Recolher">◀</button>
                     <button class="btn btn-outline" style="flex:1; font-size:0.75rem;" onclick="addNewFolder('reminders')">📁 Pasta</button>
                     <button class="btn btn-primary" style="flex:1; font-size:0.75rem;" onclick="addNewNote()">📄 Nota</button>
                 </div>
                 <div id="remindersTree" class="repo-tree" style="border:none; border-top:1px solid var(--border); border-radius:0;"></div>
             </div>
+
+            <div class="resizer-handle" id="notesResizer" title="Arraste para redimensionar"></div>
+
             <div class="split-content">
                 <div class="editor-toolbar" id="editorToolbar" style="display:none;">
-                    <button class="toolbar-btn" onclick="formatDoc('bold')" title="Negrito">B</button>
-                    <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico">I</button>
-                    <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado">U</button>
+                    <button class="toolbar-btn" id="showSidebarBtn" onclick="toggleNotesSidebar()" style="display:none; margin-right:5px;" title="Mostrar Lista">▶</button>
+                    
+                    <button class="toolbar-btn" onclick="formatDoc('bold')" title="Negrito"><b>B</b></button>
+                    <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico"><i>I</i></button>
+                    <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado"><u>U</u></button>
+                    
                     <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
+                    
+                    <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 80px;">
+                        <option value="Segoe UI">Padrão</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Courier New">Courier</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+                    
+                    <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" title="Tamanho" style="width: 50px;">
+                        <option value="3">12</option>
+                        <option value="1">8</option>
+                        <option value="2">10</option>
+                        <option value="4">14</option>
+                        <option value="5">18</option>
+                        <option value="6">24</option>
+                        <option value="7">36</option>
+                    </select>
+
+                    <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
+
                     <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Lista">●</button>
                     <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numeração">1.</button>
+                    
                     <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
+                    
                     <select onchange="formatDoc('formatBlock', this.value)" class="toolbar-btn" style="width:auto;">
                         <option value="p">Normal</option>
                         <option value="h2">Título 1</option>
                         <option value="h3">Título 2</option>
+                        <option value="blockquote">Citação</option>
                         <option value="pre">Código</option>
                     </select>
+                    
                     <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
+                    
                     <label class="toolbar-btn" title="Cor do Texto" style="display:flex;align-items:center;">
-                        <span style="font-size:0.8em">A</span>
+                        <span style="font-size:0.8em; color:red;">A</span>
                         <input type="color" onchange="formatDoc('foreColor', this.value)" style="width:15px; height:15px; border:none; padding:0; background:none; margin-left:3px; cursor:pointer;">
                     </label>
                     <label class="toolbar-btn" title="Marca-Texto" style="display:flex;align-items:center; background:#ffeb3b;">
                         <span style="font-size:0.8em; color:black;">🖊️</span>
                         <input type="color" onchange="formatDoc('hiliteColor', this.value)" value="#ffff00" style="width:15px; height:15px; border:none; padding:0; background:none; margin-left:3px; cursor:pointer;">
                     </label>
-                    <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação" style="margin-left:auto;">🧹</button>
+                    
+                    <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação" style="margin-left:5px;">🧹</button>
+
+                    <button class="toolbar-btn" onclick="exportNoteToPDF()" title="Exportar PDF" style="margin-left:auto; background: #ffeaea; color: #d32f2f; border-color: #ffcdd2;">
+                        🖨️ PDF
+                    </button>
                 </div>
 
                 <div id="noteEditor" class="editor-area" contenteditable="true" style="display:none;" oninput="handleNoteInput()"></div>
@@ -401,7 +486,7 @@
 
 <script>
     // ====================================================================================
-    // CONFIGURAÇÃO GOOGLE DRIVE (PREENCHA ESTES DADOS)
+    // CONFIGURAÇÃO GOOGLE DRIVE
     // ====================================================================================
     const CLIENT_ID = '110553511396-kpng54oo67ign1hjp3rmc444lg9ho4u0.apps.googleusercontent.com'; 
     const API_KEY = 'AIzaSyDUik5IzfQce1hPFXIu8_gv430E3CXgO78'; 
@@ -448,6 +533,7 @@
     window.onload = function() {
         initRepo();
         initReminders();
+        initResizeLogic(); // Inicializa lógica de redimensionamento
         if (localStorage.getItem(THEME_KEY) === 'dark') document.body.classList.add('dark-mode');
         if(CLIENT_ID && API_KEY && CLIENT_ID !== 'SEU_CLIENT_ID_AQUI') {
             gapi.load('client', intializeGapiClient);
@@ -458,6 +544,85 @@
             if(EMBEDDED_FILE && EMBEDDED_FILE.length > 100) loadEmbeddedFile();
         }
     };
+
+    // --- NOVA FUNÇÃO: Resizer da Sidebar de Notas ---
+    function initResizeLogic() {
+        const resizer = document.getElementById('notesResizer');
+        const sidebar = document.getElementById('notesSidebar');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            resizer.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // Previne seleção de texto
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            // Calcula a nova largura baseada na posição do mouse relativa ao modal ou container
+            // Uma abordagem simples é pegar o offsetLeft do modal e subtrair do e.clientX
+            // Mas como sidebar está num flex container, podemos usar ogetBoundingClientRect
+            
+            const containerRect = sidebar.parentElement.getBoundingClientRect();
+            let newWidth = e.clientX - containerRect.left;
+            
+            // Limites (Min 150px, Max 600px)
+            if (newWidth < 150) newWidth = 150;
+            if (newWidth > 600) newWidth = 600;
+            
+            sidebar.style.width = newWidth + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if(isResizing) {
+                isResizing = false;
+                resizer.classList.remove('active');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+    }
+
+    // --- NOVA FUNÇÃO: Toggle Sidebar ---
+    function toggleNotesSidebar() {
+        const sidebar = document.getElementById('notesSidebar');
+        const resizer = document.getElementById('notesResizer');
+        const btnShow = document.getElementById('showSidebarBtn');
+        
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            resizer.style.display = 'flex';
+            btnShow.style.display = 'none';
+        } else {
+            sidebar.classList.add('collapsed');
+            resizer.style.display = 'none';
+            btnShow.style.display = 'flex';
+        }
+    }
+
+    // --- NOVA FUNÇÃO: Exportar PDF ---
+    function exportNoteToPDF() {
+        const element = document.getElementById('noteEditor');
+        const note = findNode(selectedNoteId, remindersData);
+        const title = note ? note.name : 'Nota_Exportada';
+        
+        if(!note || !element.innerHTML.trim()) {
+            alert("A nota está vazia.");
+            return;
+        }
+
+        const opt = {
+            margin:       15,
+            filename:     `${title}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Usa a biblioteca html2pdf
+        html2pdf().set(opt).from(element).save();
+    }
 
     async function intializeGapiClient() {
         await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS });
@@ -507,15 +672,10 @@
             
             const meta = await metaResp.json();
             
-            // --- CORREÇÃO DA VERSÃO 39 ---
-            // Separação clara entre download direto e exportação
             let downloadUrl = `https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}?alt=media`; 
-            
             if (meta.mimeType === 'application/vnd.google-apps.spreadsheet') {
-                // Se for Google Sheet, substitui a URL inteira pelo endpoint de exportação
                 downloadUrl = `https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`;
             }
-            // -----------------------------
 
             document.getElementById('fileName').innerText = "Baixando...";
             const fetchSheet = await fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${accessToken}` } });
