@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v40 (Notas Boosted)</title>
+    <title>Cronograma TJCE - v41 (Fix Sidebar)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
@@ -226,15 +226,14 @@
             width: 250px; min-width: 150px; max-width: 500px;
             background: var(--bg); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; flex-shrink: 0;
-            transition: transform 0.3s ease; /* Animação ao ocultar */
+            transition: transform 0.3s ease;
         }
         
-        /* Classe para ocultar sidebar */
         .split-sidebar.collapsed {
             display: none;
         }
 
-        /* Resizer Handle (Barra de arrastar) */
+        /* Resizer Handle */
         .resizer-handle {
             width: 5px; cursor: col-resize; background: var(--border);
             transition: background 0.2s; z-index: 10; flex-shrink: 0;
@@ -244,6 +243,7 @@
         .resizer-handle::after { content: '⋮'; color: var(--text-sec); font-size: 10px; }
         
         .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
+        
         .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; align-items: center; }
         
         .toggle-sidebar-btn {
@@ -264,17 +264,14 @@
         }
         .toolbar-btn:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
         
-        /* Selects na toolbar */
         select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; }
 
         .editor-area { 
             flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
             font-size: 0.95rem; line-height: 1.6; background: var(--surface); color: var(--text); 
-            /* Para o PDF sair bonito */
             print-color-adjust: exact; 
         }
         
-        /* Estilos específicos dentro do editor */
         .editor-area img { max-width: 100%; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .editor-area table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
         .editor-area th, .editor-area td { border: 1px solid var(--border); padding: 4px 8px; }
@@ -296,7 +293,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v40</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v41</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
         <div class="header-actions">
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
@@ -404,9 +401,14 @@
             <div class="resizer-handle" id="notesResizer" title="Arraste para redimensionar"></div>
 
             <div class="split-content">
+                
+                <div id="collapsedHeader" style="display:none; padding: 8px; border-bottom: 1px solid var(--border); background: var(--bg); align-items: center;">
+                    <button class="btn btn-outline" onclick="toggleNotesSidebar()" style="font-size: 0.8rem; display: flex; align-items: center; gap: 5px;">
+                        ▶ Mostrar Pastas
+                    </button>
+                </div>
+
                 <div class="editor-toolbar" id="editorToolbar" style="display:none;">
-                    <button class="toolbar-btn" id="showSidebarBtn" onclick="toggleNotesSidebar()" style="display:none; margin-right:5px;" title="Mostrar Lista">▶</button>
-                    
                     <button class="toolbar-btn" onclick="formatDoc('bold')" title="Negrito"><b>B</b></button>
                     <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico"><i>I</i></button>
                     <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado"><u>U</u></button>
@@ -533,7 +535,7 @@
     window.onload = function() {
         initRepo();
         initReminders();
-        initResizeLogic(); // Inicializa lógica de redimensionamento
+        initResizeLogic(); 
         if (localStorage.getItem(THEME_KEY) === 'dark') document.body.classList.add('dark-mode');
         if(CLIENT_ID && API_KEY && CLIENT_ID !== 'SEU_CLIENT_ID_AQUI') {
             gapi.load('client', intializeGapiClient);
@@ -545,7 +547,7 @@
         }
     };
 
-    // --- NOVA FUNÇÃO: Resizer da Sidebar de Notas ---
+    // --- FUNÇÃO: Resizer da Sidebar de Notas ---
     function initResizeLogic() {
         const resizer = document.getElementById('notesResizer');
         const sidebar = document.getElementById('notesSidebar');
@@ -555,15 +557,11 @@
             isResizing = true;
             resizer.classList.add('active');
             document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none'; // Previne seleção de texto
+            document.body.style.userSelect = 'none'; 
         });
 
         document.addEventListener('mousemove', (e) => {
             if (!isResizing) return;
-            // Calcula a nova largura baseada na posição do mouse relativa ao modal ou container
-            // Uma abordagem simples é pegar o offsetLeft do modal e subtrair do e.clientX
-            // Mas como sidebar está num flex container, podemos usar ogetBoundingClientRect
-            
             const containerRect = sidebar.parentElement.getBoundingClientRect();
             let newWidth = e.clientX - containerRect.left;
             
@@ -584,24 +582,26 @@
         });
     }
 
-    // --- NOVA FUNÇÃO: Toggle Sidebar ---
+    // --- FUNÇÃO: Toggle Sidebar (CORRIGIDA) ---
     function toggleNotesSidebar() {
         const sidebar = document.getElementById('notesSidebar');
         const resizer = document.getElementById('notesResizer');
-        const btnShow = document.getElementById('showSidebarBtn');
+        const collapsedHeader = document.getElementById('collapsedHeader');
         
         if (sidebar.classList.contains('collapsed')) {
+            // Mostrar sidebar
             sidebar.classList.remove('collapsed');
             resizer.style.display = 'flex';
-            btnShow.style.display = 'none';
+            collapsedHeader.style.display = 'none';
         } else {
+            // Ocultar sidebar
             sidebar.classList.add('collapsed');
             resizer.style.display = 'none';
-            btnShow.style.display = 'flex';
+            collapsedHeader.style.display = 'flex'; // Exibe a barra de restauração
         }
     }
 
-    // --- NOVA FUNÇÃO: Exportar PDF ---
+    // --- FUNÇÃO: Exportar PDF ---
     function exportNoteToPDF() {
         const element = document.getElementById('noteEditor');
         const note = findNode(selectedNoteId, remindersData);
@@ -620,7 +620,6 @@
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Usa a biblioteca html2pdf
         html2pdf().set(opt).from(element).save();
     }
 
