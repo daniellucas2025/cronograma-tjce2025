@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v41 (Fix Sidebar)</title>
+    <title>Cronograma TJCE - v42 (Clean Toolbar)</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
@@ -293,7 +293,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v41</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v42</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
         <div class="header-actions">
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
@@ -425,9 +425,9 @@
                     </select>
                     
                     <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" title="Tamanho" style="width: 50px;">
-                        <option value="3">12</option>
                         <option value="1">8</option>
                         <option value="2">10</option>
+			<option value="3">12</option>
                         <option value="4">14</option>
                         <option value="5">18</option>
                         <option value="6">24</option>
@@ -438,16 +438,6 @@
 
                     <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Lista">●</button>
                     <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numeração">1.</button>
-                    
-                    <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
-                    
-                    <select onchange="formatDoc('formatBlock', this.value)" class="toolbar-btn" style="width:auto;">
-                        <option value="p">Normal</option>
-                        <option value="h2">Título 1</option>
-                        <option value="h3">Título 2</option>
-                        <option value="blockquote">Citação</option>
-                        <option value="pre">Código</option>
-                    </select>
                     
                     <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
                     
@@ -582,7 +572,7 @@
         });
     }
 
-    // --- FUNÇÃO: Toggle Sidebar (CORRIGIDA) ---
+    // --- FUNÇÃO: Toggle Sidebar ---
     function toggleNotesSidebar() {
         const sidebar = document.getElementById('notesSidebar');
         const resizer = document.getElementById('notesResizer');
