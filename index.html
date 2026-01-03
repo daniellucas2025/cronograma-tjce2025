@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v42 (Clean Toolbar)</title>
+    <title>Cronograma TJCE - v43 (Novas Fontes)</title>
+    
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -293,7 +298,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v42</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v43</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
         <div class="header-actions">
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
@@ -415,13 +420,16 @@
                     
                     <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
                     
-                    <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 80px;">
+                    <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 100px;">
                         <option value="Segoe UI">Padrão</option>
                         <option value="Arial">Arial</option>
                         <option value="Courier New">Courier</option>
                         <option value="Georgia">Georgia</option>
                         <option value="Times New Roman">Times</option>
                         <option value="Verdana">Verdana</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Montserrat">Montserrat</option>
                     </select>
                     
                     <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" title="Tamanho" style="width: 50px;">
