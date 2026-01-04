@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v49 (Timer & Busca Notas)</title>
+    <title>Cronograma TJCE - v52 (Suite Completa)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,46 +13,43 @@
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
+            --primary: #2b579a; /* Azul Office */
+            --primary-hover: #1e3e70;
+            --bg: #f3f2f1;
             --surface: #ffffff;
-            --text: #0f172a;
-            --text-sec: #64748b;
-            --border: #e2e8f0;
-            --success: #16a34a;
-            --success-hover: #15803d;
-            --danger: #dc2626;
-            --warning: #ca8a04;
-            --highlight: #f1f5f9;
-            --drag-over: #dbeafe;
-            --google-btn: #4285F4;
-            
-            /* Toolbar colors inspired by Office */
-            --toolbar-bg: #f3f4f6;
-            --toolbar-border: #d1d5db;
-            --btn-hover: #e5e7eb;
-            --btn-active: #d1d5db;
+            --text: #201f1e;
+            --text-sec: #605e5c;
+            --border: #e1dfdd;
+            --success: #107c10;
+            --success-hover: #0b5a0b;
+            --danger: #a4262c;
+            --warning: #ca5010;
+            --highlight: #f3f2f1;
+            --drag-over: #deecf9;
+            --toolbar-bg: #f8f9fa;
+            --toolbar-border: #e1dfdd;
+            --btn-hover: #edebe9;
+            --btn-active: #c8c6c4;
         }
 
         body.dark-mode {
-            --primary: #3b82f6;
-            --primary-hover: #60a5fa;
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #f1f5f9;
-            --text-sec: #94a3b8;
-            --border: #334155;
-            --success: #22c55e;
-            --success-hover: #16a34a;
-            --danger: #ef4444;
-            --warning: #fbbf24;
-            --highlight: #334155;
-            --drag-over: #1e3a8a;
-            --toolbar-bg: #1e293b;
-            --toolbar-border: #475569;
-            --btn-hover: #334155;
-            --btn-active: #475569;
+            --primary: #4f8ad6;
+            --primary-hover: #6ca0e3;
+            --bg: #1b1a19;
+            --surface: #292827;
+            --text: #ffffff;
+            --text-sec: #a19f9d;
+            --border: #484644;
+            --success: #2cc92c;
+            --success-hover: #1a9e1a;
+            --danger: #e81123;
+            --warning: #fce100;
+            --highlight: #3b3a39;
+            --drag-over: #004578;
+            --toolbar-bg: #292827;
+            --toolbar-border: #484644;
+            --btn-hover: #3b3a39;
+            --btn-active: #484644;
         }
 
         body {
@@ -66,24 +63,28 @@
         .container {
             width: 100%; max-width: 100%; margin: 0 auto;
             display: flex; flex-direction: column; height: 100%;
-            background: var(--surface); border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden;
+            background: var(--surface); border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;
             border: 1px solid var(--border);
         }
 
         /* Header */
         .header {
-            padding: 10px 15px; border-bottom: 1px solid var(--border);
+            padding: 8px 15px; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
             background: var(--surface); flex-wrap: wrap; gap: 10px; flex-shrink: 0;
         }
-        .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); }
-        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .brand { display: flex; flex-direction: column; }
+        .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
+        .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
+        .quote-box:hover { color: var(--primary); }
+        
+        .header-actions { display: flex; gap: 6px; align-items: center; }
 
         .btn {
-            padding: 6px 12px; border-radius: 6px; cursor: pointer;
-            font-weight: 600; font-size: 0.8rem; border: 1px solid transparent;
-            transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+            padding: 5px 10px; border-radius: 4px; cursor: pointer;
+            font-weight: 500; font-size: 0.85rem; border: 1px solid transparent;
+            transition: all 0.1s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
         }
         .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-primary:hover { background: var(--primary-hover); }
@@ -92,26 +93,38 @@
         .btn-success:hover { background: var(--success-hover); }
 
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
-        .btn-outline:hover { background: var(--highlight); border-color: var(--text-sec); }
+        .btn-outline:hover { background: var(--btn-hover); border-color: var(--text-sec); }
         .btn-danger-outline { background: transparent; border-color: var(--danger); color: var(--danger); }
-        .btn-danger-outline:hover { background: rgba(220, 38, 38, 0.1); }
+        .btn-danger-outline:hover { background: rgba(232, 17, 35, 0.1); }
         .btn-google { background: var(--surface); color: var(--text); border-color: var(--border); position: relative;}
-        .btn-google::before { content: 'G'; font-weight: bold; color: var(--google-btn); margin-right: 5px; }
-        .btn-icon { padding: 6px; border-radius: 50%; }
+        .btn-google::before { content: 'G'; font-weight: bold; color: #4285F4; margin-right: 5px; }
+        .btn-icon { padding: 5px; border-radius: 50%; }
 
         input[type="file"] { display: none; }
 
         /* Drop Zone */
         .drop-zone {
-            border: 2px dashed var(--border); border-radius: 6px; padding: 5px 15px;
+            border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px;
             color: var(--text-sec); font-size: 0.8rem; cursor: pointer;
             transition: 0.2s; display: flex; align-items: center; gap: 5px;
         }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
 
+        /* Productivity Bar (Timer + Goal) */
+        .prod-bar {
+            display: flex; gap: 10px; align-items: center; background: var(--highlight);
+            padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
+        }
+        .timer-display { font-family: 'Segoe UI Mono', monospace; font-weight: 700; color: var(--primary); width: 45px; text-align: center; }
+        
+        .goal-container { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; border-left: 1px solid var(--border); padding-left: 10px; }
+        .goal-bar-bg { width: 80px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
+        .goal-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
+        .goal-text { font-size: 0.75rem; color: var(--text-sec); min-width: 60px; text-align: right;}
+
         /* Stats Bar */
         .global-stats {
-            background: var(--highlight); padding: 8px 15px;
+            background: var(--highlight); padding: 6px 15px;
             border-bottom: 1px solid var(--border); display: flex; gap: 20px;
             font-size: 0.85rem; display: none; align-items: center; flex-shrink: 0;
         }
@@ -123,16 +136,16 @@
 
         /* Controls */
         .sheet-controls {
-            padding: 8px 15px; background: var(--surface);
+            padding: 6px 15px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex;
             justify-content: space-between; align-items: center; display: none; gap: 10px; flex-shrink: 0;
         }
         .filter-group { display: flex; gap: 8px; flex-grow: 1; max-width: 900px; align-items: center; flex-wrap: wrap; }
-        select, input[type="text"] { 
-            padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); 
+        select, input[type="text"], input[type="date"] { 
+            padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); 
             background: var(--surface); color: var(--text); font-size: 0.85rem; outline: none;
         }
-        select:focus, input[type="text"]:focus { border-color: var(--primary); }
+        select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
         .search-box { flex-grow: 1; min-width: 150px; }
 
         /* Tabela */
@@ -140,25 +153,25 @@
         .table-scroll { flex-grow: 1; overflow: auto; display: none; scroll-behavior: smooth; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         thead th {
-            position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 10px;
-            text-align: left; font-weight: 700; color: var(--text-sec);
+            position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 8px 10px;
+            text-align: left; font-weight: 600; color: var(--text-sec);
             border-bottom: 2px solid var(--border); white-space: nowrap;
         }
-        td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text); }
+        td { padding: 5px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text); }
         tr:hover { background: var(--highlight); }
-        .input-q { width: 45px; padding: 4px; border: 1px solid var(--border); border-radius: 4px; text-align: center; font-weight: 600; color: var(--primary); background: var(--surface); font-size: 0.85rem; }
+        .input-q { width: 45px; padding: 3px; border: 1px solid var(--border); border-radius: 3px; text-align: center; font-weight: 600; color: var(--primary); background: var(--surface); font-size: 0.85rem; }
         input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--success); border: 1px solid var(--border); }
-        tr.completed { background-color: rgba(22, 163, 74, 0.08); }
+        tr.completed { background-color: rgba(16, 124, 16, 0.08); }
         tr.completed td { color: var(--success); }
         tr.completed .content-text { text-decoration: line-through; opacity: 0.7; }
         
-        .btn-link { text-decoration: none; background: rgba(37, 99, 235, 0.1); color: var(--primary); padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(37, 99, 235, 0.2); transition: 0.2s; margin-right: 4px; white-space: nowrap; display: inline-flex; align-items: center; }
+        .btn-link { text-decoration: none; background: rgba(43, 87, 154, 0.1); color: var(--primary); padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(43, 87, 154, 0.2); transition: 0.2s; margin-right: 4px; white-space: nowrap; display: inline-flex; align-items: center; }
         .btn-link:hover { background: var(--primary); color: white; }
         .source-tag { font-size: 0.7em; background: var(--border); color: var(--text-sec); padding: 2px 5px; border-radius: 4px; margin-right: 5px; font-weight: 600; }
         .pct-badge { display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; min-width: 45px; text-align: center; }
-        .pct-high { background: rgba(22, 163, 74, 0.2); color: var(--success); }
-        .pct-mid { background: rgba(202, 138, 4, 0.2); color: var(--warning); }
-        .pct-low { background: rgba(220, 38, 38, 0.2); color: var(--danger); }
+        .pct-high { background: rgba(16, 124, 16, 0.2); color: var(--success); }
+        .pct-mid { background: rgba(202, 80, 16, 0.2); color: var(--warning); }
+        .pct-low { background: rgba(164, 38, 44, 0.2); color: var(--danger); }
         .pct-none { color: var(--text-sec); }
 
         /* DASHBOARD */
@@ -176,8 +189,8 @@
 
         .attention-section { max-width: 900px; margin: 25px auto; border-top: 1px dashed var(--border); padding-top: 20px; }
         .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 10px; }
-        .att-card { background: rgba(220, 38, 38, 0.04); border: 1px solid rgba(220, 38, 38, 0.15); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
-        body.dark-mode .att-card { background: rgba(220, 38, 38, 0.1); border-color: rgba(220, 38, 38, 0.3); }
+        .att-card { background: rgba(164, 38, 44, 0.04); border: 1px solid rgba(164, 38, 44, 0.15); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+        body.dark-mode .att-card { background: rgba(164, 38, 44, 0.1); border-color: rgba(164, 38, 44, 0.3); }
         .att-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .att-disc { font-size: 0.7rem; font-weight: 700; color: var(--text-sec); text-transform: uppercase; }
         .att-title { font-weight: 600; margin-bottom: 10px; font-size: 0.9rem; color: var(--text); line-height: 1.3; }
@@ -189,10 +202,10 @@
             display: flex; gap: 5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); 
             flex-wrap: wrap; align-items: center;
         }
-        .repo-tree { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; padding: 10px; background: var(--bg); }
+        .repo-tree { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 10px; background: var(--bg); }
         
         .tree-node { margin-left: 15px; border-left: 1px solid var(--border); padding-left: 5px; }
-        .tree-content { display: flex; align-items: center; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-bottom: 2px; transition: background 0.1s; }
+        .tree-content { display: flex; align-items: center; padding: 4px 8px; border-radius: 3px; cursor: pointer; margin-bottom: 2px; transition: background 0.1s; }
         .tree-content:hover { background: var(--highlight); }
         .tree-content.drag-over { background: var(--drag-over); outline: 2px dashed var(--primary); }
         .tree-content.selected { background: var(--primary); color: white; }
@@ -205,17 +218,17 @@
         .is-link a:hover { text-decoration: underline; }
 
         /* Context Menu */
-        .context-menu { position: absolute; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 6px; display: none; z-index: 1000; padding: 5px 0; min-width: 150px; }
+        .context-menu { position: absolute; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; display: none; z-index: 1000; padding: 5px 0; min-width: 150px; }
         .context-menu-item { padding: 8px 15px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
         .context-menu-item:hover { background: var(--highlight); color: var(--primary); }
 
         /* Modal Generico */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: none; justify-content: center; align-items: center; }
-        .modal { background: var(--surface); padding: 20px; border-radius: 12px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 85vh;}
-        .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
+        .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh;}
+        .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
         
-        .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 6px; border: 1px solid var(--border); }
+        .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 4px; border: 1px solid var(--border); }
         .drive-group .btn { border: none; background: transparent; padding: 4px 10px; font-size: 0.75rem; }
         
         /* Sync Status Indicator */
@@ -223,7 +236,7 @@
             width: 10px; height: 10px; border-radius: 50%; 
             background: var(--text-sec); display: inline-block; margin-left: 5px; 
             transition: background 0.3s;
-            cursor: help; /* Indica que tem tooltip */
+            cursor: help; 
         }
         .sync-status.active { background: var(--success); box-shadow: 0 0 5px var(--success); }
         .sync-status.error { background: var(--danger); }
@@ -232,23 +245,18 @@
 
         /* ==================== REMINDERS / NOTES STYLES ==================== */
         .split-view { 
-            display: flex; height: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 10px; 
+            display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; 
             position: relative;
         }
         
-        /* Sidebar (Lista de notas) */
         .split-sidebar { 
             width: 250px; min-width: 150px; max-width: 500px;
             background: var(--bg); border-right: 1px solid var(--border); 
             display: flex; flex-direction: column; flex-shrink: 0;
             transition: transform 0.3s ease;
         }
-        
-        .split-sidebar.collapsed {
-            display: none;
-        }
+        .split-sidebar.collapsed { display: none; }
 
-        /* Resizer Handle */
         .resizer-handle {
             width: 5px; cursor: col-resize; background: var(--border);
             transition: background 0.2s; z-index: 10; flex-shrink: 0;
@@ -258,17 +266,15 @@
         .resizer-handle::after { content: '⋮'; color: var(--text-sec); font-size: 10px; }
         
         .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
-        
         .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; align-items: center; }
         
         .toggle-sidebar-btn {
             background: transparent; border: 1px solid var(--border); color: var(--text-sec);
-            cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem;
-            margin-right: 5px;
+            cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px;
         }
         .toggle-sidebar-btn:hover { background: var(--highlight); color: var(--primary); }
 
-        /* --- WORD-LIKE TOOLBAR STYLES --- */
+        /* --- WORD-LIKE TOOLBAR --- */
         .editor-toolbar {
             padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg);
             display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px;
@@ -276,8 +282,7 @@
         
         .toolbar-group {
             display: flex; gap: 2px; align-items: center; 
-            padding-right: 6px; border-right: 1px solid var(--toolbar-border);
-            margin-right: 2px;
+            padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px;
         }
         .toolbar-group:last-child { border-right: none; }
 
@@ -288,68 +293,61 @@
             transition: all 0.1s;
         }
         .toolbar-btn:hover { background: var(--btn-hover); border-color: var(--btn-active); }
-        
         select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; padding-right: 2px;}
         
-        /* Color input styling wrapper */
         .color-wrapper {
             position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; border: 1px solid transparent; border-radius: 3px;
         }
         .color-wrapper:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         .color-bar { width: 22px; height: 4px; margin-top: 15px; position: absolute; pointer-events: none;}
-        
-        /* Real input hidden but functional over label */
-        .color-input-hidden {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; cursor: pointer;
-        }
+        .color-input-hidden { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
         .editor-area { 
             flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
             font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); 
-            font-family: 'Calibri', 'Segoe UI', sans-serif;
-            print-color-adjust: exact; 
+            font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; 
         }
-        
-        .editor-area img { max-width: 100%; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+        .editor-area img { max-width: 100%; border-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
         .editor-area table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
         .editor-area th, .editor-area td { border: 1px solid var(--border); padding: 4px 8px; }
         .editor-area th { background: var(--highlight); font-weight: bold; }
         .editor-area ul, .editor-area ol { padding-left: 20px; }
-        .editor-area blockquote { border-left: 3px solid var(--primary); margin: 10px 0; padding-left: 10px; color: var(--text-sec); background: rgba(37,99,235,0.05); }
-        
+        .editor-area blockquote { border-left: 3px solid var(--primary); margin: 10px 0; padding-left: 10px; color: var(--text-sec); background: rgba(43,87,154,0.05); }
         .editor-placeholder { color: var(--text-sec); display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; font-size: 0.9rem; }
 
         /* Image Resizer Overlay */
         #imgResizeOverlay {
-            position: absolute; border: 2px solid var(--primary);
-            pointer-events: none; /* Allows click through to unselect */
-            display: none; z-index: 1000;
+            position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000;
         }
         .resize-handle {
-            width: 12px; height: 12px; background: var(--primary); border: 1px solid white;
-            position: absolute; bottom: -6px; right: -6px;
-            cursor: nwse-resize; pointer-events: auto; /* Handle is clickable */
-            box-shadow: 0 0 2px rgba(0,0,0,0.3);
+            width: 10px; height: 10px; background: var(--primary); border: 1px solid white;
+            position: absolute; bottom: -5px; right: -5px;
+            cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3);
         }
 
-        /* --- TIMER STYLES (NOVO) --- */
-        .timer-group {
-            display: flex; align-items: center; gap: 5px;
-            background: var(--highlight); padding: 2px 8px; border-radius: 6px;
-            border: 1px solid var(--border); margin-right: 5px;
+        /* --- CALENDAR STYLES --- */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+        .cal-day-header { font-weight: bold; text-align: center; font-size: 0.8rem; color: var(--text-sec); padding: 5px; }
+        .cal-day { 
+            border: 1px solid var(--border); min-height: 80px; padding: 5px; border-radius: 4px; background: var(--bg); 
+            display: flex; flex-direction: column; gap: 2px;
         }
-        .timer-display { font-family: monospace; font-weight: bold; font-size: 1rem; min-width: 50px; text-align: center; color: var(--primary); }
-        
-        /* --- NOTE SEARCH STYLES (NOVO) --- */
+        .cal-day.today { border-color: var(--primary); background: rgba(43,87,154,0.05); }
+        .cal-date { font-weight: bold; font-size: 0.8rem; margin-bottom: 3px; }
+        .cal-event { 
+            font-size: 0.7rem; background: var(--highlight); border: 1px solid var(--border); 
+            padding: 2px 4px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .cal-event:hover { background: var(--drag-over); color: var(--primary); }
+
+        /* Note Search */
         .note-search-input {
-            padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);
+            padding: 4px 8px; border-radius: 3px; border: 1px solid var(--border);
             font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text);
             min-width: 180px;
         }
         
-        /* Icon Picker Grid */
         .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
         .icon-option { font-size: 1.5rem; text-align: center; cursor: pointer; padding: 5px; border-radius: 6px; border: 1px solid transparent; }
         .icon-option:hover { background: var(--highlight); border-color: var(--primary); transform: scale(1.1); }
@@ -358,42 +356,49 @@
 <body>
 
 <div id="customContextMenu" class="context-menu"></div>
-
-<div id="imgResizeOverlay">
-    <div class="resize-handle" id="imgResizeHandle"></div>
-</div>
+<div id="imgResizeOverlay"><div class="resize-handle" id="imgResizeHandle"></div></div>
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v49</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand">
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v52</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
+        </div>
         
         <div class="header-actions">
-            <div class="timer-group">
+            <div class="prod-bar">
                 <span id="timerDisplay" class="timer-display">25:00</span>
-                <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="toggleTimer()" title="Iniciar/Pausar">⏯️</button>
+                <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="toggleTimer()" title="Iniciar/Pausar Timer">⏯️</button>
                 <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="configureTimer()" title="Configurar Timer">⚙️</button>
+                
+                <div class="goal-container" title="Meta de Questões Diária">
+                    <span id="goalText" class="goal-text">0/50</span>
+                    <div class="goal-bar-bg"><div id="goalBar" class="goal-bar-fill"></div></div>
+                    <button class="btn btn-outline btn-icon" style="padding:0 4px; font-size:0.7rem; border:none;" onclick="configureGoal()">🎯</button>
+                </div>
             </div>
 
-            <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
+            <button class="btn btn-outline" onclick="openCalendarModal()" title="Ver Calendário">📅 Calendário</button>
+            <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
 
-            <label for="fileInput" class="btn btn-primary" id="btnOpen">📂 Abrir Local</label>
+            <label for="fileInput" class="btn btn-primary" id="btnOpen">📂 Abrir</label>
             <input type="file" id="fileInput" accept=".ods, .xlsx, .xls">
             
             <button class="btn btn-outline" onclick="openRepoModal()">🔗 Links</button>
             <button class="btn btn-outline" onclick="openRemindersModal()">📝 Notas</button>
             <button class="btn btn-outline" id="btnDash" style="display:none;" onclick="toggleDashboard()">📊 Desempenho</button>
             
-            <a href="https://docs.google.com/spreadsheets/d/1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok/edit?gid=1635975097#gid=1635975097" target="_blank" class="btn btn-success">📊 Planilha Oficial</a>
+            <a href="https://docs.google.com/spreadsheets/d/1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok/edit?gid=1635975097#gid=1635975097" target="_blank" class="btn btn-success">📑 Planilha Oficial</a>
             
             <div class="drive-group">
-                <button class="btn" onclick="backupData()" title="Backup Drive Local">💾 Backup</button>
+                <button class="btn" onclick="backupData()" title="Backup Drive Local">💾</button>
             </div>
-            <label for="restoreInput" class="drop-zone" id="dropZone" title="Arraste o arquivo">📥 Restore</label>
+            <label for="restoreInput" class="drop-zone" id="dropZone" title="Restaurar Backup">📥</label>
             <input type="file" id="restoreInput" accept=".json" onchange="restoreData(this)">
             <button class="btn btn-danger-outline" onclick="resetAllData()" title="Limpar TUDO">🧨</button>
             <button class="btn btn-outline btn-icon" onclick="toggleTheme()">🌙</button>
-            <span id="fileName" style="font-size: 0.8rem; color: var(--text-sec); max-width: 100px; overflow:hidden; text-overflow:ellipsis;"></span>
+            <span id="fileName" style="font-size: 0.7rem; color: var(--text-sec); max-width: 80px; overflow:hidden; text-overflow:ellipsis;"></span>
         </div>
     </div>
 
@@ -429,10 +434,7 @@
                 <div class="d-card"><div class="d-val" id="dTotalPct">-</div><div class="d-label">% Geral</div></div>
             </div>
             
-            <div class="chart-wrapper">
-                <canvas id="perfChart"></canvas>
-            </div>
-
+            <div class="chart-wrapper"><canvas id="perfChart"></canvas></div>
             <table class="dash-table" id="dashTable"><thead><tr><th>Disciplina</th><th style="text-align: center;">Questões</th><th style="text-align: center;">Acertos</th><th style="text-align: center;">%</th></tr></thead><tbody></tbody></table>
             <div class="attention-section"><h3 style="color: var(--danger); display:flex; align-items:center; gap:8px;">⚠️ Pontos de Atenção (< 70%)</h3><div id="attentionList" class="att-grid"></div></div>
             <div style="text-align: center; margin: 30px 0;"><button class="btn btn-primary" onclick="toggleDashboard()">🔙 Voltar</button></div>
@@ -440,22 +442,37 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="calendarModal">
+    <div class="modal" style="width: 95%; max-width: 900px; height: 90vh;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📅 Calendário de Estudos</h3>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <label style="font-size:0.85rem;">Início:</label>
+                <input type="date" id="calendarStartDate" onchange="renderCalendar()">
+            </div>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-sec); margin-top:-10px;">Visualiza as abas da planilha como semanas de estudo.</p>
+        
+        <div style="overflow-y:auto; flex-grow:1; padding-right:5px;">
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+        
+        <div class="modal-actions"><button class="btn btn-outline" onclick="document.getElementById('calendarModal').style.display='none'">Fechar</button></div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="repoModal">
     <div class="modal" style="width: 90%; max-width: 800px; height: 80vh;">
         <h3>🔗 Gerenciador de Links</h3>
-        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 10px;">Arraste para organizar. Clique direito para opções.</p>
+        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 10px;">Arraste para organizar.</p>
         <div class="repo-toolbar">
-            <div style="display:flex; gap:5px; align-items:center;">
-                <input type="text" id="newFolderInput" placeholder="Nome da Pasta..." style="padding:6px; width: 120px;">
-                <button class="btn btn-outline" onclick="addNewFolder('repo')">📁 Criar Pasta</button>
-            </div>
+            <input type="text" id="newFolderInput" placeholder="Nome da Pasta..." style="padding:6px; width: 120px;">
+            <button class="btn btn-outline" onclick="addNewFolder('repo')">📁 Criar Pasta</button>
             <div style="width:1px; background:var(--border); margin:0 5px; height:20px;"></div>
-            <div style="display:flex; gap:5px; flex-grow:1; align-items:center;">
-                <input type="text" id="newLinkName" placeholder="Nome" style="flex:1; min-width:80px;">
-                <input type="text" id="newLinkUrl" placeholder="URL" style="flex:1; min-width:80px;">
-                <select id="targetFolderSelect" style="max-width: 130px;" title="Salvar em..."></select>
-                <button class="btn btn-primary" onclick="addNewLink()">➕ Link</button>
-            </div>
+            <input type="text" id="newLinkName" placeholder="Nome" style="flex:1; min-width:80px;">
+            <input type="text" id="newLinkUrl" placeholder="URL" style="flex:1; min-width:80px;">
+            <select id="targetFolderSelect" style="max-width: 130px;"></select>
+            <button class="btn btn-primary" onclick="addNewLink()">➕ Link</button>
         </div>
         <div id="repoTree" class="repo-tree"></div>
         <div class="modal-actions"><button class="btn btn-outline" onclick="closeRepoModal()">Fechar</button></div>
@@ -464,20 +481,13 @@
 
 <div class="modal-overlay" id="remindersModal">
     <div class="modal" style="width: 95%; max-width: 1100px; height: 95vh;">
-        
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h3 style="margin: 0;">📝 Caderno Virtual / Lembretes</h3>
-            
             <div style="display:flex; align-items:center;">
                 <input type="text" id="noteSearch" class="note-search-input" placeholder="🔍 Buscar notas..." onkeyup="handleNoteSearch()">
-                
-                <button class="btn btn-outline" onclick="exportNoteToPDF()" title="Exportar Nota atual para PDF" style="border-color: #ffcdd2; color: #d32f2f; background: #ffeaea; font-size: 0.85rem;">
-                    🖨️ Exportar PDF
-                </button>
+                <button class="btn btn-outline" onclick="exportNoteToPDF()" title="Exportar Nota" style="border-color: #ffcdd2; color: #d32f2f; background: #ffeaea; font-size: 0.85rem;">🖨️ PDF</button>
             </div>
         </div>
-        
-        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -5px; margin-bottom: 5px;">Botão direito para mudar ícones. Clique na imagem para redimensionar.</p>
         
         <div class="split-view">
             <div class="split-sidebar" id="notesSidebar">
@@ -488,784 +498,367 @@
                 </div>
                 <div id="remindersTree" class="repo-tree" style="border:none; border-top:1px solid var(--border); border-radius:0;"></div>
             </div>
-
-            <div class="resizer-handle" id="notesResizer" title="Arraste para redimensionar"></div>
-
+            <div class="resizer-handle" id="notesResizer" title="Arraste"></div>
             <div class="split-content">
-                
                 <div id="collapsedHeader" style="display:none; padding: 8px; border-bottom: 1px solid var(--border); background: var(--bg); align-items: center;">
-                    <button class="btn btn-outline" onclick="toggleNotesSidebar()" style="font-size: 0.8rem; display: flex; align-items: center; gap: 5px;">
-                        ▶ Mostrar Pastas
-                    </button>
+                    <button class="btn btn-outline" onclick="toggleNotesSidebar()" style="font-size: 0.8rem; display: flex; align-items: center; gap: 5px;">▶ Mostrar Pastas</button>
                 </div>
-
                 <div class="editor-toolbar" id="editorToolbar" style="display:none;">
-                    
                     <div class="toolbar-group">
-                        <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 130px;">
-                            <option value="Calibri" selected>Calibri</option>
-                            <option value="Arial">Arial</option>
-                            <option value="Arial Black">Arial Black</option>
-                            <option value="Comic Sans MS">Comic Sans MS</option>
-                            <option value="Courier New">Courier New</option>
-                            <option value="Georgia">Georgia</option>
-                            <option value="Impact">Impact</option>
-                            <option value="Lucida Console">Lucida Console</option>
-                            <option value="Segoe UI">Segoe UI</option>
-                            <option value="Tahoma">Tahoma</option>
-                            <option value="Times New Roman">Times New Roman</option>
-                            <option value="Trebuchet MS">Trebuchet MS</option>
-                            <option value="Verdana">Verdana</option>
+                        <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" style="width: 130px;">
+                            <option value="Calibri" selected>Calibri</option><option value="Arial">Arial</option><option value="Courier New">Courier</option><option value="Georgia">Georgia</option><option value="Segoe UI">Segoe UI</option><option value="Times New Roman">Times</option><option value="Verdana">Verdana</option>
                         </select>
-                        
-                        <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" title="Tamanho" style="width: 50px;">
-                            <option value="1">8</option>
-                            <option value="2">10</option>
-                            <option value="3" selected>12</option>
-                            <option value="4">14</option>
-                            <option value="5">18</option>
-                            <option value="6">24</option>
-                            <option value="7">36</option>
+                        <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" style="width: 50px;">
+                            <option value="1">8</option><option value="2">10</option><option value="3" selected>12</option><option value="4">14</option><option value="5">18</option><option value="6">24</option><option value="7">36</option>
                         </select>
-                        <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação" style="color:var(--danger)">🧹</button>
+                        <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar" style="color:var(--danger)">🧹</button>
                     </div>
-
                     <div class="toolbar-group">
-                        <button class="toolbar-btn" onclick="formatDoc('bold')" title="Negrito (Ctrl+B)"><b>N</b></button>
-                        <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
-                        <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado (Ctrl+S)"><u>S</u></button>
-                        <button class="toolbar-btn" onclick="formatDoc('strikeThrough')" title="Riscado"><s>abc</s></button>
+                        <button class="toolbar-btn" onclick="formatDoc('bold')"><b>N</b></button>
+                        <button class="toolbar-btn" onclick="formatDoc('italic')"><i>I</i></button>
+                        <button class="toolbar-btn" onclick="formatDoc('underline')"><u>S</u></button>
+                        <button class="toolbar-btn" onclick="formatDoc('strikeThrough')"><s>abc</s></button>
                     </div>
-
                     <div class="toolbar-group">
-                        <div class="color-wrapper" title="Cor da Fonte" onmousedown="saveSelection()">
-                            <span style="font-weight:bold; color:red; position:absolute; top:2px;">A</span>
-                            <div class="color-bar" style="background:red;"></div>
+                        <div class="color-wrapper" onmousedown="saveSelection()">
+                            <span style="font-weight:bold; color:red; position:absolute; top:2px;">A</span><div class="color-bar" style="background:red;"></div>
                             <input type="color" class="color-input-hidden" oninput="updateColorBar(this); formatDoc('foreColor', this.value);" value="#ff0000">
                         </div>
-                        
-                        <div class="color-wrapper" title="Realce / Marca-texto" onmousedown="saveSelection()">
-                            <span style="font-weight:bold; position:absolute; top:2px;">🖊️</span>
-                            <div class="color-bar" style="background:yellow;"></div>
+                        <div class="color-wrapper" onmousedown="saveSelection()">
+                            <span style="font-weight:bold; position:absolute; top:2px;">🖊️</span><div class="color-bar" style="background:yellow;"></div>
                             <input type="color" class="color-input-hidden" oninput="updateColorBar(this); formatDoc('hiliteColor', this.value);" value="#ffff00">
                         </div>
                     </div>
-
                     <div class="toolbar-group">
-                        <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Marcadores">•</button>
-                        <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numeração">1.</button>
-                        <button class="toolbar-btn" onclick="formatDoc('outdent')" title="Diminuir Recuo">⇤</button>
-                        <button class="toolbar-btn" onclick="formatDoc('indent')" title="Aumentar Recuo">⇥</button>
+                        <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')">•</button>
+                        <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')">1.</button>
+                        <button class="toolbar-btn" onclick="formatDoc('outdent')">⇤</button>
+                        <button class="toolbar-btn" onclick="formatDoc('indent')">⇥</button>
                     </div>
-
                     <div class="toolbar-group" style="border-right:none;">
-                        <button class="toolbar-btn" onclick="formatDoc('justifyLeft')" title="Alinhar à Esquerda">⬅</button>
-                        <button class="toolbar-btn" onclick="formatDoc('justifyCenter')" title="Centralizar">↔</button>
-                        <button class="toolbar-btn" onclick="formatDoc('justifyRight')" title="Alinhar à Direita">➡</button>
-                        <button class="toolbar-btn" onclick="formatDoc('justifyFull')" title="Justificar">☰</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyLeft')">⬅</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyCenter')">↔</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyRight')">➡</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyFull')">☰</button>
                     </div>
                 </div>
-
                 <div id="noteEditor" class="editor-area" contenteditable="true" style="display:none;" oninput="handleNoteInput()"></div>
-                <div id="notePlaceholder" class="editor-placeholder">Selecione ou crie uma nota para editar.<br>Cole textos, tabelas ou imagens aqui.</div>
+                <div id="notePlaceholder" class="editor-placeholder">Selecione ou crie uma nota.</div>
             </div>
         </div>
-
         <div class="modal-actions"><button class="btn btn-outline" onclick="closeRemindersModal()">Fechar</button></div>
     </div>
 </div>
 
 <div class="modal-overlay" id="iconPickerModal" style="z-index: 2000;">
     <div class="modal" style="width:300px; max-height:400px;">
-        <h3 style="margin-top:0;">Escolher Ícone</h3>
-        <div id="iconGrid" class="icon-grid"></div>
-        <div class="modal-actions">
-            <button class="btn btn-outline" onclick="document.getElementById('iconPickerModal').style.display='none'">Cancelar</button>
-        </div>
+        <h3>Escolher Ícone</h3><div id="iconGrid" class="icon-grid"></div>
+        <div class="modal-actions"><button class="btn btn-outline" onclick="document.getElementById('iconPickerModal').style.display='none'">Cancelar</button></div>
     </div>
 </div>
 
 <script>
-    // ====================================================================================
-    // CONFIGURAÇÃO GOOGLE DRIVE
-    // ====================================================================================
+    // CONFIGURAÇÃO
     const CLIENT_ID = '110553511396-kpng54oo67ign1hjp3rmc444lg9ho4u0.apps.googleusercontent.com'; 
     const API_KEY = 'AIzaSyDUik5IzfQce1hPFXIu8_gv430E3CXgO78'; 
     const SHEET_FILE_ID = '1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok'; 
     const SYNC_FILE_NAME = 'tjce_data_sync.json';
-    // ====================================================================================
-
     const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
     const SCOPES = 'https://www.googleapis.com/auth/drive';
 
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
-    let syncFileId = null; 
-    let syncTimeout = null;
+    // ESTADO
+    let tokenClient; let gapiInited = false; let gisInited = false; let syncFileId = null; let syncTimeout = null;
     const EMBEDDED_FILE = ""; 
-
     const STORAGE_KEY = 'tjce_v30_data_';
     const REPO_KEY = STORAGE_KEY + 'REPO_TREE';
     const REMINDERS_KEY = STORAGE_KEY + 'REMINDERS_DATA'; 
     const THEME_KEY = 'tjce_theme';
     const TOKEN_KEY = 'tjce_gdrive_token'; 
+    const DAILY_GOAL_KEY = 'tjce_daily_goal';
+    const DAILY_COUNT_KEY = 'tjce_daily_count';
+    const DAILY_DATE_KEY = 'tjce_daily_date';
+    const CALENDAR_START_KEY = 'tjce_cal_start';
+
     const EXCLUDE_LIST = ['youtube', 'link do material', 'cumpriu a meta?', 'cumpriu a meta', 'link qconcursos', '% líq.', '% liq', '% acertos', '% de acertos'];
     const URL_REGEX = /((https?:\/\/|www\.)[^\s,]+)/gi;
 
-    let globalWorkbook = null;
-    let currentSheetName = '';
-    let isDashboardOpen = false;
-    let repoData = []; 
-    let remindersData = []; 
-    let selectedNoteId = null;
-    let selectedNodeForIcon = null; 
-    let myChart = null; 
-    let noteDebounce = null;
-    
-    // Variável para armazenar seleção (fix do color picker)
-    let savedRange = null;
+    let globalWorkbook = null; let currentSheetName = ''; let isDashboardOpen = false;
+    let repoData = []; let remindersData = []; let selectedNoteId = null; let selectedNodeForIcon = null; 
+    let myChart = null; let noteDebounce = null; let savedRange = null;
+    let currentResizingImg = null; let startX = 0, startY = 0; let startWidth = 0, startHeight = 0;
+    let timerInterval = null; let timeRemaining = 25 * 60; let isTimerRunning = false;
 
-    // --- VARIÁVEIS RESIZE IMAGEM ---
-    let currentResizingImg = null;
-    let startX = 0, startY = 0;
-    let startWidth = 0, startHeight = 0;
-
-    // --- VARIÁVEIS TIMER ---
-    let timerInterval = null;
-    let timeRemaining = 25 * 60; // 25 min padrão
-    let isTimerRunning = false;
-
-    // ICON LIST
-    const AVAILABLE_ICONS = [
-        '📄', '📝', '📕', '📗', '📘', '📙', '📓', '📒', '📚', '🔖', 
-        '📁', '📂', '🗂️', '📊', '📈', '📋', '📌', '📍', '📎', '🔒',
-        '💡', '🔦', '🔥', '⭐', '🌟', '🎯', '🏆', '🏅', '⚠️', '⛔',
-        '✅', '❌', '❓', '❗', '🛑', '📅', '⏰', '⏳', '🧠', '💼'
+    // MOTIVATIONAL QUOTES
+    const QUOTES = [
+        "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+        "Não pare até se orgulhar.",
+        "A dor da disciplina é menor que a dor do arrependimento.",
+        "Seus sonhos não têm data de validade. Respire fundo e tente de novo.",
+        "Estude enquanto eles dormem, trabalhe enquanto eles se divertem.",
+        "O único lugar onde o sucesso vem antes do trabalho é no dicionário.",
+        "Disciplina é liberdade.",
+        "Foco, força e fé. O TJCE te espera!",
+        "A constância é a chave da aprovação.",
+        "Cada questão resolvida é um passo rumo à posse.",
+        "Não conte os dias, faça os dias contarem.",
+        "Você é capaz de coisas incríveis.",
+        "Acredite no processo.",
+        "Se fosse fácil, todo mundo faria.",
+        "Sua futura versão vai te agradecer pelo esforço de hoje.",
+        "Desistir não acelera a aprovação.",
+        "O cansaço passa, a estabilidade fica.",
+        "Hoje é um ótimo dia para aprender algo novo.",
+        "Aprovação é construção diária.",
+        "Resiliência: cair 7 vezes, levantar 8.",
+        "Estudar é plantar a semente do seu futuro.",
+        "O melhor investimento é em conhecimento.",
+        "Vença a procrastinação com ação.",
+        "Mentalidade de aprovado: foco na solução.",
+        "Seu nome no Diário Oficial vai valer a pena.",
+        "Faça o que precisa ser feito.",
+        "O estudo transforma vidas.",
+        "Persistência é o caminho do êxito.",
+        "Não deseje que fosse mais fácil, deseje ser melhor.",
+        "Vamos vencer este edital!"
     ];
 
+    const AVAILABLE_ICONS = ['📄', '📝', '📕', '📗', '📘', '📙', '📓', '📒', '📚', '🔖', '📁', '📂', '🗂️', '📊', '📈', '📋', '📌', '📍', '📎', '🔒', '💡', '🔦', '🔥', '⭐', '🌟', '🎯', '🏆', '🏅', '⚠️', '⛔', '✅', '❌', '❓', '❗', '🛑', '📅', '⏰', '⏳', '🧠', '💼'];
+
     window.onload = function() {
-        initRepo();
-        initReminders();
-        initResizeLogic(); // Sidebar Resize
-        initImageResizer(); // Image Resize
-        updateTimerDisplay(); // Timer Init
+        initRepo(); initReminders(); initResizeLogic(); initImageResizer(); updateTimerDisplay();
+        showRandomQuote(); checkDailyReset(); updateGoalDisplay();
         
         if (localStorage.getItem(THEME_KEY) === 'dark') document.body.classList.add('dark-mode');
+        
         if(CLIENT_ID && API_KEY && CLIENT_ID !== 'SEU_CLIENT_ID_AQUI') {
             gapi.load('client', intializeGapiClient);
             tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '', });
             gisInited = true;
         } else {
-            console.warn("Google Drive: Credenciais não configuradas.");
             if(EMBEDDED_FILE && EMBEDDED_FILE.length > 100) loadEmbeddedFile();
         }
         
-        // Listener para salvar seleção sempre que o usuário clica ou digita
         const editor = document.getElementById('noteEditor');
         editor.addEventListener('mouseup', saveSelection);
         editor.addEventListener('keyup', saveSelection);
         editor.addEventListener('focus', saveSelection);
+        
+        // Restore calendar date
+        const savedCalStart = localStorage.getItem(CALENDAR_START_KEY);
+        if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart;
     };
 
-    // --- FUNÇÕES: TIMER POMODORO ---
+    // --- QUOTES LOGIC ---
+    function showRandomQuote() {
+        const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        document.getElementById('quoteDisplay').innerText = `"${q}"`;
+    }
+
+    // --- DAILY GOAL LOGIC ---
+    function checkDailyReset() {
+        const today = new Date().toDateString();
+        const savedDate = localStorage.getItem(DAILY_DATE_KEY);
+        if (savedDate !== today) {
+            localStorage.setItem(DAILY_COUNT_KEY, '0');
+            localStorage.setItem(DAILY_DATE_KEY, today);
+        }
+    }
+    
+    function updateGoalDisplay() {
+        const target = parseInt(localStorage.getItem(DAILY_GOAL_KEY) || '50');
+        const count = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0');
+        const pct = Math.min((count / target) * 100, 100);
+        
+        document.getElementById('goalText').innerText = `${count}/${target}`;
+        document.getElementById('goalBar').style.width = `${pct}%`;
+        
+        const barFill = document.getElementById('goalBar');
+        if(pct >= 100) barFill.style.backgroundColor = '#107c10'; // Green
+        else if(pct >= 50) barFill.style.backgroundColor = '#ca5010'; // Orange
+        else barFill.style.backgroundColor = '#2b579a'; // Blue
+    }
+
+    function configureGoal() {
+        const current = localStorage.getItem(DAILY_GOAL_KEY) || '50';
+        const newVal = prompt("Defina sua meta diária de questões:", current);
+        if(newVal && !isNaN(newVal)) {
+            localStorage.setItem(DAILY_GOAL_KEY, newVal);
+            updateGoalDisplay();
+        }
+    }
+
+    function incrementDailyGoal(amount) {
+        checkDailyReset();
+        let count = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0');
+        count += amount;
+        if(count < 0) count = 0;
+        localStorage.setItem(DAILY_COUNT_KEY, count);
+        updateGoalDisplay();
+    }
+
+    // --- CALENDAR LOGIC ---
+    function openCalendarModal() {
+        document.getElementById('calendarModal').style.display = 'flex';
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+        
+        const startDateVal = document.getElementById('calendarStartDate').value;
+        if(!startDateVal || !globalWorkbook) {
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-sec);">Defina uma data de início e carregue a planilha.</div>';
+            localStorage.setItem(CALENDAR_START_KEY, startDateVal || '');
+            return;
+        }
+        localStorage.setItem(CALENDAR_START_KEY, startDateVal);
+
+        const start = new Date(startDateVal);
+        // Ajustar para Domingo da semana do inicio, para alinhar calendario
+        const dayOfWeek = start.getDay(); 
+        const calendarStart = new Date(start);
+        calendarStart.setDate(start.getDate() - dayOfWeek);
+
+        // Header Dias
+        const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        days.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'cal-day-header';
+            div.innerText = d;
+            grid.appendChild(div);
+        });
+
+        // Map sheets to weeks (Assumindo 1 aba = 1 semana ou tópico sequencial)
+        const sheetNames = globalWorkbook.SheetNames;
+        const totalWeeks = Math.ceil(sheetNames.length) + 4; // Renderizar algumas semanas extras
+        const todayStr = new Date().toDateString();
+
+        for (let i = 0; i < totalWeeks * 7; i++) {
+            const currentDate = new Date(calendarStart);
+            currentDate.setDate(calendarStart.getDate() + i);
+            
+            const div = document.createElement('div');
+            div.className = 'cal-day';
+            if (currentDate.toDateString() === todayStr) div.classList.add('today');
+
+            const dateSpan = document.createElement('div');
+            dateSpan.className = 'cal-date';
+            dateSpan.innerText = `${currentDate.getDate()}/${currentDate.getMonth()+1}`;
+            div.appendChild(dateSpan);
+
+            // Logica de mapeamento: Diferença em semanas entre data atual e data inicio
+            const diffTime = Math.abs(currentDate - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            // Se for depois da data de inicio
+            if (currentDate >= start) {
+                const weekIndex = Math.floor((currentDate - start) / (1000 * 60 * 60 * 24 * 7));
+                if (weekIndex >= 0 && weekIndex < sheetNames.length) {
+                    const sheet = sheetNames[weekIndex];
+                    // Adicionar evento apenas nos dias úteis (Seg-Sex) ou todos? Vamos colocar Seg como inicio da aba
+                    if (currentDate.getDay() === 1) { // Segunda
+                        const ev = document.createElement('div');
+                        ev.className = 'cal-event';
+                        ev.innerText = `▶ ${sheet}`;
+                        ev.title = `Iniciar ${sheet}`;
+                        ev.onclick = () => { document.getElementById('calendarModal').style.display='none'; loadSheetView(sheet); };
+                        div.appendChild(ev);
+                    }
+                }
+            }
+            grid.appendChild(div);
+        }
+    }
+
+    // --- TIMER POMODORO ---
     function updateTimerDisplay() {
         const m = Math.floor(timeRemaining / 60);
         const s = timeRemaining % 60;
         document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
-
     function toggleTimer() {
-        if (isTimerRunning) {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-        } else {
+        if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; } 
+        else {
             isTimerRunning = true;
             timerInterval = setInterval(() => {
                 timeRemaining--;
                 if (timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    isTimerRunning = false;
-                    timeRemaining = 0;
-                    alert("⏰ O tempo acabou!");
+                    clearInterval(timerInterval); isTimerRunning = false; timeRemaining = 0; alert("⏰ O tempo acabou!");
                 }
                 updateTimerDisplay();
             }, 1000);
         }
     }
-
     function configureTimer() {
         const choice = prompt("Configurar Timer:\n1. Foco (25min)\n2. Pausa (5min)\n3. Personalizar (minutos)");
         if (!choice) return;
-        
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-        
+        clearInterval(timerInterval); isTimerRunning = false;
         if (choice === '1') timeRemaining = 25 * 60;
         else if (choice === '2') timeRemaining = 5 * 60;
-        else if (choice === '3') {
-            const min = parseInt(prompt("Quantos minutos?"), 10);
-            if (!isNaN(min) && min > 0) timeRemaining = min * 60;
-        }
+        else if (choice === '3') { const min = parseInt(prompt("Quantos minutos?"), 10); if (!isNaN(min) && min > 0) timeRemaining = min * 60; }
         updateTimerDisplay();
     }
 
-    // --- FUNÇÕES: BUSCA DE NOTAS ---
-    function handleNoteSearch() {
-        const query = document.getElementById('noteSearch').value.toLowerCase().trim();
-        const treeRoot = document.getElementById('remindersTree');
-        
-        if (query.length === 0) {
-            renderRemindersTree(); // Volta ao normal
-            return;
-        }
-
-        // Buscar recursivamente
-        const results = [];
-        findNotesByQuery(remindersData[0], query, results);
-
-        // Renderizar lista plana de resultados
-        treeRoot.innerHTML = '';
-        if (results.length === 0) {
-            treeRoot.innerHTML = '<div style="padding:10px; color:var(--text-sec);">Nenhuma nota encontrada.</div>';
-            return;
-        }
-
-        results.forEach(note => {
-            const div = document.createElement('div');
-            div.className = 'tree-content';
-            div.style.paddingLeft = '10px';
-            div.innerHTML = `<span class="tree-icon">📄</span> <span class="tree-text">${note.name}</span> <span style="font-size:0.7em; color:var(--text-sec); margin-left:auto;">(Encontrado)</span>`;
-            div.onclick = () => openNote(note.id);
-            treeRoot.appendChild(div);
-        });
-    }
-
-    function findNotesByQuery(node, query, results) {
-        // Verifica se é uma nota e se bate com a busca (titulo ou conteudo)
-        if (node.type === 'note') {
-            const contentText = node.content ? node.content.replace(/<[^>]*>?/gm, '').toLowerCase() : '';
-            if (node.name.toLowerCase().includes(query) || contentText.includes(query)) {
-                results.push(node);
-            }
-        }
-        // Continua buscando nos filhos
-        if (node.children) {
-            node.children.forEach(child => findNotesByQuery(child, query, results));
-        }
-    }
-
-    // --- FUNÇÕES: Salvar e Restaurar Seleção (Fix para Cores) ---
-    function saveSelection() {
-        const sel = window.getSelection();
-        if (sel.rangeCount > 0) {
-            const editor = document.getElementById('noteEditor');
-            if (editor.contains(sel.anchorNode)) {
-                savedRange = sel.getRangeAt(0);
-            }
-        }
-    }
-
-    function restoreSelection() {
-        if (savedRange) {
-            const sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(savedRange);
-        }
-    }
-    
-    function updateColorBar(input) {
-        const bar = input.parentElement.querySelector('.color-bar');
-        if(bar) bar.style.backgroundColor = input.value;
-    }
-
-    // --- NOVO: IMAGE RESIZER LOGIC ---
-    function initImageResizer() {
-        const editor = document.getElementById('noteEditor');
-        const overlay = document.getElementById('imgResizeOverlay');
-        const handle = document.getElementById('imgResizeHandle');
-
-        // Click no editor para detectar imagem
-        editor.addEventListener('click', (e) => {
-            if (e.target.tagName === 'IMG') {
-                showResizer(e.target);
-            } else {
-                hideResizer();
-            }
-        });
-
-        // Scroll ou digitação esconde o resizer para não desalinhar
-        editor.addEventListener('scroll', hideResizer);
-        editor.addEventListener('keyup', hideResizer);
-
-        // Mousedown no handle para iniciar resize
-        handle.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if(!currentResizingImg) return;
-            
-            startX = e.clientX;
-            startY = e.clientY;
-            startWidth = currentResizingImg.offsetWidth;
-            startHeight = currentResizingImg.offsetHeight;
-            
-            document.documentElement.addEventListener('mousemove', doResize);
-            document.documentElement.addEventListener('mouseup', stopResize);
-        });
-    }
-
-    function showResizer(img) {
-        currentResizingImg = img;
-        const overlay = document.getElementById('imgResizeOverlay');
-        
-        // Posicionar overlay sobre a imagem
-        const rect = img.getBoundingClientRect();
-        
-        // Ajuste para coordenadas absolutas da página
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-        overlay.style.width = rect.width + 'px';
-        overlay.style.height = rect.height + 'px';
-        overlay.style.top = (rect.top + scrollTop) + 'px';
-        overlay.style.left = (rect.left + scrollLeft) + 'px';
-        overlay.style.display = 'block';
-    }
-
-    function hideResizer() {
-        const overlay = document.getElementById('imgResizeOverlay');
-        overlay.style.display = 'none';
-        currentResizingImg = null;
-    }
-
-    function doResize(e) {
-        if(!currentResizingImg) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-
-        const newWidth = startWidth + dx;
-        const newHeight = startHeight + dy;
-
-        if (newWidth > 20) currentResizingImg.style.width = newWidth + 'px';
-        if (newHeight > 20) currentResizingImg.style.height = newHeight + 'px';
-        
-        // Atualiza overlay para acompanhar visualmente
-        showResizer(currentResizingImg);
-    }
-
-    function stopResize() {
-        document.documentElement.removeEventListener('mousemove', doResize);
-        document.documentElement.removeEventListener('mouseup', stopResize);
-        handleNoteInput(); // Salva o estado novo
-    }
-
-    // --- FUNÇÃO: Resizer da Sidebar de Notas ---
-    function initResizeLogic() {
-        const resizer = document.getElementById('notesResizer');
-        const sidebar = document.getElementById('notesSidebar');
-        let isResizing = false;
-
-        resizer.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            resizer.classList.add('active');
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none'; 
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            const containerRect = sidebar.parentElement.getBoundingClientRect();
-            let newWidth = e.clientX - containerRect.left;
-            
-            if (newWidth < 150) newWidth = 150;
-            if (newWidth > 600) newWidth = 600;
-            
-            sidebar.style.width = newWidth + 'px';
-        });
-
-        document.addEventListener('mouseup', () => {
-            if(isResizing) {
-                isResizing = false;
-                resizer.classList.remove('active');
-                document.body.style.cursor = '';
-                document.body.style.userSelect = '';
-            }
-        });
-    }
-
-    // --- FUNÇÃO: Toggle Sidebar ---
-    function toggleNotesSidebar() {
-        const sidebar = document.getElementById('notesSidebar');
-        const resizer = document.getElementById('notesResizer');
-        const collapsedHeader = document.getElementById('collapsedHeader');
-        
-        if (sidebar.classList.contains('collapsed')) {
-            sidebar.classList.remove('collapsed');
-            resizer.style.display = 'flex';
-            collapsedHeader.style.display = 'none';
-        } else {
-            sidebar.classList.add('collapsed');
-            resizer.style.display = 'none';
-            collapsedHeader.style.display = 'flex';
-        }
-    }
-
-    // --- FUNÇÃO: Exportar PDF ---
-    function exportNoteToPDF() {
-        const element = document.getElementById('noteEditor');
-        const note = findNode(selectedNoteId, remindersData);
-        const title = note ? note.name : 'Nota_Exportada';
-        
-        if(!note || !element.innerHTML.trim()) {
-            alert("A nota está vazia.");
-            return;
-        }
-
-        const opt = {
-            margin:       15,
-            filename:     `${title}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save();
-    }
-
-    async function intializeGapiClient() {
-        await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS });
-        gapiInited = true;
-        const storedTokenStr = localStorage.getItem(TOKEN_KEY);
-        if (storedTokenStr) {
-            try {
-                const storedToken = JSON.parse(storedTokenStr);
-                if (Date.now() < storedToken.expiry) {
-                    gapi.client.setToken(storedToken);
-                    checkAuthDisplay(); await loadFromDrive(); 
-                } else { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); }
-            } catch (e) { localStorage.removeItem(TOKEN_KEY); }
-        } else { checkAuthDisplay(); }
-    }
-
-    function checkAuthDisplay() {
-        const btnAuth = document.getElementById('btnGoogleAuth'), btnSignout = document.getElementById('btnGoogleSignout'), btnOpen = document.getElementById('btnOpen');
-        if (gapiInited && gapi.client.getToken()) {
-            btnAuth.style.display = 'none'; btnSignout.style.display = 'inline-flex'; btnOpen.innerText = "📂 Abrir Local";
-        } else { btnAuth.style.display = 'inline-flex'; btnSignout.style.display = 'none'; }
-    }
-
-    function handleAuthClick() {
-        tokenClient.callback = async (resp) => {
-            if (resp.error !== undefined) throw (resp);
-            const tokenRecord = { ...resp, expiry: Date.now() + (resp.expires_in * 1000) };
-            localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenRecord));
-            checkAuthDisplay(); await loadFromDrive();
-        };
-        if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'});
-        else tokenClient.requestAccessToken({prompt: ''});
-    }
-
-    function handleSignoutClick() {
-        const token = gapi.client.getToken();
-        if (token !== null) { google.accounts.oauth2.revoke(token.access_token); gapi.client.setToken(''); localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Desconectado."); }
-    }
-
-    async function loadFromDrive() {
-        updateSyncStatus('loading');
-        try {
-            const accessToken = gapi.client.getToken().access_token;
-            document.getElementById('fileName').innerText = "Verificando...";
-            const metaResp = await fetch(`https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}?fields=mimeType`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-            if (metaResp.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Sessão expirada."); return; }
-            
-            const meta = await metaResp.json();
-            
-            let downloadUrl = `https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}?alt=media`; 
-            if (meta.mimeType === 'application/vnd.google-apps.spreadsheet') {
-                downloadUrl = `https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`;
-            }
-
-            document.getElementById('fileName').innerText = "Baixando...";
-            const fetchSheet = await fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-            
-            if(!fetchSheet.ok) throw new Error(`Erro ao baixar: ${fetchSheet.status}`);
-            const arrayBufferSheet = await fetchSheet.arrayBuffer();
-            
-            const responseSearch = await gapi.client.drive.files.list({ q: `name = '${SYNC_FILE_NAME}' and trashed = false`, fields: 'files(id, name)', spaces: 'drive' });
-            const files = responseSearch.result.files;
-            if (files && files.length > 0) {
-                syncFileId = files[0].id;
-                const fetchJson = await fetch(`https://www.googleapis.com/drive/v3/files/${syncFileId}?alt=media`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-                const jsonData = await fetchJson.json();
-                Object.keys(jsonData).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, jsonData[k]); });
-                if(jsonData[REPO_KEY]) { localStorage.setItem(REPO_KEY, jsonData[REPO_KEY]); initRepo(); }
-                if(jsonData[REMINDERS_KEY]) { localStorage.setItem(REMINDERS_KEY, jsonData[REMINDERS_KEY]); initReminders(); }
-            } else { syncFileId = null; }
-            loadWorkbook(new Uint8Array(arrayBufferSheet), "☁️ Google Drive");
-            updateSyncStatus('active');
-        } catch (err) { console.error(err); alert("Erro ao carregar do Drive."); updateSyncStatus('error'); }
-    }
-
-    async function syncToDrive() {
-        if (!gapi.client.getToken()) return;
-        updateSyncStatus('loading');
-        const data = {};
-        for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) data[k] = localStorage.getItem(k); }
-        const fileContent = JSON.stringify(data);
-        const file = new Blob([fileContent], {type: 'application/json'});
-        const metadata = { 'name': SYNC_FILE_NAME, 'mimeType': 'application/json' };
-        const accessToken = gapi.client.getToken().access_token;
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-        form.append('file', file);
-        try {
-            let method = 'POST'; let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
-            if (syncFileId) { method = 'PATCH'; url = `https://www.googleapis.com/upload/drive/v3/files/${syncFileId}?uploadType=multipart`; }
-            const response = await fetch(url, { method: method, headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }), body: form });
-            const jsonResp = await response.json();
-            if(jsonResp.id) { syncFileId = jsonResp.id; updateSyncStatus('active'); } else { throw new Error('Falha no upload'); }
-        } catch (e) { console.error("Erro sync", e); updateSyncStatus('error'); if(e.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); } }
-    }
-    
+    // --- CORE (SYNC, AUTH, FILES) ---
+    async function intializeGapiClient() { await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS }); gapiInited = true; const storedTokenStr = localStorage.getItem(TOKEN_KEY); if (storedTokenStr) { try { const storedToken = JSON.parse(storedTokenStr); if (Date.now() < storedToken.expiry) { gapi.client.setToken(storedToken); checkAuthDisplay(); await loadFromDrive(); } else { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); } } catch (e) { localStorage.removeItem(TOKEN_KEY); } } else { checkAuthDisplay(); } }
+    function checkAuthDisplay() { const btnAuth = document.getElementById('btnGoogleAuth'), btnSignout = document.getElementById('btnGoogleSignout'), btnOpen = document.getElementById('btnOpen'); if (gapiInited && gapi.client.getToken()) { btnAuth.style.display = 'none'; btnSignout.style.display = 'inline-flex'; btnOpen.innerText = "📂 Abrir Local"; } else { btnAuth.style.display = 'inline-flex'; btnSignout.style.display = 'none'; } }
+    function handleAuthClick() { tokenClient.callback = async (resp) => { if (resp.error !== undefined) throw (resp); const tokenRecord = { ...resp, expiry: Date.now() + (resp.expires_in * 1000) }; localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenRecord)); checkAuthDisplay(); await loadFromDrive(); }; if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'}); else tokenClient.requestAccessToken({prompt: ''}); }
+    function handleSignoutClick() { const token = gapi.client.getToken(); if (token !== null) { google.accounts.oauth2.revoke(token.access_token); gapi.client.setToken(''); localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Desconectado."); } }
+    async function loadFromDrive() { updateSyncStatus('loading'); try { const accessToken = gapi.client.getToken().access_token; document.getElementById('fileName').innerText = "Verificando..."; const metaResp = await fetch(`https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}?fields=mimeType`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); if (metaResp.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Sessão expirada."); return; } const meta = await metaResp.json(); let downloadUrl = `https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}?alt=media`; if (meta.mimeType === 'application/vnd.google-apps.spreadsheet') { downloadUrl = `https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`; } document.getElementById('fileName').innerText = "Baixando..."; const fetchSheet = await fetch(downloadUrl, { headers: { 'Authorization': `Bearer ${accessToken}` } }); if(!fetchSheet.ok) throw new Error(`Erro ao baixar: ${fetchSheet.status}`); const arrayBufferSheet = await fetchSheet.arrayBuffer(); const responseSearch = await gapi.client.drive.files.list({ q: `name = '${SYNC_FILE_NAME}' and trashed = false`, fields: 'files(id, name)', spaces: 'drive' }); const files = responseSearch.result.files; if (files && files.length > 0) { syncFileId = files[0].id; const fetchJson = await fetch(`https://www.googleapis.com/drive/v3/files/${syncFileId}?alt=media`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); const jsonData = await fetchJson.json(); Object.keys(jsonData).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, jsonData[k]); }); if(jsonData[REPO_KEY]) { localStorage.setItem(REPO_KEY, jsonData[REPO_KEY]); initRepo(); } if(jsonData[REMINDERS_KEY]) { localStorage.setItem(REMINDERS_KEY, jsonData[REMINDERS_KEY]); initReminders(); } } else { syncFileId = null; } loadWorkbook(new Uint8Array(arrayBufferSheet), "☁️ Google Drive"); updateSyncStatus('active'); } catch (err) { console.error(err); alert("Erro ao carregar do Drive."); updateSyncStatus('error'); } }
+    async function syncToDrive() { if (!gapi.client.getToken()) return; updateSyncStatus('loading'); const data = {}; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) data[k] = localStorage.getItem(k); } const fileContent = JSON.stringify(data); const file = new Blob([fileContent], {type: 'application/json'}); const metadata = { 'name': SYNC_FILE_NAME, 'mimeType': 'application/json' }; const accessToken = gapi.client.getToken().access_token; const form = new FormData(); form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'})); form.append('file', file); try { let method = 'POST'; let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'; if (syncFileId) { method = 'PATCH'; url = `https://www.googleapis.com/upload/drive/v3/files/${syncFileId}?uploadType=multipart`; } const response = await fetch(url, { method: method, headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }), body: form }); const jsonResp = await response.json(); if(jsonResp.id) { syncFileId = jsonResp.id; updateSyncStatus('active'); } else { throw new Error('Falha no upload'); } } catch (e) { console.error("Erro sync", e); updateSyncStatus('error'); if(e.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); } } }
     function triggerDriveSync() { if(syncTimeout) clearTimeout(syncTimeout); updateSyncStatus('loading'); syncTimeout = setTimeout(() => { syncToDrive(); }, 2000); }
-    
-    function updateSyncStatus(status, percentText) {
-        const el = document.getElementById('syncIndicator');
-        el.className = 'sync-status ' + status;
-        
-        if (status === 'active') {
-            el.title = "Status: 100% Sincronizado";
-        } else if (status === 'loading') {
-            el.title = percentText || "Sincronizando...";
-        } else if (status === 'error') {
-            el.title = "Erro na sincronização";
-        } else {
-            el.title = "Status desconhecido";
-        }
-    }
-
+    function updateSyncStatus(status, percentText) { const el = document.getElementById('syncIndicator'); el.className = 'sync-status ' + status; if (status === 'active') el.title = "Status: 100% Sincronizado"; else if (status === 'loading') el.title = percentText || "Sincronizando..."; else if (status === 'error') el.title = "Erro na sincronização"; }
     function loadEmbeddedFile() { try { const binaryString = window.atob(EMBEDDED_FILE); const bytes = new Uint8Array(binaryString.length); for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i); loadWorkbook(bytes, "Local"); } catch(e) {} }
+    function loadWorkbook(data, filename) { document.getElementById('fileName').innerText = filename; globalWorkbook = XLSX.read(data, {type: 'array'}); const select = document.getElementById('sheetSelect'); select.innerHTML = ''; globalWorkbook.SheetNames.forEach(name => { const opt = document.createElement('option'); opt.value = name; opt.innerText = name; select.appendChild(opt); }); document.getElementById('btnDash').style.display = 'inline-flex'; document.getElementById('globalStats').style.display = 'flex'; document.getElementById('sheetControls').style.display = 'flex'; document.getElementById('tableView').style.display = 'block'; populateGlobalSubjects(); loadSheetView(globalWorkbook.SheetNames[0]); }
 
-    function loadWorkbook(data, filename) {
-        document.getElementById('fileName').innerText = filename;
-        globalWorkbook = XLSX.read(data, {type: 'array'});
-        const select = document.getElementById('sheetSelect'); select.innerHTML = '';
-        globalWorkbook.SheetNames.forEach(name => { const opt = document.createElement('option'); opt.value = name; opt.innerText = name; select.appendChild(opt); });
-        document.getElementById('btnDash').style.display = 'inline-flex';
-        document.getElementById('globalStats').style.display = 'flex';
-        document.getElementById('sheetControls').style.display = 'flex';
-        document.getElementById('tableView').style.display = 'block';
-        populateGlobalSubjects();
-        loadSheetView(globalWorkbook.SheetNames[0]);
-    }
-
-    // --- REPO & REMINDERS LOGIC ---
-    function initRepo() {
-        const raw = localStorage.getItem(REPO_KEY);
-        if(raw) { repoData = JSON.parse(raw); } else { repoData = [{ id: 'root', type: 'folder', name: 'Raiz', children: [], isRoot: true }]; }
-    }
-    function initReminders() {
-        const raw = localStorage.getItem(REMINDERS_KEY);
-        if(raw) { remindersData = JSON.parse(raw); } else { remindersData = [{ id: 'root-rem', type: 'folder', name: 'Minhas Notas', children: [], isRoot: true }]; }
-    }
-
+    // --- REPO, REMINDERS, ACTIONS, TABLE (Existing) ---
+    function initRepo() { const raw = localStorage.getItem(REPO_KEY); if(raw) { repoData = JSON.parse(raw); } else { repoData = [{ id: 'root', type: 'folder', name: 'Raiz', children: [], isRoot: true }]; } }
+    function initReminders() { const raw = localStorage.getItem(REMINDERS_KEY); if(raw) { remindersData = JSON.parse(raw); } else { remindersData = [{ id: 'root-rem', type: 'folder', name: 'Minhas Notas', children: [], isRoot: true }]; } }
     function saveRepo() { localStorage.setItem(REPO_KEY, JSON.stringify(repoData)); triggerDriveSync(); renderRepoTree(); updateFolderSelect(); }
     function saveReminders() { localStorage.setItem(REMINDERS_KEY, JSON.stringify(remindersData)); triggerDriveSync(); renderRemindersTree(); }
-
     function openRepoModal() { document.getElementById('repoModal').style.display = 'flex'; updateFolderSelect(); renderRepoTree(); }
     function closeRepoModal() { document.getElementById('repoModal').style.display = 'none'; }
     function openRemindersModal() { document.getElementById('remindersModal').style.display = 'flex'; renderRemindersTree(); }
     function closeRemindersModal() { document.getElementById('remindersModal').style.display = 'none'; }
-
-    function getAllFolders(nodes, depth = 0, list = []) {
-        nodes.forEach(node => { if (node.type === 'folder') { list.push({ id: node.id, name: node.name, depth: depth, isRoot: !!node.isRoot }); if (node.children) getAllFolders(node.children, depth + 1, list); } }); return list;
-    }
-    function updateFolderSelect() {
-        const select = document.getElementById('targetFolderSelect'); const currentVal = select.value; select.innerHTML = '';
-        const folders = getAllFolders(repoData);
-        folders.forEach(f => { const opt = document.createElement('option'); opt.value = f.id; opt.innerText = (f.depth > 0 ? '\u00A0\u00A0'.repeat(f.depth) + '└ ' : '') + (f.isRoot ? '📂 Raiz' : '📁 ' + f.name); select.appendChild(opt); });
-        if(folders.find(f => f.id === currentVal)) select.value = currentVal; else if(folders.length > 0) select.value = folders[0].id;
-    }
-
+    function getAllFolders(nodes, depth = 0, list = []) { nodes.forEach(node => { if (node.type === 'folder') { list.push({ id: node.id, name: node.name, depth: depth, isRoot: !!node.isRoot }); if (node.children) getAllFolders(node.children, depth + 1, list); } }); return list; }
+    function updateFolderSelect() { const select = document.getElementById('targetFolderSelect'); const currentVal = select.value; select.innerHTML = ''; const folders = getAllFolders(repoData); folders.forEach(f => { const opt = document.createElement('option'); opt.value = f.id; opt.innerText = (f.depth > 0 ? '\u00A0\u00A0'.repeat(f.depth) + '└ ' : '') + (f.isRoot ? '📂 Raiz' : '📁 ' + f.name); select.appendChild(opt); }); if(folders.find(f => f.id === currentVal)) select.value = currentVal; else if(folders.length > 0) select.value = folders[0].id; }
     function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { const found = findNode(id, node.children); if(found) return found; } } return null; }
     function removeNode(id, nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { nodes.splice(i, 1); return true; } if(nodes[i].children) { if(removeNode(id, nodes[i].children)) return true; } } return false; }
-
-    // --- ACTIONS ---
-    function addNewFolder(context) {
-        const name = context === 'repo' ? document.getElementById('newFolderInput').value.trim() : prompt("Nome da Pasta:");
-        if(!name) return;
-        const newFolder = { id: 'f-'+Date.now(), type: 'folder', name: name, children: [] };
-        if(context === 'repo') { repoData[0].children.push(newFolder); document.getElementById('newFolderInput').value = ''; saveRepo(); }
-        else { remindersData[0].children.push(newFolder); saveReminders(); }
-    }
-    function addNewLink() {
-        const name = document.getElementById('newLinkName').value.trim(); let url = document.getElementById('newLinkUrl').value.trim(); const targetId = document.getElementById('targetFolderSelect').value;
-        if(!name || !url) return; if(!url.startsWith('http')) url = 'https://' + url;
-        const targetFolder = findNode(targetId, repoData);
-        if(!targetFolder) return alert('Pasta de destino não encontrada.');
-        targetFolder.children.push({ id: 'l-'+Date.now(), type: 'link', name: name, url: url });
-        document.getElementById('newLinkName').value = ''; document.getElementById('newLinkUrl').value = ''; saveRepo();
-    }
-    function addNewNote() {
-        const name = prompt("Título da Nota:"); if(!name) return;
-        const newNote = { id: 'n-'+Date.now(), type: 'note', name: name, content: '', icon: '📄' };
-        remindersData[0].children.push(newNote); saveReminders(); openNote(newNote.id);
-    }
+    function addNewFolder(context) { const name = context === 'repo' ? document.getElementById('newFolderInput').value.trim() : prompt("Nome da Pasta:"); if(!name) return; const newFolder = { id: 'f-'+Date.now(), type: 'folder', name: name, children: [] }; if(context === 'repo') { repoData[0].children.push(newFolder); document.getElementById('newFolderInput').value = ''; saveRepo(); } else { remindersData[0].children.push(newFolder); saveReminders(); } }
+    function addNewLink() { const name = document.getElementById('newLinkName').value.trim(); let url = document.getElementById('newLinkUrl').value.trim(); const targetId = document.getElementById('targetFolderSelect').value; if(!name || !url) return; if(!url.startsWith('http')) url = 'https://' + url; const targetFolder = findNode(targetId, repoData); if(!targetFolder) return alert('Pasta de destino não encontrada.'); targetFolder.children.push({ id: 'l-'+Date.now(), type: 'link', name: name, url: url }); document.getElementById('newLinkName').value = ''; document.getElementById('newLinkUrl').value = ''; saveRepo(); }
+    function addNewNote() { const name = prompt("Título da Nota:"); if(!name) return; const newNote = { id: 'n-'+Date.now(), type: 'note', name: name, content: '', icon: '📄' }; remindersData[0].children.push(newNote); saveReminders(); openNote(newNote.id); }
     
-    function openNote(id) {
-        selectedNoteId = id; const note = findNode(id, remindersData);
-        const editor = document.getElementById('noteEditor'); const placeholder = document.getElementById('notePlaceholder'); const toolbar = document.getElementById('editorToolbar');
-        document.querySelectorAll('.tree-content.selected').forEach(el => el.classList.remove('selected'));
-        const el = document.getElementById('node-'+id); if(el) el.classList.add('selected');
-        if(note) {
-            placeholder.style.display = 'none'; editor.style.display = 'block'; toolbar.style.display = 'flex';
-            editor.innerHTML = note.content || '';
-        }
-    }
-    function handleNoteInput() {
-        if(!selectedNoteId) return;
-        if(noteDebounce) clearTimeout(noteDebounce);
-        noteDebounce = setTimeout(() => { const note = findNode(selectedNoteId, remindersData); if(note) { note.content = document.getElementById('noteEditor').innerHTML; saveReminders(); } }, 1000);
-    }
-
-    // --- RICH TEXT FORMATTING ---
-    function formatDoc(cmd, value = null) {
-        if (value && (cmd === 'foreColor' || cmd === 'hiliteColor')) {
-             restoreSelection();
-        }
-        document.execCommand(cmd, false, value);
-        document.getElementById('noteEditor').focus();
-        saveSelection();
-    }
-
-    // --- ICON PICKER LOGIC ---
-    function openIconPicker(nodeId) {
-        selectedNodeForIcon = nodeId;
-        const grid = document.getElementById('iconGrid'); grid.innerHTML = '';
-        AVAILABLE_ICONS.forEach(icon => {
-            const div = document.createElement('div'); div.className = 'icon-option'; div.innerText = icon;
-            div.onclick = () => selectIcon(icon);
-            grid.appendChild(div);
-        });
-        document.getElementById('iconPickerModal').style.display = 'flex';
-    }
-    function selectIcon(icon) {
-        if(selectedNodeForIcon) {
-            const node = findNode(selectedNodeForIcon, remindersData);
-            if(node) { node.icon = icon; saveReminders(); }
-        }
-        document.getElementById('iconPickerModal').style.display = 'none';
-        selectedNodeForIcon = null;
-    }
-
-    // --- TREE RENDER ---
+    function openNote(id) { selectedNoteId = id; const note = findNode(id, remindersData); const editor = document.getElementById('noteEditor'); const placeholder = document.getElementById('notePlaceholder'); const toolbar = document.getElementById('editorToolbar'); document.querySelectorAll('.tree-content.selected').forEach(el => el.classList.remove('selected')); const el = document.getElementById('node-'+id); if(el) el.classList.add('selected'); if(note) { placeholder.style.display = 'none'; editor.style.display = 'block'; toolbar.style.display = 'flex'; editor.innerHTML = note.content || ''; } }
+    function handleNoteInput() { if(!selectedNoteId) return; if(noteDebounce) clearTimeout(noteDebounce); noteDebounce = setTimeout(() => { const note = findNode(selectedNoteId, remindersData); if(note) { note.content = document.getElementById('noteEditor').innerHTML; saveReminders(); } }, 1000); }
+    function formatDoc(cmd, value = null) { if (value && (cmd === 'foreColor' || cmd === 'hiliteColor')) { restoreSelection(); } document.execCommand(cmd, false, value); document.getElementById('noteEditor').focus(); saveSelection(); }
+    function openIconPicker(nodeId) { selectedNodeForIcon = nodeId; const grid = document.getElementById('iconGrid'); grid.innerHTML = ''; AVAILABLE_ICONS.forEach(icon => { const div = document.createElement('div'); div.className = 'icon-option'; div.innerText = icon; div.onclick = () => selectIcon(icon); grid.appendChild(div); }); document.getElementById('iconPickerModal').style.display = 'flex'; }
+    function selectIcon(icon) { if(selectedNodeForIcon) { const node = findNode(selectedNodeForIcon, remindersData); if(node) { node.icon = icon; saveReminders(); } } document.getElementById('iconPickerModal').style.display = 'none'; selectedNodeForIcon = null; }
+    
     let draggedId = null; let dragContext = null;
     function handleDragStart(e, id, ctx) { draggedId = id; dragContext = ctx; e.dataTransfer.effectAllowed = 'move'; e.stopPropagation(); }
     function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); e.stopPropagation(); }
     function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); e.stopPropagation(); }
-    function handleDrop(e, targetId, ctx) {
-        e.preventDefault(); e.currentTarget.classList.remove('drag-over'); e.stopPropagation();
-        if (draggedId === targetId || dragContext !== ctx) return;
-        const root = ctx === 'repo' ? repoData : remindersData;
-        const item = findNode(draggedId, root); const target = findNode(targetId, root);
-        if(!item || !target || target.type !== 'folder') return;
-        if(item.type === 'folder') { const isChild = findNode(targetId, item.children); if(isChild) return alert("Ciclo detectado."); }
-        removeNode(draggedId, root); target.children.push(item);
-        ctx === 'repo' ? saveRepo() : saveReminders();
-    }
-
-    function renderNode(node, context) {
-        const container = document.createElement('div'); container.className = 'tree-node';
-        if(node.isRoot) container.style.marginLeft = '0';
-        const content = document.createElement('div'); content.className = 'tree-content'; content.id = 'node-'+node.id;
-        if(node.type === 'folder') content.style.fontWeight = 'bold';
-        
-        const iconSpan = document.createElement('span'); iconSpan.className = 'tree-icon';
-        let displayIcon = '';
-        if (node.icon) displayIcon = node.icon;
-        else if(node.type === 'folder') displayIcon = node.isRoot ? '📂' : '📁';
-        else if(node.type === 'link') displayIcon = '🔗';
-        else displayIcon = '📄';
-        iconSpan.innerText = displayIcon;
-        
-        content.appendChild(iconSpan);
-        const text = document.createElement('span'); text.className = 'tree-text';
-        if(node.type === 'link') { text.innerHTML = `<a href="${node.url}" target="_blank">${node.name}</a>`; content.classList.add('is-link'); }
-        else { text.innerText = node.name; }
-        content.appendChild(text);
-
-        if(!node.isRoot) {
-            content.draggable = true;
-            content.ondragstart = (e) => handleDragStart(e, node.id, context);
-            content.oncontextmenu = (e) => showContextMenu(e, node, context);
-        }
-        
-        if(node.type === 'folder') {
-            content.ondragover = handleDragOver; content.ondragleave = handleDragLeave;
-            content.ondrop = (e) => handleDrop(e, node.id, context);
-            content.onclick = (e) => { if(e.target.tagName !== 'A') container.classList.toggle('expanded'); };
-            container.classList.add('expanded');
-        } else if(node.type === 'note') {
-            content.onclick = () => openNote(node.id);
-        }
-        
-        container.appendChild(content);
-        if(node.children && node.children.length > 0) {
-            const childrenContainer = document.createElement('div'); childrenContainer.className = 'tree-children';
-            node.children.forEach(child => childrenContainer.appendChild(renderNode(child, context)));
-            container.appendChild(childrenContainer);
-        }
-        return container;
-    }
-
+    function handleDrop(e, targetId, ctx) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); e.stopPropagation(); if (draggedId === targetId || dragContext !== ctx) return; const root = ctx === 'repo' ? repoData : remindersData; const item = findNode(draggedId, root); const target = findNode(targetId, root); if(!item || !target || target.type !== 'folder') return; if(item.type === 'folder') { const isChild = findNode(targetId, item.children); if(isChild) return alert("Ciclo detectado."); } removeNode(draggedId, root); target.children.push(item); ctx === 'repo' ? saveRepo() : saveReminders(); }
+    function renderNode(node, context) { const container = document.createElement('div'); container.className = 'tree-node'; if(node.isRoot) container.style.marginLeft = '0'; const content = document.createElement('div'); content.className = 'tree-content'; content.id = 'node-'+node.id; if(node.type === 'folder') content.style.fontWeight = 'bold'; const iconSpan = document.createElement('span'); iconSpan.className = 'tree-icon'; let displayIcon = ''; if (node.icon) displayIcon = node.icon; else if(node.type === 'folder') displayIcon = node.isRoot ? '📂' : '📁'; else if(node.type === 'link') displayIcon = '🔗'; else displayIcon = '📄'; iconSpan.innerText = displayIcon; content.appendChild(iconSpan); const text = document.createElement('span'); text.className = 'tree-text'; if(node.type === 'link') { text.innerHTML = `<a href="${node.url}" target="_blank">${node.name}</a>`; content.classList.add('is-link'); } else { text.innerText = node.name; } content.appendChild(text); if(!node.isRoot) { content.draggable = true; content.ondragstart = (e) => handleDragStart(e, node.id, context); content.oncontextmenu = (e) => showContextMenu(e, node, context); } if(node.type === 'folder') { content.ondragover = handleDragOver; content.ondragleave = handleDragLeave; content.ondrop = (e) => handleDrop(e, node.id, context); content.onclick = (e) => { if(e.target.tagName !== 'A') container.classList.toggle('expanded'); }; container.classList.add('expanded'); } else if(node.type === 'note') { content.onclick = () => openNote(node.id); } container.appendChild(content); if(node.children && node.children.length > 0) { const childrenContainer = document.createElement('div'); childrenContainer.className = 'tree-children'; node.children.forEach(child => childrenContainer.appendChild(renderNode(child, context))); container.appendChild(childrenContainer); } return container; }
     function renderRepoTree() { const root = document.getElementById('repoTree'); root.innerHTML = ''; if(repoData.length > 0) root.appendChild(renderNode(repoData[0], 'repo')); }
     function renderRemindersTree() { const root = document.getElementById('remindersTree'); root.innerHTML = ''; if(remindersData.length > 0) root.appendChild(renderNode(remindersData[0], 'reminders')); }
+    function showContextMenu(e, node, context) { e.preventDefault(); const ctxMenu = document.getElementById('customContextMenu'); ctxMenu.innerHTML = ''; if(context === 'reminders' && !node.isRoot) { const iconBtn = document.createElement('div'); iconBtn.className = 'context-menu-item'; iconBtn.innerText = '🎨 Mudar Ícone'; iconBtn.onclick = () => { openIconPicker(node.id); ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(iconBtn); } const renameBtn = document.createElement('div'); renameBtn.className = 'context-menu-item'; renameBtn.innerText = '✏️ Renomear'; renameBtn.onclick = () => { const newName = prompt("Novo nome:", node.name); if(newName) { node.name = newName; context === 'repo' ? saveRepo() : saveReminders(); } ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(renameBtn); if(node.type === 'link') { const editUrlBtn = document.createElement('div'); editUrlBtn.className = 'context-menu-item'; editUrlBtn.innerText = '🔗 Editar URL'; editUrlBtn.onclick = () => { const newUrl = prompt("Nova URL:", node.url); if(newUrl) { node.url = newUrl; saveRepo(); } ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(editUrlBtn); } const delBtn = document.createElement('div'); delBtn.className = 'context-menu-item'; delBtn.style.color = 'var(--danger)'; delBtn.innerText = '🗑️ Excluir'; delBtn.onclick = () => { if(confirm(`Excluir "${node.name}"?`)) { const root = context === 'repo' ? repoData : remindersData; removeNode(node.id, root); context === 'repo' ? saveRepo() : saveReminders(); if(context === 'reminders' && selectedNoteId === node.id) { document.getElementById('noteEditor').style.display='none'; document.getElementById('editorToolbar').style.display='none'; document.getElementById('notePlaceholder').style.display='flex'; selectedNoteId = null; } } ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(delBtn); ctxMenu.style.left = e.pageX + 'px'; ctxMenu.style.top = e.pageY + 'px'; ctxMenu.style.display = 'block'; }
+    document.addEventListener('click', () => { document.getElementById('customContextMenu').style.display = 'none'; });
 
-    const ctxMenu = document.getElementById('customContextMenu');
-    function showContextMenu(e, node, context) {
-        e.preventDefault(); ctxMenu.innerHTML = '';
-        
-        if(context === 'reminders' && !node.isRoot) {
-            const iconBtn = document.createElement('div'); iconBtn.className = 'context-menu-item'; iconBtn.innerText = '🎨 Mudar Ícone';
-            iconBtn.onclick = () => { openIconPicker(node.id); ctxMenu.style.display = 'none'; };
-            ctxMenu.appendChild(iconBtn);
-        }
+    function handleNoteSearch() { const query = document.getElementById('noteSearch').value.toLowerCase().trim(); const treeRoot = document.getElementById('remindersTree'); if (query.length === 0) { renderRemindersTree(); return; } const results = []; findNotesByQuery(remindersData[0], query, results); treeRoot.innerHTML = ''; if (results.length === 0) { treeRoot.innerHTML = '<div style="padding:10px; color:var(--text-sec);">Nenhuma nota encontrada.</div>'; return; } results.forEach(note => { const div = document.createElement('div'); div.className = 'tree-content'; div.style.paddingLeft = '10px'; div.innerHTML = `<span class="tree-icon">📄</span> <span class="tree-text">${note.name}</span> <span style="font-size:0.7em; color:var(--text-sec); margin-left:auto;">(Encontrado)</span>`; div.onclick = () => openNote(note.id); treeRoot.appendChild(div); }); }
+    function findNotesByQuery(node, query, results) { if (node.type === 'note') { const contentText = node.content ? node.content.replace(/<[^>]*>?/gm, '').toLowerCase() : ''; if (node.name.toLowerCase().includes(query) || contentText.includes(query)) { results.push(node); } } if (node.children) { node.children.forEach(child => findNotesByQuery(child, query, results)); } }
+    function saveSelection() { const sel = window.getSelection(); if (sel.rangeCount > 0) { const editor = document.getElementById('noteEditor'); if (editor.contains(sel.anchorNode)) { savedRange = sel.getRangeAt(0); } } }
+    function restoreSelection() { if (savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(savedRange); } }
+    function updateColorBar(input) { const bar = input.parentElement.querySelector('.color-bar'); if(bar) bar.style.backgroundColor = input.value; }
+    function initImageResizer() { const editor = document.getElementById('noteEditor'); const handle = document.getElementById('imgResizeHandle'); editor.addEventListener('click', (e) => { if (e.target.tagName === 'IMG') { showResizer(e.target); } else { hideResizer(); } }); editor.addEventListener('scroll', hideResizer); editor.addEventListener('keyup', hideResizer); handle.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); if(!currentResizingImg) return; startX = e.clientX; startY = e.clientY; startWidth = currentResizingImg.offsetWidth; startHeight = currentResizingImg.offsetHeight; document.documentElement.addEventListener('mousemove', doResize); document.documentElement.addEventListener('mouseup', stopResize); }); }
+    function showResizer(img) { currentResizingImg = img; const overlay = document.getElementById('imgResizeOverlay'); const rect = img.getBoundingClientRect(); const scrollTop = window.pageYOffset || document.documentElement.scrollTop; const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft; overlay.style.width = rect.width + 'px'; overlay.style.height = rect.height + 'px'; overlay.style.top = (rect.top + scrollTop) + 'px'; overlay.style.left = (rect.left + scrollLeft) + 'px'; overlay.style.display = 'block'; }
+    function hideResizer() { document.getElementById('imgResizeOverlay').style.display = 'none'; currentResizingImg = null; }
+    function doResize(e) { if(!currentResizingImg) return; const dx = e.clientX - startX; const dy = e.clientY - startY; const newWidth = startWidth + dx; const newHeight = startHeight + dy; if (newWidth > 20) currentResizingImg.style.width = newWidth + 'px'; if (newHeight > 20) currentResizingImg.style.height = newHeight + 'px'; showResizer(currentResizingImg); }
+    function stopResize() { document.documentElement.removeEventListener('mousemove', doResize); document.documentElement.removeEventListener('mouseup', stopResize); handleNoteInput(); }
+    function initResizeLogic() { const resizer = document.getElementById('notesResizer'); const sidebar = document.getElementById('notesSidebar'); let isResizing = false; resizer.addEventListener('mousedown', (e) => { isResizing = true; resizer.classList.add('active'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; }); document.addEventListener('mousemove', (e) => { if (!isResizing) return; const containerRect = sidebar.parentElement.getBoundingClientRect(); let newWidth = e.clientX - containerRect.left; if (newWidth < 150) newWidth = 150; if (newWidth > 600) newWidth = 600; sidebar.style.width = newWidth + 'px'; }); document.addEventListener('mouseup', () => { if(isResizing) { isResizing = false; resizer.classList.remove('active'); document.body.style.cursor = ''; document.body.style.userSelect = ''; } }); }
+    function toggleNotesSidebar() { const sidebar = document.getElementById('notesSidebar'); const resizer = document.getElementById('notesResizer'); const collapsedHeader = document.getElementById('collapsedHeader'); if (sidebar.classList.contains('collapsed')) { sidebar.classList.remove('collapsed'); resizer.style.display = 'flex'; collapsedHeader.style.display = 'none'; } else { sidebar.classList.add('collapsed'); resizer.style.display = 'none'; collapsedHeader.style.display = 'flex'; } }
+    function exportNoteToPDF() { const element = document.getElementById('noteEditor'); const note = findNode(selectedNoteId, remindersData); const title = note ? note.name : 'Nota_Exportada'; if(!note || !element.innerHTML.trim()) { alert("A nota está vazia."); return; } const opt = { margin: 15, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
 
-        const renameBtn = document.createElement('div'); renameBtn.className = 'context-menu-item'; renameBtn.innerText = '✏️ Renomear';
-        renameBtn.onclick = () => { 
-            const newName = prompt("Novo nome:", node.name); 
-            if(newName) { node.name = newName; context === 'repo' ? saveRepo() : saveReminders(); } 
-            ctxMenu.style.display = 'none'; 
-        };
-        ctxMenu.appendChild(renameBtn);
-        
-        if(node.type === 'link') {
-            const editUrlBtn = document.createElement('div'); editUrlBtn.className = 'context-menu-item'; editUrlBtn.innerText = '🔗 Editar URL';
-            editUrlBtn.onclick = () => { const newUrl = prompt("Nova URL:", node.url); if(newUrl) { node.url = newUrl; saveRepo(); } ctxMenu.style.display = 'none'; };
-            ctxMenu.appendChild(editUrlBtn);
-        }
-
-        const delBtn = document.createElement('div'); delBtn.className = 'context-menu-item'; delBtn.style.color = 'var(--danger)'; delBtn.innerText = '🗑️ Excluir';
-        delBtn.onclick = () => { 
-            if(confirm(`Excluir "${node.name}"?`)) { 
-                const root = context === 'repo' ? repoData : remindersData;
-                removeNode(node.id, root); 
-                context === 'repo' ? saveRepo() : saveReminders(); 
-                if(context === 'reminders' && selectedNoteId === node.id) {
-                    document.getElementById('noteEditor').style.display='none';
-                    document.getElementById('editorToolbar').style.display='none';
-                    document.getElementById('notePlaceholder').style.display='flex';
-                    selectedNoteId = null;
-                }
-            } 
-            ctxMenu.style.display = 'none'; 
-        };
-        ctxMenu.appendChild(delBtn);
-        ctxMenu.style.left = e.pageX + 'px'; ctxMenu.style.top = e.pageY + 'px'; ctxMenu.style.display = 'block';
-    }
-    document.addEventListener('click', () => { ctxMenu.style.display = 'none'; });
-
-    // --- TABLE & FILE HANDLING (UNCHANGED) ---
     document.getElementById('fileInput').addEventListener('change', handleFile);
     document.getElementById('sheetSelect').addEventListener('change', (e) => { document.getElementById('subjectFilter').value = 'all'; loadSheetView(e.target.value); });
     const dropZone = document.getElementById('dropZone'); const restoreInput = document.getElementById('restoreInput');
@@ -1273,16 +866,11 @@
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); if(e.dataTransfer.files.length) { restoreInput.files = e.dataTransfer.files; restoreData(restoreInput); } });
     function handleFile(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { loadWorkbook(new Uint8Array(e.target.result), file.name); }; reader.readAsArrayBuffer(file); }
-    
-    function populateGlobalSubjects() {
-        let allSubjects = new Set(); globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if (info) info.rows.forEach(r => { if (r.subject) allSubjects.add(r.subject); }); });
-        const filterSelect = document.getElementById('subjectFilter'); filterSelect.innerHTML = '<option value="all">Ver Aba Atual</option>'; 
-        const sorted = [...allSubjects].sort(); if(sorted.length > 0) { const grp = document.createElement('optgroup'); grp.label = "Filtrar em TODAS as Semanas"; sorted.forEach(subj => { const opt = document.createElement('option'); opt.value = subj; opt.innerText = subj; grp.appendChild(opt); }); filterSelect.appendChild(grp); }
-    }
+    function populateGlobalSubjects() { let allSubjects = new Set(); globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if (info) info.rows.forEach(r => { if (r.subject) allSubjects.add(r.subject); }); }); const filterSelect = document.getElementById('subjectFilter'); filterSelect.innerHTML = '<option value="all">Ver Aba Atual</option>'; const sorted = [...allSubjects].sort(); if(sorted.length > 0) { const grp = document.createElement('optgroup'); grp.label = "Filtrar em TODAS as Semanas"; sorted.forEach(subj => { const opt = document.createElement('option'); opt.value = subj; opt.innerText = subj; grp.appendChild(opt); }); filterSelect.appendChild(grp); } }
     function applyGlobalFilter() { const subject = document.getElementById('subjectFilter').value; const sheetSelect = document.getElementById('sheetSelect'); if (subject === 'all') { sheetSelect.disabled = false; loadSheetView(sheetSelect.value); } else { sheetSelect.disabled = true; renderGlobalView(subject); } document.getElementById('searchInput').value = ''; }
     function renderGlobalView(targetSubject) { let aggregatedRows = []; let referenceInfo = null; globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if (info) { if (!referenceInfo) referenceInfo = info; info.rows.forEach(r => { if (r.subject === targetSubject) { r.sheetName = sheet; aggregatedRows.push(r); } }); } }); if (referenceInfo) renderTable(referenceInfo.headers, aggregatedRows, referenceInfo.colMap, true); }
     function loadSheetView(sheetName) { currentSheetName = sheetName; document.getElementById('sheetSelect').value = sheetName; document.getElementById('sheetSelect').disabled = false; const info = analyzeSheet(sheetName); if (!info) return; info.rows.forEach(r => r.sheetName = sheetName); renderTable(info.headers, info.rows, info.colMap, false); updateGlobalStats(); }
-
+    
     function renderTable(headers, rows, colMap, isGlobalMode) {
         const thead = document.querySelector('#mainTable thead'); const tbody = document.querySelector('#mainTable tbody'); thead.innerHTML = ''; tbody.innerHTML = '';
         const trHead = document.createElement('tr'); let thOk = document.createElement('th'); thOk.className='check-cell'; thOk.innerText='OK'; trHead.appendChild(thOk);
@@ -1294,20 +882,40 @@
             if (colMap.feitas !== -1) { let tdPct = document.createElement('td'); tdPct.style.textAlign='center'; const safeName = item.sheetName.replace(/[^a-zA-Z0-9]/g, ''); tdPct.id = `pct-${safeName}-${item.idx}`; tdPct.innerHTML = getBadge(item.fVal, item.aVal); tr.appendChild(tdPct); } tbody.appendChild(tr);
         });
     }
+    function createInput(sheetName, idx, field, val) { let inp = document.createElement('input'); inp.type = 'number'; inp.className = 'input-q'; inp.value = val !== undefined ? val : ''; inp.placeholder = '0'; inp.onchange = (e) => saveRowState(sheetName, idx, field, e.target.value, val); return inp; }
+    function saveRowState(sheetName, rowIdx, field, value, oldValue) { 
+        const key = STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, ''); 
+        let data = JSON.parse(localStorage.getItem(key) || '{}'); 
+        if (!data[rowIdx]) data[rowIdx] = {}; 
+        
+        // GAMIFICATION HOOK
+        if(field === 'feitas') {
+            const newVal = parseInt(value) || 0;
+            const oldVal = parseInt(oldValue) || 0;
+            const diff = newVal - oldVal;
+            if (diff !== 0) incrementDailyGoal(diff);
+        }
 
-    function createInput(sheetName, idx, field, val) { let inp = document.createElement('input'); inp.type = 'number'; inp.className = 'input-q'; inp.value = val !== undefined ? val : ''; inp.placeholder = '0'; inp.onchange = (e) => saveRowState(sheetName, idx, field, e.target.value); return inp; }
-    function saveRowState(sheetName, rowIdx, field, value) { const key = STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, ''); let data = JSON.parse(localStorage.getItem(key) || '{}'); if (!data[rowIdx]) data[rowIdx] = {}; data[rowIdx][field] = value; localStorage.setItem(key, JSON.stringify(data)); triggerDriveSync(); if (field !== 'checked') { let f = data[rowIdx].feitas || 0; let a = data[rowIdx].acertadas || 0; const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); const cell = document.getElementById(`pct-${safeName}-${rowIdx}`); if(cell) cell.innerHTML = getBadge(f, a); } else { if (document.getElementById('subjectFilter').value === 'all') { const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); const tr = document.getElementById(`row-${safeName}-${rowIdx}`); if(tr) { if(value) tr.classList.add('completed'); else tr.classList.remove('completed'); } } } updateGlobalStats(); }
-    
-    function analyzeSheet(sheetName) {
-        const ws = globalWorkbook.Sheets[sheetName]; if(!ws) return null; const rawData = XLSX.utils.sheet_to_json(ws, {header: 1}); if (!rawData || rawData.length === 0) return null; const originalHeader = rawData[0] || []; const originalBody = rawData.slice(1); const totalCols = originalHeader.length; const cutOffIndex = totalCols > 2 ? totalCols - 2 : totalCols; let headers = []; let indices = [];
-        originalHeader.forEach((h, idx) => { if (idx >= cutOffIndex) return; const hStr = (h || '').toString().trim(); const hLower = hStr.toLowerCase(); if (EXCLUDE_LIST.includes(hLower) || hStr === '') return; indices.push(idx); headers.push(hStr); });
-        let qIdx = -1, aIdx = -1, discIdx = -1, metaIdxRaw = -1; headers.forEach((h, idx) => { const hLower = h.toLowerCase(); if (hLower.includes('questões feitas') || hLower === 'questões') qIdx = idx; else if (hLower.includes('questões acertadas') || hLower.includes('acertos')) aIdx = idx; });
-        originalHeader.forEach((h, idx) => { const s = String(h).toLowerCase().trim(); if (s.includes('disciplina') || s.includes('matéria')) discIdx = idx; if (!s.includes('cumpriu') && !s.includes('status') && (s === 'meta' || s.startsWith('meta '))) metaIdxRaw = idx; }); if (metaIdxRaw === -1) originalHeader.forEach((h, idx) => { if (String(h).toLowerCase().includes('meta') && !String(h).toLowerCase().includes('cumpriu')) metaIdxRaw = idx; }); if (metaIdxRaw === -1) metaIdxRaw = 0; let injectAcertos = (qIdx !== -1 && aIdx === -1); let finalHeaders = [...headers]; if (injectAcertos) { finalHeaders.splice(qIdx + 1, 0, "Acertos"); aIdx = qIdx + 1; } const colMap = { feitas: qIdx, acertadas: aIdx }; const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, '')) || '{}');
-        let processedData = []; let lastMetaVal = null; let lastDiscVal = null; let totalQ = 0, totalA = 0; let subjects = {}; 
-        originalBody.forEach((row, rIdx) => { if (row.length === 0) return; let metaVal = row[metaIdxRaw]; if (isCellVoid(metaVal)) { if (lastMetaVal !== null) metaVal = lastMetaVal; } else { lastMetaVal = metaVal; } if (indices.includes(metaIdxRaw)) row[metaIdxRaw] = metaVal; let rawDisc = sheetName; if (discIdx !== -1) { let val = row[discIdx]; if (isCellVoid(val)) { if (lastDiscVal !== null) val = lastDiscVal; } else { lastDiscVal = val; } if (val) rawDisc = val; } let normalizedDisc = normalizeSubject(rawDisc); let newRow = indices.map(i => row[i]); if (injectAcertos) newRow.splice(colMap.acertadas, 0, ""); let s = savedState[rIdx] || {}; let fVal = s.feitas !== undefined ? s.feitas : newRow[colMap.feitas]; let aVal = s.acertadas !== undefined ? s.acertadas : newRow[colMap.acertadas]; let fNum = parseFloat(fVal) || 0; let aNum = parseFloat(aVal) || 0; if (colMap.feitas !== -1) { totalQ += fNum; totalA += aNum; if (!subjects[normalizedDisc]) subjects[normalizedDisc] = { q: 0, a: 0 }; subjects[normalizedDisc].q += fNum; subjects[normalizedDisc].a += aNum; } let contentText = newRow.find(c => typeof c === 'string' && c.length > 5 && c !== normalizedDisc) || "Tópico sem nome"; processedData.push({ idx: rIdx, data: newRow, state: s, fVal: fVal, aVal: aVal, subject: normalizedDisc, contentText: contentText }); });
-        return { headers: finalHeaders, rows: processedData, colMap: colMap, stats: { q: totalQ, a: totalA }, subjectStats: subjects };
+        data[rowIdx][field] = value; 
+        localStorage.setItem(key, JSON.stringify(data)); 
+        triggerDriveSync(); 
+        
+        if (field !== 'checked') { 
+            let f = data[rowIdx].feitas || 0; let a = data[rowIdx].acertadas || 0; 
+            const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); 
+            const cell = document.getElementById(`pct-${safeName}-${rowIdx}`); 
+            if(cell) cell.innerHTML = getBadge(f, a); 
+        } else { 
+            if (document.getElementById('subjectFilter').value === 'all') { 
+                const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); 
+                const tr = document.getElementById(`row-${safeName}-${rowIdx}`); 
+                if(tr) { if(value) tr.classList.add('completed'); else tr.classList.remove('completed'); } 
+            } 
+        } 
+        updateGlobalStats(); 
     }
-
+    
+    function analyzeSheet(sheetName) { const ws = globalWorkbook.Sheets[sheetName]; if(!ws) return null; const rawData = XLSX.utils.sheet_to_json(ws, {header: 1}); if (!rawData || rawData.length === 0) return null; const originalHeader = rawData[0] || []; const originalBody = rawData.slice(1); const totalCols = originalHeader.length; const cutOffIndex = totalCols > 2 ? totalCols - 2 : totalCols; let headers = []; let indices = []; originalHeader.forEach((h, idx) => { if (idx >= cutOffIndex) return; const hStr = (h || '').toString().trim(); const hLower = hStr.toLowerCase(); if (EXCLUDE_LIST.includes(hLower) || hStr === '') return; indices.push(idx); headers.push(hStr); }); let qIdx = -1, aIdx = -1, discIdx = -1, metaIdxRaw = -1; headers.forEach((h, idx) => { const hLower = h.toLowerCase(); if (hLower.includes('questões feitas') || hLower === 'questões') qIdx = idx; else if (hLower.includes('questões acertadas') || hLower.includes('acertos')) aIdx = idx; }); originalHeader.forEach((h, idx) => { const s = String(h).toLowerCase().trim(); if (s.includes('disciplina') || s.includes('matéria')) discIdx = idx; if (!s.includes('cumpriu') && !s.includes('status') && (s === 'meta' || s.startsWith('meta '))) metaIdxRaw = idx; }); if (metaIdxRaw === -1) originalHeader.forEach((h, idx) => { if (String(h).toLowerCase().includes('meta') && !String(h).toLowerCase().includes('cumpriu')) metaIdxRaw = idx; }); if (metaIdxRaw === -1) metaIdxRaw = 0; let injectAcertos = (qIdx !== -1 && aIdx === -1); let finalHeaders = [...headers]; if (injectAcertos) { finalHeaders.splice(qIdx + 1, 0, "Acertos"); aIdx = qIdx + 1; } const colMap = { feitas: qIdx, acertadas: aIdx }; const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, '')) || '{}'); let processedData = []; let lastMetaVal = null; let lastDiscVal = null; let totalQ = 0, totalA = 0; let subjects = {}; originalBody.forEach((row, rIdx) => { if (row.length === 0) return; let metaVal = row[metaIdxRaw]; if (isCellVoid(metaVal)) { if (lastMetaVal !== null) metaVal = lastMetaVal; } else { lastMetaVal = metaVal; } if (indices.includes(metaIdxRaw)) row[metaIdxRaw] = metaVal; let rawDisc = sheetName; if (discIdx !== -1) { let val = row[discIdx]; if (isCellVoid(val)) { if (lastDiscVal !== null) val = lastDiscVal; } else { lastDiscVal = val; } if (val) rawDisc = val; } let normalizedDisc = normalizeSubject(rawDisc); let newRow = indices.map(i => row[i]); if (injectAcertos) newRow.splice(colMap.acertadas, 0, ""); let s = savedState[rIdx] || {}; let fVal = s.feitas !== undefined ? s.feitas : newRow[colMap.feitas]; let aVal = s.acertadas !== undefined ? s.acertadas : newRow[colMap.acertadas]; let fNum = parseFloat(fVal) || 0; let aNum = parseFloat(aVal) || 0; if (colMap.feitas !== -1) { totalQ += fNum; totalA += aNum; if (!subjects[normalizedDisc]) subjects[normalizedDisc] = { q: 0, a: 0 }; subjects[normalizedDisc].q += fNum; subjects[normalizedDisc].a += aNum; } let contentText = newRow.find(c => typeof c === 'string' && c.length > 5 && c !== normalizedDisc) || "Tópico sem nome"; processedData.push({ idx: rIdx, data: newRow, state: s, fVal: fVal, aVal: aVal, subject: normalizedDisc, contentText: contentText }); }); return { headers: finalHeaders, rows: processedData, colMap: colMap, stats: { q: totalQ, a: totalA }, subjectStats: subjects }; }
     function isCellVoid(val) { return (val === undefined || val === null || String(val).trim() === ''); }
     function normalizeSubject(name) { if(!name) return ""; let s = String(name).trim(); if(s.toUpperCase().includes("REVISÃO SEMANAL")) return "REVISÃO SEMANAL"; s = s.replace(/^\[REVISÃO\]\s*/i, "").replace(/^\(REVISÃO\)\s*/i, "").replace(/^REVISÃO\s+[-–]?\s*/i, "").trim(); return s; }
     function getBadge(f, a) { f = parseFloat(f)||0; a = parseFloat(a)||0; if(f<=0) return '<span class="pct-badge pct-none">-</span>'; let p = Math.round((a/f)*100); let c = 'pct-low'; if(p>=80) c='pct-high'; else if(p>=50) c='pct-mid'; return `<span class="pct-badge ${c}">${p}%</span>`; }
@@ -1316,21 +924,12 @@
     function filterTableText() { const query = document.getElementById('searchInput').value.toLowerCase(); const rows = document.querySelectorAll('#mainTable tbody tr'); rows.forEach(row => { const text = row.innerText.toLowerCase(); row.style.display = text.includes(query) ? '' : 'none'; }); }
     function updateGlobalStats() { if (!globalWorkbook) return; let grandQ = 0, grandA = 0, totalItems = 0, doneItems = 0; let subjectAgg = {}; globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if (info) { grandQ += info.stats.q; grandA += info.stats.a; totalItems += info.rows.length; info.rows.forEach(r => { if(r.state.checked) doneItems++; }); for (const [subj, stats] of Object.entries(info.subjectStats)) { if (!subjectAgg[subj]) subjectAgg[subj] = { q: 0, a: 0 }; subjectAgg[subj].q += stats.q; subjectAgg[subj].a += stats.a; } } }); document.getElementById('gDone').innerText = grandQ; document.getElementById('gCorrect').innerText = grandA; let pct = grandQ > 0 ? Math.round((grandA / grandQ) * 100) : 0; document.getElementById('gPct').innerText = grandQ > 0 ? `${pct}%` : '-'; let ppct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0; document.getElementById('gProgressBar').style.width = `${ppct}%`; document.getElementById('gTotalCompleted').innerText = `${ppct}%`; return { grandQ, grandA, pct, subjectAgg }; }
     function stringToColor(str) { let hash = 0; for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); } let h = Math.abs(hash % 360); return `hsl(${h}, 70%, 50%)`; }
-    
-    function renderDashboard() {
-        const tbody = document.querySelector('#dashTable tbody'); tbody.innerHTML = ''; const attList = document.getElementById('attentionList'); attList.innerHTML = ''; const gStats = updateGlobalStats(); document.getElementById('dTotalQ').innerText = gStats.grandQ; document.getElementById('dTotalA').innerText = gStats.grandA; const dpct = document.getElementById('dTotalPct'); dpct.innerText = `${gStats.pct}%`; dpct.style.color = gStats.pct >= 80 ? 'var(--success)' : (gStats.pct >= 50 ? 'var(--warning)' : 'var(--danger)');
-        const subjects = Object.keys(gStats.subjectAgg).sort(); const labels = []; const dataValues = []; const bgColors = [];
-        subjects.forEach(subj => { const s = gStats.subjectAgg[subj]; const tr = document.createElement('tr'); tr.innerHTML = `<td><b>${subj}</b></td><td style="text-align:center">${s.q}</td><td style="text-align:center">${s.a}</td><td style="text-align:center">${s.q>0 ? getBadge(s.q, s.a) : '-'}</td>`; tbody.appendChild(tr); if(s.q > 0) { labels.push(subj); dataValues.push(s.q); bgColors.push(stringToColor(subj)); } });
-        const ctx = document.getElementById('perfChart').getContext('2d'); const isDark = document.body.classList.contains('dark-mode'); const textColor = isDark ? '#f1f5f9' : '#0f172a';
-        if(myChart) { myChart.destroy(); } myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: bgColors, borderWidth: 1, borderColor: isDark ? '#1e293b' : '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor, font: { size: 10 } } }, title: { display: true, text: 'Questões por Disciplina', color: textColor } } } });
-        let hasAttention = false; globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if(info) { info.rows.forEach(r => { let f = parseFloat(r.fVal)||0; let a = parseFloat(r.aVal)||0; if(f > 0) { let pct = (a/f); if(pct < 0.7) { hasAttention = true; const card = document.createElement('div'); card.className = 'att-card'; card.innerHTML = `<div class="att-header"><span class="att-disc">${r.subject}</span> ${getBadge(f, a)}</div><span class="att-title">${r.contentText}</span><button class="btn att-btn" onclick="goToTopic('${sheet}', ${r.idx})">📍 Ir para tópico</button>`; attList.appendChild(card); } } }); } }); if(!hasAttention) attList.innerHTML = '<p style="color:var(--text-sec); grid-column:1/-1; text-align:center;">Nenhum ponto de atenção encontrado.</p>';
-    }
-
+    function renderDashboard() { const tbody = document.querySelector('#dashTable tbody'); tbody.innerHTML = ''; const attList = document.getElementById('attentionList'); attList.innerHTML = ''; const gStats = updateGlobalStats(); document.getElementById('dTotalQ').innerText = gStats.grandQ; document.getElementById('dTotalA').innerText = gStats.grandA; const dpct = document.getElementById('dTotalPct'); dpct.innerText = `${gStats.pct}%`; dpct.style.color = gStats.pct >= 80 ? 'var(--success)' : (gStats.pct >= 50 ? 'var(--warning)' : 'var(--danger)'); const subjects = Object.keys(gStats.subjectAgg).sort(); const labels = []; const dataValues = []; const bgColors = []; subjects.forEach(subj => { const s = gStats.subjectAgg[subj]; const tr = document.createElement('tr'); tr.innerHTML = `<td><b>${subj}</b></td><td style="text-align:center">${s.q}</td><td style="text-align:center">${s.a}</td><td style="text-align:center">${s.q>0 ? getBadge(s.q, s.a) : '-'}</td>`; tbody.appendChild(tr); if(s.q > 0) { labels.push(subj); dataValues.push(s.q); bgColors.push(stringToColor(subj)); } }); const ctx = document.getElementById('perfChart').getContext('2d'); const isDark = document.body.classList.contains('dark-mode'); const textColor = isDark ? '#f1f5f9' : '#0f172a'; if(myChart) { myChart.destroy(); } myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: bgColors, borderWidth: 1, borderColor: isDark ? '#1e293b' : '#ffffff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor, font: { size: 10 } } }, title: { display: true, text: 'Questões por Disciplina', color: textColor } } } }); let hasAttention = false; globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if(info) { info.rows.forEach(r => { let f = parseFloat(r.fVal)||0; let a = parseFloat(r.aVal)||0; if(f > 0) { let pct = (a/f); if(pct < 0.7) { hasAttention = true; const card = document.createElement('div'); card.className = 'att-card'; card.innerHTML = `<div class="att-header"><span class="att-disc">${r.subject}</span> ${getBadge(f, a)}</div><span class="att-title">${r.contentText}</span><button class="btn att-btn" onclick="goToTopic('${sheet}', ${r.idx})">📍 Ir para tópico</button>`; attList.appendChild(card); } } }); } }); if(!hasAttention) attList.innerHTML = '<p style="color:var(--text-sec); grid-column:1/-1; text-align:center;">Nenhum ponto de atenção encontrado.</p>'; }
     function goToTopic(sheetName, rowIdx) { toggleDashboard(); document.getElementById('subjectFilter').value = 'all'; document.getElementById('sheetSelect').disabled = false; loadSheetView(sheetName); setTimeout(() => { const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); const el = document.getElementById(`row-${safeName}-${rowIdx}`); if(el) { el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.classList.add('highlight-row'); setTimeout(() => el.classList.remove('highlight-row'), 2000); } }, 300); }
     function backupData() { const data = {}; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) data[k] = localStorage.getItem(k); } const b = new Blob([JSON.stringify(data)],{type:"application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = "B_planilha.json"; a.click(); alert("Backup local baixado."); }
-    function restoreData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = function(e) { try { const d = JSON.parse(e.target.result); Object.keys(d).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, d[k]); }); alert('Dados carregados com sucesso!'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); } catch(err) { alert('Erro ao carregar arquivo!'); } }; r.readAsText(f); }
+    function restoreData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = function(e) { try { const d = JSON.parse(e.target.result); Object.keys(d).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, d[k]); }); alert('Dados carregados com sucesso!'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); checkDailyReset(); updateGoalDisplay(); } catch(err) { alert('Erro ao carregar arquivo!'); } }; r.readAsText(f); }
     function resetSheet() { if(confirm(`Apagar progresso da aba "${currentSheetName}"?`)) { localStorage.removeItem(STORAGE_KEY + currentSheetName.replace(/[^a-zA-Z0-9]/g, '')); loadSheetView(currentSheetName); triggerDriveSync(); } }
-    function resetAllData() { if(confirm('ATENÇÃO: Isso apagará TODO o seu progresso.\n\nTem certeza?')) { if(confirm('Confirmação final: Todos os dados serão perdidos. Continuar?')) { const kR=[]; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) kR.push(k); } kR.forEach(k=>localStorage.removeItem(k)); alert('Apagado.'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); } } }
+    function resetAllData() { if(confirm('ATENÇÃO: Isso apagará TODO o seu progresso.\n\nTem certeza?')) { if(confirm('Confirmação final: Todos os dados serão perdidos. Continuar?')) { const kR=[]; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) kR.push(k); } kR.forEach(k=>localStorage.removeItem(k)); alert('Apagado.'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); checkDailyReset(); updateGoalDisplay(); } } }
 </script>
 </body>
 </html>
