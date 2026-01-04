@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v48 (Status %)</title>
+    <title>Cronograma TJCE - v49 (Timer & Busca Notas)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -334,6 +334,21 @@
             box-shadow: 0 0 2px rgba(0,0,0,0.3);
         }
 
+        /* --- TIMER STYLES (NOVO) --- */
+        .timer-group {
+            display: flex; align-items: center; gap: 5px;
+            background: var(--highlight); padding: 2px 8px; border-radius: 6px;
+            border: 1px solid var(--border); margin-right: 5px;
+        }
+        .timer-display { font-family: monospace; font-weight: bold; font-size: 1rem; min-width: 50px; text-align: center; color: var(--primary); }
+        
+        /* --- NOTE SEARCH STYLES (NOVO) --- */
+        .note-search-input {
+            padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);
+            font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text);
+            min-width: 180px;
+        }
+        
         /* Icon Picker Grid */
         .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
         .icon-option { font-size: 1.5rem; text-align: center; cursor: pointer; padding: 5px; border-radius: 6px; border: 1px solid transparent; }
@@ -350,8 +365,15 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v48</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v49</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        
         <div class="header-actions">
+            <div class="timer-group">
+                <span id="timerDisplay" class="timer-display">25:00</span>
+                <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="toggleTimer()" title="Iniciar/Pausar">⏯️</button>
+                <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="configureTimer()" title="Configurar Timer">⚙️</button>
+            </div>
+
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
 
@@ -445,9 +467,14 @@
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h3 style="margin: 0;">📝 Caderno Virtual / Lembretes</h3>
-            <button class="btn btn-outline" onclick="exportNoteToPDF()" title="Exportar Nota atual para PDF" style="border-color: #ffcdd2; color: #d32f2f; background: #ffeaea; font-size: 0.85rem;">
-                🖨️ Exportar PDF
-            </button>
+            
+            <div style="display:flex; align-items:center;">
+                <input type="text" id="noteSearch" class="note-search-input" placeholder="🔍 Buscar notas..." onkeyup="handleNoteSearch()">
+                
+                <button class="btn btn-outline" onclick="exportNoteToPDF()" title="Exportar Nota atual para PDF" style="border-color: #ffcdd2; color: #d32f2f; background: #ffeaea; font-size: 0.85rem;">
+                    🖨️ Exportar PDF
+                </button>
+            </div>
         </div>
         
         <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -5px; margin-bottom: 5px;">Botão direito para mudar ícones. Clique na imagem para redimensionar.</p>
@@ -604,6 +631,11 @@
     let startX = 0, startY = 0;
     let startWidth = 0, startHeight = 0;
 
+    // --- VARIÁVEIS TIMER ---
+    let timerInterval = null;
+    let timeRemaining = 25 * 60; // 25 min padrão
+    let isTimerRunning = false;
+
     // ICON LIST
     const AVAILABLE_ICONS = [
         '📄', '📝', '📕', '📗', '📘', '📙', '📓', '📒', '📚', '🔖', 
@@ -617,6 +649,7 @@
         initReminders();
         initResizeLogic(); // Sidebar Resize
         initImageResizer(); // Image Resize
+        updateTimerDisplay(); // Timer Init
         
         if (localStorage.getItem(THEME_KEY) === 'dark') document.body.classList.add('dark-mode');
         if(CLIENT_ID && API_KEY && CLIENT_ID !== 'SEU_CLIENT_ID_AQUI') {
@@ -634,6 +667,93 @@
         editor.addEventListener('keyup', saveSelection);
         editor.addEventListener('focus', saveSelection);
     };
+
+    // --- FUNÇÕES: TIMER POMODORO ---
+    function updateTimerDisplay() {
+        const m = Math.floor(timeRemaining / 60);
+        const s = timeRemaining % 60;
+        document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+        if (isTimerRunning) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+        } else {
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    timeRemaining = 0;
+                    alert("⏰ O tempo acabou!");
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+    }
+
+    function configureTimer() {
+        const choice = prompt("Configurar Timer:\n1. Foco (25min)\n2. Pausa (5min)\n3. Personalizar (minutos)");
+        if (!choice) return;
+        
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        
+        if (choice === '1') timeRemaining = 25 * 60;
+        else if (choice === '2') timeRemaining = 5 * 60;
+        else if (choice === '3') {
+            const min = parseInt(prompt("Quantos minutos?"), 10);
+            if (!isNaN(min) && min > 0) timeRemaining = min * 60;
+        }
+        updateTimerDisplay();
+    }
+
+    // --- FUNÇÕES: BUSCA DE NOTAS ---
+    function handleNoteSearch() {
+        const query = document.getElementById('noteSearch').value.toLowerCase().trim();
+        const treeRoot = document.getElementById('remindersTree');
+        
+        if (query.length === 0) {
+            renderRemindersTree(); // Volta ao normal
+            return;
+        }
+
+        // Buscar recursivamente
+        const results = [];
+        findNotesByQuery(remindersData[0], query, results);
+
+        // Renderizar lista plana de resultados
+        treeRoot.innerHTML = '';
+        if (results.length === 0) {
+            treeRoot.innerHTML = '<div style="padding:10px; color:var(--text-sec);">Nenhuma nota encontrada.</div>';
+            return;
+        }
+
+        results.forEach(note => {
+            const div = document.createElement('div');
+            div.className = 'tree-content';
+            div.style.paddingLeft = '10px';
+            div.innerHTML = `<span class="tree-icon">📄</span> <span class="tree-text">${note.name}</span> <span style="font-size:0.7em; color:var(--text-sec); margin-left:auto;">(Encontrado)</span>`;
+            div.onclick = () => openNote(note.id);
+            treeRoot.appendChild(div);
+        });
+    }
+
+    function findNotesByQuery(node, query, results) {
+        // Verifica se é uma nota e se bate com a busca (titulo ou conteudo)
+        if (node.type === 'note') {
+            const contentText = node.content ? node.content.replace(/<[^>]*>?/gm, '').toLowerCase() : '';
+            if (node.name.toLowerCase().includes(query) || contentText.includes(query)) {
+                results.push(node);
+            }
+        }
+        // Continua buscando nos filhos
+        if (node.children) {
+            node.children.forEach(child => findNotesByQuery(child, query, results));
+        }
+    }
 
     // --- FUNÇÕES: Salvar e Restaurar Seleção (Fix para Cores) ---
     function saveSelection() {
