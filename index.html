@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v44 (Fontes Windows + Fix Cor)</title>
+    <title>Cronograma TJCE - v45 (Estilo Word + Fix Cor)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -28,6 +28,9 @@
             --highlight: #f1f5f9;
             --drag-over: #dbeafe;
             --google-btn: #4285F4;
+            /* Toolbar colors inspired by Office */
+            --toolbar-bg: #f3f4f6;
+            --toolbar-border: #d1d5db;
         }
 
         body.dark-mode {
@@ -44,10 +47,12 @@
             --warning: #fbbf24;
             --highlight: #334155;
             --drag-over: #1e3a8a;
+            --toolbar-bg: #1e293b;
+            --toolbar-border: #475569;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Calibri, Arial, sans-serif;
             background: var(--bg); color: var(--text);
             margin: 0; padding: 10px; height: 100vh;
             display: flex; flex-direction: column; box-sizing: border-box;
@@ -216,7 +221,7 @@
         .sync-status.loading { background: var(--warning); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* ==================== REMINDERS / NOTES STYLES (UPDATED) ==================== */
+        /* ==================== REMINDERS / NOTES STYLES ==================== */
         .split-view { 
             display: flex; height: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 10px; 
             position: relative;
@@ -254,22 +259,48 @@
         }
         .toggle-sidebar-btn:hover { background: var(--highlight); color: var(--primary); }
 
+        /* --- WORD-LIKE TOOLBAR STYLES --- */
         .editor-toolbar {
-            padding: 8px; border-bottom: 1px solid var(--border); background: var(--highlight);
-            display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
+            padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg);
+            display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px;
         }
-        .toolbar-btn {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px;
-            cursor: pointer; font-size: 0.8rem; font-weight: bold; color: var(--text); min-width: 28px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .toolbar-btn:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
         
-        select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; }
+        .toolbar-group {
+            display: flex; gap: 2px; align-items: center; 
+            padding-right: 6px; border-right: 1px solid var(--toolbar-border);
+            margin-right: 2px;
+        }
+        .toolbar-group:last-child { border-right: none; }
+
+        .toolbar-btn {
+            background: transparent; border: 1px solid transparent; border-radius: 3px; 
+            padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); 
+            min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.1s;
+        }
+        .toolbar-btn:hover { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
+        body.dark-mode .toolbar-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        
+        select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; padding-right: 2px;}
+        
+        /* Color input styling wrapper */
+        .color-wrapper {
+            position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 1px solid transparent; border-radius: 3px;
+        }
+        .color-wrapper:hover { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
+        .color-bar { width: 20px; height: 4px; margin-top: 16px; position: absolute; pointer-events: none;}
+        
+        /* Real input hidden but functional over label */
+        .color-input-hidden {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+        }
 
         .editor-area { 
             flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
-            font-size: 0.95rem; line-height: 1.6; background: var(--surface); color: var(--text); 
+            font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); 
+            font-family: 'Calibri', 'Segoe UI', sans-serif;
             print-color-adjust: exact; 
         }
         
@@ -294,7 +325,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v44</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v45</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
         <div class="header-actions">
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
@@ -410,54 +441,79 @@
                 </div>
 
                 <div class="editor-toolbar" id="editorToolbar" style="display:none;">
-                    <button class="toolbar-btn" onclick="formatDoc('bold')" title="Negrito"><b>B</b></button>
-                    <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico"><i>I</i></button>
-                    <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado"><u>U</u></button>
                     
-                    <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
-                    
-                    <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 120px;">
-                        <option value="Segoe UI">Padrão</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Tahoma">Tahoma</option>
-                        <option value="Trebuchet MS">Trebuchet MS</option>
-                    </select>
-                    
-                    <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" title="Tamanho" style="width: 50px;">
-                        <option value="1">8</option>
-                        <option value="2">10</option>
-                        <option value="3">12</option>
-                        <option value="4">14</option>
-                        <option value="5">18</option>
-                        <option value="6">24</option>
-                        <option value="7">36</option>
-                    </select>
+                    <div class="toolbar-group">
+                        <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 140px;">
+                            <option value="Calibri" selected>Calibri</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Arial Black">Arial Black</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Lucida Console">Lucida Console</option>
+                            <option value="Segoe UI">Segoe UI</option>
+                            <option value="Tahoma">Tahoma</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Trebuchet MS">Trebuchet MS</option>
+                            <option value="Verdana">Verdana</option>
+                        </select>
+                        
+                        <select onchange="formatDoc('fontSize', this.value)" class="toolbar-btn" title="Tamanho" style="width: 50px;">
+                            <option value="1">8</option>
+                            <option value="2">10</option>
+                            <option value="3" selected>12</option>
+                            <option value="4">14</option>
+                            <option value="5">18</option>
+                            <option value="6">24</option>
+                            <option value="7">36</option>
+                        </select>
+                    </div>
 
-                    <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatDoc('bold')" title="Negrito (Ctrl+B)"><b>N</b></button>
+                        <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
+                        <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado (Ctrl+S)"><u>S</u></button>
+                        <button class="toolbar-btn" onclick="formatDoc('strikeThrough')" title="Riscado"><s>abc</s></button>
+                        <button class="toolbar-btn" onclick="formatDoc('subscript')" title="Subscrito">x₂</button>
+                        <button class="toolbar-btn" onclick="formatDoc('superscript')" title="Sobrescrito">x²</button>
+                    </div>
 
-                    <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Lista">●</button>
-                    <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numeração">1.</button>
-                    
-                    <div style="width:1px; height:20px; background:var(--border); margin:0 5px;"></div>
-                    
-                    <label class="toolbar-btn" title="Cor do Texto" style="display:flex;align-items:center;">
-                        <span style="font-size:0.8em; color:red;">A</span>
-                        <input type="color" onchange="formatDoc('foreColor', this.value)" style="width:15px; height:15px; border:none; padding:0; background:none; margin-left:3px; cursor:pointer;">
-                    </label>
-                    <label class="toolbar-btn" title="Marca-Texto" style="display:flex;align-items:center; background:#ffeb3b;">
-                        <span style="font-size:0.8em; color:black;">🖊️</span>
-                        <input type="color" onchange="formatDoc('hiliteColor', this.value)" value="#ffff00" style="width:15px; height:15px; border:none; padding:0; background:none; margin-left:3px; cursor:pointer;">
-                    </label>
-                    
-                    <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação" style="margin-left:5px;">🧹</button>
+                    <div class="toolbar-group">
+                        <div class="color-wrapper" title="Cor da Fonte" onmousedown="saveSelection()">
+                            <span style="font-weight:bold; color:red;">A</span>
+                            <div class="color-bar" style="background:red;"></div>
+                            <input type="color" class="color-input-hidden" onchange="formatDoc('foreColor', this.value)">
+                        </div>
+                        
+                        <div class="color-wrapper" title="Realce / Marca-texto" onmousedown="saveSelection()">
+                            <span style="font-weight:bold; background:yellow; padding:0 2px;">ab</span>
+                            <div class="color-bar" style="background:yellow;"></div>
+                            <input type="color" class="color-input-hidden" onchange="formatDoc('hiliteColor', this.value)">
+                        </div>
+                        
+                        <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação">🧹</button>
+                    </div>
 
-                    <button class="toolbar-btn" onclick="exportNoteToPDF()" title="Exportar PDF" style="margin-left:auto; background: #ffeaea; color: #d32f2f; border-color: #ffcdd2;">
-                        🖨️ PDF
-                    </button>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Marcadores">•</button>
+                        <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numeração">1.</button>
+                        <button class="toolbar-btn" onclick="formatDoc('outdent')" title="Diminuir Recuo">⇤</button>
+                        <button class="toolbar-btn" onclick="formatDoc('indent')" title="Aumentar Recuo">⇥</button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" onclick="formatDoc('justifyLeft')" title="Alinhar à Esquerda">⬅</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyCenter')" title="Centralizar">↔</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyRight')" title="Alinhar à Direita">➡</button>
+                        <button class="toolbar-btn" onclick="formatDoc('justifyFull')" title="Justificar">☰</button>
+                    </div>
+
+                    <div class="toolbar-group" style="margin-left:auto; border-right:none;">
+                        <button class="toolbar-btn" onclick="exportNoteToPDF()" title="Exportar PDF" style="background: #ffeaea; color: #d32f2f; border-color: #ffcdd2;">
+                            🖨️ PDF
+                        </button>
+                    </div>
                 </div>
 
                 <div id="noteEditor" class="editor-area" contenteditable="true" style="display:none;" oninput="handleNoteInput()"></div>
@@ -542,18 +598,22 @@
             if(EMBEDDED_FILE && EMBEDDED_FILE.length > 100) loadEmbeddedFile();
         }
         
-        // Inicializa listeners para salvar seleção
+        // Listener para salvar seleção sempre que o usuário clica ou digita
         const editor = document.getElementById('noteEditor');
         editor.addEventListener('mouseup', saveSelection);
         editor.addEventListener('keyup', saveSelection);
         editor.addEventListener('focus', saveSelection);
     };
 
-    // --- FUNÇÃO: Salvar e Restaurar Seleção (Fix para Colors) ---
+    // --- FUNÇÃO: Salvar e Restaurar Seleção (Fix para Cores) ---
     function saveSelection() {
         const sel = window.getSelection();
         if (sel.rangeCount > 0) {
-            savedRange = sel.getRangeAt(0);
+            // Verifica se a seleção está dentro do editor
+            const editor = document.getElementById('noteEditor');
+            if (editor.contains(sel.anchorNode)) {
+                savedRange = sel.getRangeAt(0);
+            }
         }
     }
 
