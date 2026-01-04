@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v45 (Estilo Word + Fix Cor)</title>
+    <title>Cronograma TJCE - v46 (Word Style & PDF Header)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -28,9 +27,12 @@
             --highlight: #f1f5f9;
             --drag-over: #dbeafe;
             --google-btn: #4285F4;
+            
             /* Toolbar colors inspired by Office */
             --toolbar-bg: #f3f4f6;
             --toolbar-border: #d1d5db;
+            --btn-hover: #e5e7eb;
+            --btn-active: #d1d5db;
         }
 
         body.dark-mode {
@@ -49,6 +51,8 @@
             --drag-over: #1e3a8a;
             --toolbar-bg: #1e293b;
             --toolbar-border: #475569;
+            --btn-hover: #334155;
+            --btn-active: #475569;
         }
 
         body {
@@ -278,8 +282,7 @@
             min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center;
             transition: all 0.1s;
         }
-        .toolbar-btn:hover { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
-        body.dark-mode .toolbar-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        .toolbar-btn:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         
         select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; padding-right: 2px;}
         
@@ -288,8 +291,8 @@
             position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; border: 1px solid transparent; border-radius: 3px;
         }
-        .color-wrapper:hover { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); }
-        .color-bar { width: 20px; height: 4px; margin-top: 16px; position: absolute; pointer-events: none;}
+        .color-wrapper:hover { background: var(--btn-hover); border-color: var(--btn-active); }
+        .color-bar { width: 22px; height: 4px; margin-top: 15px; position: absolute; pointer-events: none;}
         
         /* Real input hidden but functional over label */
         .color-input-hidden {
@@ -325,7 +328,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="brand"><h1>Cronograma TJCE <span>v45</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
+        <div class="brand"><h1>Cronograma TJCE <span>v46</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1></div>
         <div class="header-actions">
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar Google</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
@@ -417,8 +420,15 @@
 
 <div class="modal-overlay" id="remindersModal">
     <div class="modal" style="width: 95%; max-width: 1100px; height: 95vh;">
-        <h3>📝 Caderno Virtual / Lembretes</h3>
-        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 5px;">Botão direito para mudar ícones. Use a barra para redimensionar.</p>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0;">📝 Caderno Virtual / Lembretes</h3>
+            <button class="btn btn-outline" onclick="exportNoteToPDF()" title="Exportar Nota atual para PDF" style="border-color: #ffcdd2; color: #d32f2f; background: #ffeaea; font-size: 0.85rem;">
+                🖨️ Exportar PDF
+            </button>
+        </div>
+        
+        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -5px; margin-bottom: 5px;">Botão direito para mudar ícones. Use a barra para redimensionar.</p>
         
         <div class="split-view">
             <div class="split-sidebar" id="notesSidebar">
@@ -443,7 +453,7 @@
                 <div class="editor-toolbar" id="editorToolbar" style="display:none;">
                     
                     <div class="toolbar-group">
-                        <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 140px;">
+                        <select onchange="formatDoc('fontName', this.value)" class="toolbar-btn" title="Fonte" style="width: 130px;">
                             <option value="Calibri" selected>Calibri</option>
                             <option value="Arial">Arial</option>
                             <option value="Arial Black">Arial Black</option>
@@ -468,6 +478,7 @@
                             <option value="6">24</option>
                             <option value="7">36</option>
                         </select>
+                        <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação" style="color:var(--danger)">🧹</button>
                     </div>
 
                     <div class="toolbar-group">
@@ -475,24 +486,20 @@
                         <button class="toolbar-btn" onclick="formatDoc('italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
                         <button class="toolbar-btn" onclick="formatDoc('underline')" title="Sublinhado (Ctrl+S)"><u>S</u></button>
                         <button class="toolbar-btn" onclick="formatDoc('strikeThrough')" title="Riscado"><s>abc</s></button>
-                        <button class="toolbar-btn" onclick="formatDoc('subscript')" title="Subscrito">x₂</button>
-                        <button class="toolbar-btn" onclick="formatDoc('superscript')" title="Sobrescrito">x²</button>
                     </div>
 
                     <div class="toolbar-group">
                         <div class="color-wrapper" title="Cor da Fonte" onmousedown="saveSelection()">
-                            <span style="font-weight:bold; color:red;">A</span>
+                            <span style="font-weight:bold; color:red; position:absolute; top:2px;">A</span>
                             <div class="color-bar" style="background:red;"></div>
-                            <input type="color" class="color-input-hidden" onchange="formatDoc('foreColor', this.value)">
+                            <input type="color" class="color-input-hidden" oninput="updateColorBar(this); formatDoc('foreColor', this.value);" value="#ff0000">
                         </div>
                         
                         <div class="color-wrapper" title="Realce / Marca-texto" onmousedown="saveSelection()">
-                            <span style="font-weight:bold; background:yellow; padding:0 2px;">ab</span>
+                            <span style="font-weight:bold; position:absolute; top:2px;">🖊️</span>
                             <div class="color-bar" style="background:yellow;"></div>
-                            <input type="color" class="color-input-hidden" onchange="formatDoc('hiliteColor', this.value)">
+                            <input type="color" class="color-input-hidden" oninput="updateColorBar(this); formatDoc('hiliteColor', this.value);" value="#ffff00">
                         </div>
-                        
-                        <button class="toolbar-btn" onclick="formatDoc('removeFormat')" title="Limpar Formatação">🧹</button>
                     </div>
 
                     <div class="toolbar-group">
@@ -502,17 +509,11 @@
                         <button class="toolbar-btn" onclick="formatDoc('indent')" title="Aumentar Recuo">⇥</button>
                     </div>
 
-                    <div class="toolbar-group">
+                    <div class="toolbar-group" style="border-right:none;">
                         <button class="toolbar-btn" onclick="formatDoc('justifyLeft')" title="Alinhar à Esquerda">⬅</button>
                         <button class="toolbar-btn" onclick="formatDoc('justifyCenter')" title="Centralizar">↔</button>
                         <button class="toolbar-btn" onclick="formatDoc('justifyRight')" title="Alinhar à Direita">➡</button>
                         <button class="toolbar-btn" onclick="formatDoc('justifyFull')" title="Justificar">☰</button>
-                    </div>
-
-                    <div class="toolbar-group" style="margin-left:auto; border-right:none;">
-                        <button class="toolbar-btn" onclick="exportNoteToPDF()" title="Exportar PDF" style="background: #ffeaea; color: #d32f2f; border-color: #ffcdd2;">
-                            🖨️ PDF
-                        </button>
                     </div>
                 </div>
 
@@ -605,11 +606,10 @@
         editor.addEventListener('focus', saveSelection);
     };
 
-    // --- FUNÇÃO: Salvar e Restaurar Seleção (Fix para Cores) ---
+    // --- FUNÇÕES: Salvar e Restaurar Seleção (Fix para Cores) ---
     function saveSelection() {
         const sel = window.getSelection();
         if (sel.rangeCount > 0) {
-            // Verifica se a seleção está dentro do editor
             const editor = document.getElementById('noteEditor');
             if (editor.contains(sel.anchorNode)) {
                 savedRange = sel.getRangeAt(0);
@@ -623,6 +623,12 @@
             sel.removeAllRanges();
             sel.addRange(savedRange);
         }
+    }
+    
+    // Atualiza a cor da barrinha visualmente
+    function updateColorBar(input) {
+        const bar = input.parentElement.querySelector('.color-bar');
+        if(bar) bar.style.backgroundColor = input.value;
     }
 
     // --- FUNÇÃO: Resizer da Sidebar de Notas ---
@@ -643,7 +649,6 @@
             const containerRect = sidebar.parentElement.getBoundingClientRect();
             let newWidth = e.clientX - containerRect.left;
             
-            // Limites (Min 150px, Max 600px)
             if (newWidth < 150) newWidth = 150;
             if (newWidth > 600) newWidth = 600;
             
@@ -667,15 +672,13 @@
         const collapsedHeader = document.getElementById('collapsedHeader');
         
         if (sidebar.classList.contains('collapsed')) {
-            // Mostrar sidebar
             sidebar.classList.remove('collapsed');
             resizer.style.display = 'flex';
             collapsedHeader.style.display = 'none';
         } else {
-            // Ocultar sidebar
             sidebar.classList.add('collapsed');
             resizer.style.display = 'none';
-            collapsedHeader.style.display = 'flex'; // Exibe a barra de restauração
+            collapsedHeader.style.display = 'flex';
         }
     }
 
@@ -883,7 +886,7 @@
         noteDebounce = setTimeout(() => { const note = findNode(selectedNoteId, remindersData); if(note) { note.content = document.getElementById('noteEditor').innerHTML; saveReminders(); } }, 1000);
     }
 
-    // --- RICH TEXT FORMATTING (ATUALIZADO PARA FIX COLOR) ---
+    // --- RICH TEXT FORMATTING (ATUALIZADO) ---
     function formatDoc(cmd, value = null) {
         if (value && (cmd === 'foreColor' || cmd === 'hiliteColor')) {
              restoreSelection();
