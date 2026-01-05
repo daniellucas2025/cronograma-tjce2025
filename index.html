@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v52 (Suite Completa)</title>
+    <title>Cronograma TJCE - v53 (Calendário BR)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -326,7 +326,7 @@
             cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3);
         }
 
-        /* --- CALENDAR STYLES --- */
+        /* --- CALENDAR STYLES (BR) --- */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
         .cal-day-header { font-weight: bold; text-align: center; font-size: 0.8rem; color: var(--text-sec); padding: 5px; }
         .cal-day { 
@@ -361,7 +361,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v52</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v53</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -696,7 +696,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC ---
+    // --- CALENDAR LOGIC (BR FORMAT FIXED) ---
     function openCalendarModal() {
         document.getElementById('calendarModal').style.display = 'flex';
         renderCalendar();
@@ -714,8 +714,10 @@
         }
         localStorage.setItem(CALENDAR_START_KEY, startDateVal);
 
-        const start = new Date(startDateVal);
-        // Ajustar para Domingo da semana do inicio, para alinhar calendario
+        // Ajuste de Fuso Horário para BR (cria data considerando timezone local)
+        const parts = startDateVal.split('-');
+        const start = new Date(parts[0], parts[1] - 1, parts[2]);
+
         const dayOfWeek = start.getDay(); 
         const calendarStart = new Date(start);
         calendarStart.setDate(start.getDate() - dayOfWeek);
@@ -729,9 +731,8 @@
             grid.appendChild(div);
         });
 
-        // Map sheets to weeks (Assumindo 1 aba = 1 semana ou tópico sequencial)
         const sheetNames = globalWorkbook.SheetNames;
-        const totalWeeks = Math.ceil(sheetNames.length) + 4; // Renderizar algumas semanas extras
+        const totalWeeks = Math.ceil(sheetNames.length) + 4; 
         const todayStr = new Date().toDateString();
 
         for (let i = 0; i < totalWeeks * 7; i++) {
@@ -744,18 +745,19 @@
 
             const dateSpan = document.createElement('div');
             dateSpan.className = 'cal-date';
-            dateSpan.innerText = `${currentDate.getDate()}/${currentDate.getMonth()+1}`;
+            // Formato BR DD/MM com zero à esquerda
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            dateSpan.innerText = `${day}/${month}`;
             div.appendChild(dateSpan);
 
-            // Logica de mapeamento: Diferença em semanas entre data atual e data inicio
             const diffTime = Math.abs(currentDate - start);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-            // Se for depois da data de inicio
+            
             if (currentDate >= start) {
                 const weekIndex = Math.floor((currentDate - start) / (1000 * 60 * 60 * 24 * 7));
                 if (weekIndex >= 0 && weekIndex < sheetNames.length) {
                     const sheet = sheetNames[weekIndex];
-                    // Adicionar evento apenas nos dias úteis (Seg-Sex) ou todos? Vamos colocar Seg como inicio da aba
                     if (currentDate.getDay() === 1) { // Segunda
                         const ev = document.createElement('div');
                         ev.className = 'cal-event';
