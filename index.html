@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v54 (Calendário Interativo BR)</title>
+    <title>Cronograma TJCE - v55 (Calendário Expandido)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +13,7 @@
 
     <style>
         :root {
-            --primary: #2b579a;
+            --primary: #2b579a; /* Azul Office */
             --primary-hover: #1e3e70;
             --bg: #f3f2f1;
             --surface: #ffffff;
@@ -21,6 +21,7 @@
             --text-sec: #605e5c;
             --border: #e1dfdd;
             --success: #107c10;
+            --success-hover: #0b5a0b;
             --danger: #a4262c;
             --warning: #ca5010;
             --highlight: #f3f2f1;
@@ -40,6 +41,7 @@
             --text-sec: #a19f9d;
             --border: #484644;
             --success: #2cc92c;
+            --success-hover: #1a9e1a;
             --danger: #e81123;
             --warning: #fce100;
             --highlight: #3b3a39;
@@ -76,6 +78,7 @@
         .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
         .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
         .quote-box:hover { color: var(--primary); }
+        
         .header-actions { display: flex; gap: 6px; align-items: center; }
 
         .btn {
@@ -85,8 +88,10 @@
         }
         .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-primary:hover { background: var(--primary-hover); }
+        
         .btn-success { background: var(--success); color: white; border-color: var(--success); }
         .btn-success:hover { background: var(--success-hover); }
+
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
         .btn-outline:hover { background: var(--btn-hover); border-color: var(--text-sec); }
         .btn-danger-outline { background: transparent; border-color: var(--danger); color: var(--danger); }
@@ -97,6 +102,7 @@
 
         input[type="file"] { display: none; }
 
+        /* Drop Zone */
         .drop-zone {
             border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px;
             color: var(--text-sec); font-size: 0.8rem; cursor: pointer;
@@ -104,6 +110,7 @@
         }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
 
+        /* Productivity Bar (Timer + Goal) */
         .prod-bar {
             display: flex; gap: 10px; align-items: center; background: var(--highlight);
             padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
@@ -115,6 +122,7 @@
         .goal-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
         .goal-text { font-size: 0.75rem; color: var(--text-sec); min-width: 60px; text-align: right;}
 
+        /* Stats Bar */
         .global-stats {
             background: var(--highlight); padding: 6px 15px;
             border-bottom: 1px solid var(--border); display: flex; gap: 20px;
@@ -126,6 +134,7 @@
         .progress-track { flex-grow: 1; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; max-width: 150px; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
 
+        /* Controls */
         .sheet-controls {
             padding: 6px 15px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex;
@@ -139,6 +148,7 @@
         select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
         .search-box { flex-grow: 1; min-width: 150px; }
 
+        /* Tabela */
         .content-area { flex-grow: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
         .table-scroll { flex-grow: 1; overflow: auto; display: none; scroll-behavior: smooth; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -164,6 +174,7 @@
         .pct-low { background: rgba(164, 38, 44, 0.2); color: var(--danger); }
         .pct-none { color: var(--text-sec); }
 
+        /* DASHBOARD */
         .dashboard-view { padding: 15px 20px; height: 100%; overflow-y: auto; display: none; background: var(--surface); }
         .dash-header-compact { text-align: center; margin-bottom: 15px; }
         .dash-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
@@ -173,7 +184,9 @@
         .dash-table { width: 100%; max-width: 900px; margin: 0 auto; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: 0.85rem; margin-bottom: 20px; }
         .dash-table th { background: var(--highlight); color: var(--text); padding: 8px; }
         .dash-table td { padding: 6px 8px; }
+        
         .chart-wrapper { width: 100%; max-width: 400px; margin: 20px auto; position: relative; height: 300px; }
+
         .attention-section { max-width: 900px; margin: 25px auto; border-top: 1px dashed var(--border); padding-top: 20px; }
         .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 10px; }
         .att-card { background: rgba(164, 38, 44, 0.04); border: 1px solid rgba(164, 38, 44, 0.15); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -183,9 +196,14 @@
         .att-title { font-weight: 600; margin-bottom: 10px; font-size: 0.9rem; color: var(--text); line-height: 1.3; }
         .att-btn { align-self: flex-start; font-size: 0.75rem; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border); color: var(--primary); border-radius: 4px; cursor: pointer; }
         
+        /* REPOSITÓRIO TREE VIEW */
         .repo-container { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-        .repo-toolbar { display: flex; gap: 5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+        .repo-toolbar { 
+            display: flex; gap: 5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); 
+            flex-wrap: wrap; align-items: center;
+        }
         .repo-tree { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 10px; background: var(--bg); }
+        
         .tree-node { margin-left: 15px; border-left: 1px solid var(--border); padding-left: 5px; }
         .tree-content { display: flex; align-items: center; padding: 4px 8px; border-radius: 3px; cursor: pointer; margin-bottom: 2px; transition: background 0.1s; }
         .tree-content:hover { background: var(--highlight); }
@@ -199,46 +217,97 @@
         .is-link a { color: var(--primary); text-decoration: none; }
         .is-link a:hover { text-decoration: underline; }
 
+        /* Context Menu */
         .context-menu { position: absolute; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; display: none; z-index: 1000; padding: 5px 0; min-width: 150px; }
         .context-menu-item { padding: 8px 15px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
         .context-menu-item:hover { background: var(--highlight); color: var(--primary); }
 
+        /* Modal Generico */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: none; justify-content: center; align-items: center; }
-        .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh;}
+        .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; position: relative;}
         .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+        
         .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 4px; border: 1px solid var(--border); }
         .drive-group .btn { border: none; background: transparent; padding: 4px 10px; font-size: 0.75rem; }
         
-        .sync-status { width: 10px; height: 10px; border-radius: 50%; background: var(--text-sec); display: inline-block; margin-left: 5px; transition: background 0.3s; cursor: help; }
+        /* Sync Status Indicator */
+        .sync-status { 
+            width: 10px; height: 10px; border-radius: 50%; 
+            background: var(--text-sec); display: inline-block; margin-left: 5px; 
+            transition: background 0.3s;
+            cursor: help; 
+        }
         .sync-status.active { background: var(--success); box-shadow: 0 0 5px var(--success); }
         .sync-status.error { background: var(--danger); }
         .sync-status.loading { background: var(--warning); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        .split-view { display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; position: relative; }
-        .split-sidebar { width: 250px; min-width: 150px; max-width: 500px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; transition: transform 0.3s ease; }
+        /* ==================== REMINDERS / NOTES STYLES ==================== */
+        .split-view { 
+            display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; 
+            position: relative;
+        }
+        
+        .split-sidebar { 
+            width: 250px; min-width: 150px; max-width: 500px;
+            background: var(--bg); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
         .split-sidebar.collapsed { display: none; }
-        .resizer-handle { width: 5px; cursor: col-resize; background: var(--border); transition: background 0.2s; z-index: 10; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+        .resizer-handle {
+            width: 5px; cursor: col-resize; background: var(--border);
+            transition: background 0.2s; z-index: 10; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
         .resizer-handle:hover, .resizer-handle.active { background: var(--primary); }
         .resizer-handle::after { content: '⋮'; color: var(--text-sec); font-size: 10px; }
+        
         .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
         .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; align-items: center; }
-        .toggle-sidebar-btn { background: transparent; border: 1px solid var(--border); color: var(--text-sec); cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px; }
+        
+        .toggle-sidebar-btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-sec);
+            cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px;
+        }
         .toggle-sidebar-btn:hover { background: var(--highlight); color: var(--primary); }
 
-        .editor-toolbar { padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px; }
-        .toolbar-group { display: flex; gap: 2px; align-items: center; padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px; }
+        /* --- WORD-LIKE TOOLBAR --- */
+        .editor-toolbar {
+            padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg);
+            display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px;
+        }
+        
+        .toolbar-group {
+            display: flex; gap: 2px; align-items: center; 
+            padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px;
+        }
         .toolbar-group:last-child { border-right: none; }
-        .toolbar-btn { background: transparent; border: 1px solid transparent; border-radius: 3px; padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+
+        .toolbar-btn {
+            background: transparent; border: 1px solid transparent; border-radius: 3px; 
+            padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); 
+            min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.1s;
+        }
         .toolbar-btn:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; padding-right: 2px;}
-        .color-wrapper { position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid transparent; border-radius: 3px; }
+        
+        .color-wrapper {
+            position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 1px solid transparent; border-radius: 3px;
+        }
         .color-wrapper:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         .color-bar { width: 22px; height: 4px; margin-top: 15px; position: absolute; pointer-events: none;}
         .color-input-hidden { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        .editor-area { flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; }
+        .editor-area { 
+            flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
+            font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); 
+            font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; 
+        }
         .editor-area img { max-width: 100%; border-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
         .editor-area table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
         .editor-area th, .editor-area td { border: 1px solid var(--border); padding: 4px 8px; }
@@ -247,22 +316,21 @@
         .editor-area blockquote { border-left: 3px solid var(--primary); margin: 10px 0; padding-left: 10px; color: var(--text-sec); background: rgba(43,87,154,0.05); }
         .editor-placeholder { color: var(--text-sec); display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; font-size: 0.9rem; }
 
-        #imgResizeOverlay { position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000; }
-        .resize-handle { width: 10px; height: 10px; background: var(--primary); border: 1px solid white; position: absolute; bottom: -5px; right: -5px; cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3); }
+        /* Image Resizer Overlay */
+        #imgResizeOverlay {
+            position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000;
+        }
+        .resize-handle {
+            width: 10px; height: 10px; background: var(--primary); border: 1px solid white;
+            position: absolute; bottom: -5px; right: -5px;
+            cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3);
+        }
 
-        /* CALENDAR LAYOUT */
-        .calendar-wrapper { display: flex; height: 100%; gap: 10px; }
-        .cal-sidebar { width: 220px; border-right: 1px solid var(--border); padding-right: 10px; display: flex; flex-direction: column; }
+        /* --- CALENDAR STYLES (BR + SIDEBAR) --- */
+        .calendar-wrapper { display: flex; height: 100%; gap: 10px; overflow: hidden; }
+        .cal-sidebar { width: 220px; border-right: 1px solid var(--border); padding-right: 10px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
         .cal-main { flex-grow: 1; overflow-y: auto; }
         
-        .draggable-subject { 
-            padding: 6px; background: var(--surface); border: 1px solid var(--border); 
-            margin-bottom: 5px; border-radius: 4px; cursor: grab; font-size: 0.85rem; 
-            display: flex; align-items: center;
-        }
-        .draggable-subject:hover { background: var(--highlight); border-color: var(--primary); }
-        .draggable-subject:active { cursor: grabbing; }
-
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
         .cal-day-header { font-weight: bold; text-align: center; font-size: 0.85rem; color: var(--text-sec); padding: 5px; background: var(--highlight); border-radius: 4px; }
         .cal-day { 
@@ -283,7 +351,35 @@
         .cal-event:hover .cal-event-del { display: block; }
         .cal-event-del:hover { color: var(--danger); }
 
-        .note-search-input { padding: 4px 8px; border-radius: 3px; border: 1px solid var(--border); font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text); min-width: 180px; }
+        /* Styles for expandable sidebar in calendar */
+        .cal-sheet-group { margin-bottom: 5px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .cal-sheet-header { 
+            padding: 6px; background: var(--highlight); cursor: pointer; font-weight: 600; font-size: 0.85rem; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cal-sheet-header:hover { background: var(--btn-hover); }
+        .cal-sheet-items { display: none; padding: 5px; background: var(--surface); }
+        .cal-sheet-items.expanded { display: block; }
+        .draggable-subject { 
+            padding: 4px 6px; margin-bottom: 3px; background: var(--bg); border: 1px solid var(--border); border-radius: 3px;
+            font-size: 0.8rem; cursor: grab; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .draggable-subject:hover { border-color: var(--primary); color: var(--primary); background: var(--surface); }
+
+        /* Close Button for Modals */
+        .close-modal-btn {
+            position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-sec);
+            line-height: 1; z-index: 10;
+        }
+        .close-modal-btn:hover { color: var(--danger); }
+
+        /* Note Search */
+        .note-search-input {
+            padding: 4px 8px; border-radius: 3px; border: 1px solid var(--border);
+            font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text);
+            min-width: 180px;
+        }
+        
         .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
         .icon-option { font-size: 1.5rem; text-align: center; cursor: pointer; padding: 5px; border-radius: 6px; border: 1px solid transparent; }
         .icon-option:hover { background: var(--highlight); border-color: var(--primary); transform: scale(1.1); }
@@ -297,7 +393,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v54</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v55</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -380,7 +476,9 @@
 
 <div class="modal-overlay" id="calendarModal">
     <div class="modal" style="width: 95%; max-width: 1200px; height: 95vh;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span class="close-modal-btn" onclick="document.getElementById('calendarModal').style.display='none'">×</span>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top:10px;">
             <h3>📅 Calendário de Estudos</h3>
             <div style="display:flex; gap:10px; align-items:center;">
                 <label style="font-size:0.85rem;">Mês de Início:</label>
@@ -405,6 +503,7 @@
 
 <div class="modal-overlay" id="repoModal">
     <div class="modal" style="width: 90%; max-width: 800px; height: 80vh;">
+        <span class="close-modal-btn" onclick="closeRepoModal()">×</span>
         <h3>🔗 Gerenciador de Links</h3>
         <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 10px;">Arraste para organizar.</p>
         <div class="repo-toolbar">
@@ -423,9 +522,10 @@
 
 <div class="modal-overlay" id="remindersModal">
     <div class="modal" style="width: 95%; max-width: 1100px; height: 95vh;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span class="close-modal-btn" onclick="closeRemindersModal()">×</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 10px;">
             <h3 style="margin: 0;">📝 Caderno Virtual / Lembretes</h3>
-            <div style="display:flex; align-items:center;">
+            <div style="display:flex; align-items:center; padding-right: 30px;">
                 <input type="text" id="noteSearch" class="note-search-input" placeholder="🔍 Buscar notas..." onkeyup="handleNoteSearch()">
                 <button class="btn btn-outline" onclick="exportNoteToPDF()" title="Exportar Nota" style="border-color: #ffcdd2; color: #d32f2f; background: #ffeaea; font-size: 0.85rem;">🖨️ PDF</button>
             </div>
@@ -520,7 +620,7 @@
     const DAILY_COUNT_KEY = 'tjce_daily_count';
     const DAILY_DATE_KEY = 'tjce_daily_date';
     const CALENDAR_START_KEY = 'tjce_cal_start';
-    const CALENDAR_EVENTS_KEY = 'tjce_cal_events'; // NEW
+    const CALENDAR_EVENTS_KEY = 'tjce_cal_events'; 
 
     const EXCLUDE_LIST = ['youtube', 'link do material', 'cumpriu a meta?', 'cumpriu a meta', 'link qconcursos', '% líq.', '% liq', '% acertos', '% de acertos'];
     const URL_REGEX = /((https?:\/\/|www\.)[^\s,]+)/gi;
@@ -530,7 +630,7 @@
     let myChart = null; let noteDebounce = null; let savedRange = null;
     let currentResizingImg = null; let startX = 0, startY = 0; let startWidth = 0, startHeight = 0;
     let timerInterval = null; let timeRemaining = 25 * 60; let isTimerRunning = false;
-    let calendarEvents = {}; // { "YYYY-MM-DD": [ { text: "Subject", id: ts } ] }
+    let calendarEvents = {}; 
 
     // MOTIVATIONAL QUOTES
     const QUOTES = [
@@ -586,6 +686,10 @@
         editor.addEventListener('mouseup', saveSelection);
         editor.addEventListener('keyup', saveSelection);
         editor.addEventListener('focus', saveSelection);
+        
+        // Restore calendar date
+        const savedCalStart = localStorage.getItem(CALENDAR_START_KEY);
+        if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart;
     };
 
     // --- QUOTES LOGIC ---
@@ -636,7 +740,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -656,15 +760,55 @@
         grid.innerHTML = '';
         sidebar.innerHTML = '';
         
-        // Populate Sidebar
+        // Populate Sidebar with Expandable Sheets
         if(globalWorkbook) {
             globalWorkbook.SheetNames.forEach(sheet => {
-                const div = document.createElement('div');
-                div.className = 'draggable-subject';
-                div.draggable = true;
-                div.innerText = sheet;
-                div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', sheet); e.dataTransfer.effectAllowed = 'copy'; };
-                sidebar.appendChild(div);
+                // Group Container
+                const group = document.createElement('div');
+                group.className = 'cal-sheet-group';
+                
+                // Header (Click to expand)
+                const header = document.createElement('div');
+                header.className = 'cal-sheet-header';
+                header.innerHTML = `<span>${sheet}</span> <span style="font-size:0.7em;">▼</span>`;
+                header.onclick = () => {
+                    const content = header.nextElementSibling;
+                    content.classList.toggle('expanded');
+                };
+                group.appendChild(header);
+
+                // Content (Hidden by default)
+                const content = document.createElement('div');
+                content.className = 'cal-sheet-items';
+                
+                // Analyze Sheet to get subjects
+                const info = analyzeSheet(sheet);
+                if(info) {
+                    // Extract unique subjects/topics
+                    const uniqueTopics = new Set();
+                    info.rows.forEach(r => {
+                        // Use contentText (Topic Name) or Subject
+                        if(r.contentText && r.contentText.length > 3) uniqueTopics.add(r.contentText);
+                        else if(r.subject) uniqueTopics.add(r.subject);
+                    });
+
+                    // Add items to draggable list
+                    uniqueTopics.forEach(topic => {
+                        const div = document.createElement('div');
+                        div.className = 'draggable-subject';
+                        div.draggable = true;
+                        div.innerText = topic;
+                        div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', topic); e.dataTransfer.effectAllowed = 'copy'; };
+                        content.appendChild(div);
+                    });
+                    
+                    if(uniqueTopics.size === 0) {
+                        content.innerHTML = '<div style="font-size:0.7rem; color:var(--text-sec);">Sem tópicos identificados.</div>';
+                    }
+                }
+                
+                group.appendChild(content);
+                sidebar.appendChild(group);
             });
         } else {
             sidebar.innerHTML = '<div style="padding:10px; color:var(--text-sec); font-size:0.8rem;">Abra uma planilha para ver as disciplinas.</div>';
@@ -677,7 +821,7 @@
         }
         localStorage.setItem(CALENDAR_START_KEY, startDateVal);
 
-        // Date Handling
+        // Date Handling (BR Fix)
         const parts = startDateVal.split('-');
         const start = new Date(parts[0], parts[1] - 1, parts[2]);
         const dayOfWeek = start.getDay(); 
@@ -693,13 +837,14 @@
             grid.appendChild(div);
         });
 
-        const totalWeeks = 6; // Fixed view for simplicity or dynamic based on needs
+        const totalWeeks = 6; 
         const todayStr = new Date().toDateString();
 
         for (let i = 0; i < totalWeeks * 7; i++) {
             const currentDate = new Date(calendarStart);
             currentDate.setDate(calendarStart.getDate() + i);
-            const dateKey = currentDate.toISOString().split('T')[0];
+            // ISO Date Key for storage
+            const dateKey = currentDate.getFullYear() + '-' + String(currentDate.getMonth()+1).padStart(2,'0') + '-' + String(currentDate.getDate()).padStart(2,'0');
             
             const div = document.createElement('div');
             div.className = 'cal-day';
@@ -717,7 +862,7 @@
 
             if (currentDate.toDateString() === todayStr) div.classList.add('today');
 
-            // Date Number
+            // Date Number (BR Format)
             const dateSpan = document.createElement('div');
             dateSpan.className = 'cal-date';
             dateSpan.innerText = `${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`;
@@ -731,12 +876,12 @@
                     evDiv.draggable = true;
                     evDiv.innerHTML = `<span>${evt.text}</span><span class="cal-event-del" onclick="removeCalendarEvent('${dateKey}', '${evt.id}')">×</span>`;
                     
-                    // Allow moving events between days
+                    // Allow moving events
                     evDiv.ondragstart = (e) => { 
                         e.dataTransfer.setData('text/plain', evt.text); 
-                        // Mark for deletion on success? Simple approach: copy on drop, user deletes old if wanted, or advanced logic.
-                        // Let's stick to copy logic for simplicity or we need to pass ID to move.
-                        // For now, it copies.
+                        // Note: For a true "move", we'd need to delete the original on drop. 
+                        // For simplicity in this version, it acts as copy-move, user can delete old one.
+                        // Or we can implement ID based move later.
                     };
                     
                     div.appendChild(evDiv);
@@ -764,7 +909,6 @@
 
     function saveCalendarEvents() {
         localStorage.setItem(CALENDAR_EVENTS_KEY, JSON.stringify(calendarEvents));
-        // Optional: triggerDriveSync() if you want to sync this too
     }
 
     // --- TIMER POMODORO ---
