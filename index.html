@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v55 (Calendário Expandido)</title>
+    <title>Cronograma TJCE - v56 (Disciplina no Calendário)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -393,7 +393,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v55</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v56</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -740,7 +740,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Discipline Fix) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -784,12 +784,24 @@
                 // Analyze Sheet to get subjects
                 const info = analyzeSheet(sheet);
                 if(info) {
-                    // Extract unique subjects/topics
+                    // Extract unique subjects/topics WITH DISCIPLINE PREFIX
                     const uniqueTopics = new Set();
                     info.rows.forEach(r => {
-                        // Use contentText (Topic Name) or Subject
-                        if(r.contentText && r.contentText.length > 3) uniqueTopics.add(r.contentText);
-                        else if(r.subject) uniqueTopics.add(r.subject);
+                        let itemLabel = "";
+                        
+                        // Force logic: Always prefer Subject + Content if available
+                        if (r.subject) {
+                            itemLabel = r.subject;
+                            // Add topic details if it's different and meaningful
+                            if (r.contentText && r.contentText !== r.subject && r.contentText.length > 3) {
+                                itemLabel += " - " + r.contentText; 
+                            }
+                        } else if (r.contentText && r.contentText.length > 3) {
+                             // Fallback if no explicit subject column found (rare based on logic)
+                             itemLabel = r.contentText;
+                        }
+                        
+                        if(itemLabel) uniqueTopics.add(itemLabel);
                     });
 
                     // Add items to draggable list
