@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v59 (Calendário Manual)</title>
+    <title>Cronograma TJCE - v60 (Filtro Revisão Rigoroso)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -389,7 +389,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v59</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v60</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -736,7 +736,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar + Discipline Fix V59) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V60) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -780,6 +780,9 @@
                 if(info) {
                     const uniqueTopics = new Set();
                     info.rows.forEach(r => {
+                        // FIX V60: SKIP REVISIONS ENTIRELY IN SIDEBAR
+                        if (r.isRevision) return;
+
                         let itemLabel = "";
                         
                         // FIX V59: Logic to handle Subject vs Content duplication
@@ -873,8 +876,6 @@
             dateSpan.innerText = `${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`;
             div.appendChild(dateSpan);
             
-            // MANUAL ONLY: Auto-populate removed in v59
-
             if (calendarEvents[dateKey]) {
                 calendarEvents[dateKey].forEach(evt => {
                     const evDiv = document.createElement('div');
@@ -1058,6 +1059,7 @@
         updateGlobalStats(); 
     }
     
+    // FIX V60: DETECÇÃO RIGOROSA DE REVISÃO E FORMATO DISCIPLINA - CONTEÚDO
     function analyzeSheet(sheetName) { 
         const ws = globalWorkbook.Sheets[sheetName]; 
         if(!ws) return null; 
@@ -1114,20 +1116,27 @@
                 if (isCellVoid(val)) { if (lastDiscVal !== null) val = lastDiscVal; } else { lastDiscVal = val; } 
                 if (val) rawDisc = val; 
             } 
+            
+            // FIX V60: DETECT REVISION BEFORE NORMALIZATION
+            let isRowRevision = false;
+            const revCheck = (str) => str && (str.toString().toUpperCase().includes("[REVISÃO]") || str.toString().toUpperCase().includes("(REVISÃO)"));
+
+            if (revCheck(rawDisc)) isRowRevision = true;
+
             let normalizedDisc = normalizeSubject(rawDisc); 
             
-            // Content Logic (FIXED V58)
-            // Instead of searching newRow, we search the original row but EXCLUDE known structural columns
+            // Content Logic (FIXED V58 & V60)
             let contentText = "Tópico sem nome";
             for(let i=0; i<row.length; i++) {
+                 // Check revision in content cells too
+                 if (revCheck(row[i])) isRowRevision = true;
+
                  // Skip indices that are known to be structural
                  if(i === discIdx || i === metaIdxRaw || i === qIdx || i === aIdx) continue;
-                 // Also skip ignored columns from original header parsing
                  if(!indices.includes(i)) continue;
 
                  const val = row[i];
                  if(typeof val === 'string' && val.trim().length > 3) {
-                     // Extra check: ensure it is not exactly the same string as the discipline
                      const vLower = val.trim().toLowerCase();
                      const dLower = normalizedDisc.toLowerCase();
                      
@@ -1155,7 +1164,7 @@
             
             processedData.push({ 
                 idx: rIdx, data: newRow, state: s, fVal: fVal, aVal: aVal, 
-                subject: normalizedDisc, contentText: contentText 
+                subject: normalizedDisc, contentText: contentText, isRevision: isRowRevision 
             }); 
         }); 
         
