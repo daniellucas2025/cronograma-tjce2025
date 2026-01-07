@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v58 (Fix Conteúdo)</title>
+    <title>Cronograma TJCE - v59 (Filtro Revisão)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -736,7 +736,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar + Discipline Fix) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Discipline Fix V58) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -758,6 +758,9 @@
         
         if(globalWorkbook) {
             globalWorkbook.SheetNames.forEach(sheet => {
+                // Ignore revision sheets in sidebar
+                if (sheet.toUpperCase().includes("[REVISÃO]")) return;
+
                 const group = document.createElement('div');
                 group.className = 'cal-sheet-group';
                 
@@ -779,15 +782,17 @@
                     info.rows.forEach(r => {
                         let itemLabel = "";
                         
-                        // FIX: Explicitly compare Subject vs Content to avoid duplicates
+                        // FIX V58: Logic to avoid duplication
+                        // 1. Prioritize Subject Name
                         if (r.subject) {
                             itemLabel = r.subject;
-                            // Only append content if it exists AND is significantly different
+                            // 2. Check Content Text
                             if (r.contentText && r.contentText.length > 3) {
-                                // Normalize strings for comparison (remove spaces, lowercase)
+                                // Normalize for comparison
                                 const normSub = r.subject.trim().toLowerCase();
                                 const normCont = r.contentText.trim().toLowerCase();
                                 
+                                // Only append if they are DIFFERENT
                                 if (normCont !== normSub && !normCont.includes(normSub)) {
                                     itemLabel += " - " + r.contentText; 
                                 }
@@ -868,6 +873,24 @@
             dateSpan.className = 'cal-date';
             dateSpan.innerText = `${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`;
             div.appendChild(dateSpan);
+            
+            // Auto-populate logic (excluding revision sheets)
+            const diffTime = Math.abs(currentDate - start);
+            if (currentDate >= start) {
+                const weekIndex = Math.floor((currentDate - start) / (1000 * 60 * 60 * 24 * 7));
+                if (weekIndex >= 0 && weekIndex < globalWorkbook.SheetNames.length) {
+                    const sheet = globalWorkbook.SheetNames[weekIndex];
+                    if (sheet && !sheet.toUpperCase().includes("[REVISÃO]") && currentDate.getDay() === 1) { // Monday & Not Revision
+                         const ev = document.createElement('div');
+                        ev.className = 'cal-event';
+                        ev.style.borderLeft = '3px solid var(--primary)';
+                        ev.innerText = `▶ ${sheet}`;
+                        ev.title = `Iniciar ${sheet}`;
+                        ev.onclick = () => { document.getElementById('calendarModal').style.display='none'; loadSheetView(sheet); };
+                        div.appendChild(ev);
+                    }
+                }
+            }
 
             if (calendarEvents[dateKey]) {
                 calendarEvents[dateKey].forEach(evt => {
