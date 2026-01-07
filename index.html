@@ -869,7 +869,7 @@
                         div.className = 'draggable-subject';
                         div.draggable = true;
                         div.innerText = topic;
-                        div.title = `Origem: ${sheet}`; // Tooltip sidebar
+                        div.title = ` ${sheet}`; // Tooltip sidebar
                         // Pass JSON with source info
                         div.ondragstart = (e) => { 
                             e.dataTransfer.setData('application/json', JSON.stringify({ text: topic, sheet: sheet })); 
@@ -948,7 +948,7 @@
                     evDiv.draggable = true;
                     evDiv.innerHTML = `<span>${evt.text}</span><span class="cal-event-del" onclick="removeCalendarEvent('${dateKey}', '${evt.id}')">×</span>`;
                     
-                    if(evt.sheet) evDiv.title = `Origem: ${evt.sheet}`; // Tooltip on Hover
+                    if(evt.sheet) evDiv.title = ` ${evt.sheet}`; // Tooltip on Hover
 
                     evDiv.ondragstart = (e) => { 
                         e.dataTransfer.setData('application/json', JSON.stringify({ text: evt.text, sheet: evt.sheet })); 
