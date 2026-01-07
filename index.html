@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v59 (Filtro Revisão)</title>
+    <title>Cronograma TJCE - v59 (Calendário Manual)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -389,7 +389,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v58</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v59</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -736,7 +736,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar + Discipline Fix V58) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Discipline Fix V59) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -782,17 +782,16 @@
                     info.rows.forEach(r => {
                         let itemLabel = "";
                         
-                        // FIX V58: Logic to avoid duplication
-                        // 1. Prioritize Subject Name
+                        // FIX V59: Logic to handle Subject vs Content duplication
                         if (r.subject) {
                             itemLabel = r.subject;
-                            // 2. Check Content Text
+                            
+                            // Check if content exists and is DIFFERENT from subject
                             if (r.contentText && r.contentText.length > 3) {
-                                // Normalize for comparison
                                 const normSub = r.subject.trim().toLowerCase();
                                 const normCont = r.contentText.trim().toLowerCase();
                                 
-                                // Only append if they are DIFFERENT
+                                // Only append if they are NOT virtually identical
                                 if (normCont !== normSub && !normCont.includes(normSub)) {
                                     itemLabel += " - " + r.contentText; 
                                 }
@@ -874,23 +873,7 @@
             dateSpan.innerText = `${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`;
             div.appendChild(dateSpan);
             
-            // Auto-populate logic (excluding revision sheets)
-            const diffTime = Math.abs(currentDate - start);
-            if (currentDate >= start) {
-                const weekIndex = Math.floor((currentDate - start) / (1000 * 60 * 60 * 24 * 7));
-                if (weekIndex >= 0 && weekIndex < globalWorkbook.SheetNames.length) {
-                    const sheet = globalWorkbook.SheetNames[weekIndex];
-                    if (sheet && !sheet.toUpperCase().includes("[REVISÃO]") && currentDate.getDay() === 1) { // Monday & Not Revision
-                         const ev = document.createElement('div');
-                        ev.className = 'cal-event';
-                        ev.style.borderLeft = '3px solid var(--primary)';
-                        ev.innerText = `▶ ${sheet}`;
-                        ev.title = `Iniciar ${sheet}`;
-                        ev.onclick = () => { document.getElementById('calendarModal').style.display='none'; loadSheetView(sheet); };
-                        div.appendChild(ev);
-                    }
-                }
-            }
+            // MANUAL ONLY: Auto-populate removed in v59
 
             if (calendarEvents[dateKey]) {
                 calendarEvents[dateKey].forEach(evt => {
@@ -1133,8 +1116,8 @@
             } 
             let normalizedDisc = normalizeSubject(rawDisc); 
             
-            // Content Logic (FIXED FOR V58)
-            // Instead of searching newRow, we search the original row but EXCLUDE discipline column index
+            // Content Logic (FIXED V58)
+            // Instead of searching newRow, we search the original row but EXCLUDE known structural columns
             let contentText = "Tópico sem nome";
             for(let i=0; i<row.length; i++) {
                  // Skip indices that are known to be structural
@@ -1145,7 +1128,11 @@
                  const val = row[i];
                  if(typeof val === 'string' && val.trim().length > 3) {
                      // Extra check: ensure it is not exactly the same string as the discipline
-                     if (val.trim().toLowerCase() !== normalizedDisc.toLowerCase()) {
+                     const vLower = val.trim().toLowerCase();
+                     const dLower = normalizedDisc.toLowerCase();
+                     
+                     // If value is NOT the discipline name, use it as content
+                     if (vLower !== dLower) {
                          contentText = val.trim();
                          break; 
                      }
