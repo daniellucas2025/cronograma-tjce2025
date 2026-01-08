@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v62 (Calendário Expansivo)</title>
+    <title>Cronograma TJCE - v63 (Config Revisão)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +13,7 @@
 
     <style>
         :root {
-            --primary: #2b579a;
+            --primary: #2b579a; /* Azul Office */
             --primary-hover: #1e3e70;
             --bg: #f3f2f1;
             --surface: #ffffff;
@@ -205,10 +205,12 @@
         .is-link a { color: var(--primary); text-decoration: none; }
         .is-link a:hover { text-decoration: underline; }
 
+        /* Context Menu */
         .context-menu { position: absolute; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; display: none; z-index: 1000; padding: 5px 0; min-width: 150px; }
         .context-menu-item { padding: 8px 15px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
         .context-menu-item:hover { background: var(--highlight); color: var(--primary); }
 
+        /* Modal Generico */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: none; justify-content: center; align-items: center; }
         .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; position: relative;}
         .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
@@ -216,6 +218,7 @@
         .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 4px; border: 1px solid var(--border); }
         .drive-group .btn { border: none; background: transparent; padding: 4px 10px; font-size: 0.75rem; }
         
+        /* Sync Status Indicator */
         .sync-status { 
             width: 10px; height: 10px; border-radius: 50%; 
             background: var(--text-sec); display: inline-block; margin-left: 5px; 
@@ -227,29 +230,71 @@
         .sync-status.loading { background: var(--warning); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        .split-view { display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; position: relative; }
-        .split-sidebar { width: 250px; min-width: 150px; max-width: 500px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; transition: transform 0.3s ease; }
+        /* ==================== REMINDERS / NOTES STYLES ==================== */
+        .split-view { 
+            display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; 
+            position: relative;
+        }
+        
+        .split-sidebar { 
+            width: 250px; min-width: 150px; max-width: 500px;
+            background: var(--bg); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
         .split-sidebar.collapsed { display: none; }
-        .resizer-handle { width: 5px; cursor: col-resize; background: var(--border); transition: background 0.2s; z-index: 10; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+        .resizer-handle {
+            width: 5px; cursor: col-resize; background: var(--border);
+            transition: background 0.2s; z-index: 10; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
         .resizer-handle:hover, .resizer-handle.active { background: var(--primary); }
         .resizer-handle::after { content: '⋮'; color: var(--text-sec); font-size: 10px; }
+        
         .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
         .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; align-items: center; }
-        .toggle-sidebar-btn { background: transparent; border: 1px solid var(--border); color: var(--text-sec); cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px; }
+        
+        .toggle-sidebar-btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-sec);
+            cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px;
+        }
         .toggle-sidebar-btn:hover { background: var(--highlight); color: var(--primary); }
 
-        .editor-toolbar { padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px; }
-        .toolbar-group { display: flex; gap: 2px; align-items: center; padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px; }
+        /* --- WORD-LIKE TOOLBAR --- */
+        .editor-toolbar {
+            padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg);
+            display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px;
+        }
+        
+        .toolbar-group {
+            display: flex; gap: 2px; align-items: center; 
+            padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px;
+        }
         .toolbar-group:last-child { border-right: none; }
-        .toolbar-btn { background: transparent; border: 1px solid transparent; border-radius: 3px; padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+
+        .toolbar-btn {
+            background: transparent; border: 1px solid transparent; border-radius: 3px; 
+            padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); 
+            min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.1s;
+        }
         .toolbar-btn:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; padding-right: 2px;}
-        .color-wrapper { position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid transparent; border-radius: 3px; }
+        
+        .color-wrapper {
+            position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 1px solid transparent; border-radius: 3px;
+        }
         .color-wrapper:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         .color-bar { width: 22px; height: 4px; margin-top: 15px; position: absolute; pointer-events: none;}
         .color-input-hidden { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        .editor-area { flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; }
+        .editor-area { 
+            flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
+            font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); 
+            font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; 
+        }
         .editor-area img { max-width: 100%; border-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
         .editor-area table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
         .editor-area th, .editor-area td { border: 1px solid var(--border); padding: 4px 8px; }
@@ -258,8 +303,15 @@
         .editor-area blockquote { border-left: 3px solid var(--primary); margin: 10px 0; padding-left: 10px; color: var(--text-sec); background: rgba(43,87,154,0.05); }
         .editor-placeholder { color: var(--text-sec); display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; font-size: 0.9rem; }
 
-        #imgResizeOverlay { position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000; }
-        .resize-handle { width: 10px; height: 10px; background: var(--primary); border: 1px solid white; position: absolute; bottom: -5px; right: -5px; cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3); }
+        /* Image Resizer Overlay */
+        #imgResizeOverlay {
+            position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000;
+        }
+        .resize-handle {
+            width: 10px; height: 10px; background: var(--primary); border: 1px solid white;
+            position: absolute; bottom: -5px; right: -5px;
+            cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3);
+        }
 
         /* --- CALENDAR STYLES (BR + SIDEBAR) --- */
         .calendar-wrapper { display: flex; height: 100%; gap: 10px; overflow: hidden; }
@@ -315,6 +367,7 @@
         }
         .close-modal-btn:hover { color: var(--danger); }
 
+        /* Note Search */
         .note-search-input {
             padding: 4px 8px; border-radius: 3px; border: 1px solid var(--border);
             font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text);
@@ -334,7 +387,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v62</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v63</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -422,6 +475,11 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top:10px;">
             <h3>📅 Calendário de Estudos</h3>
             <div style="display:flex; gap:10px; align-items:center;">
+                
+                <label style="font-size:0.85rem; display:flex; align-items:center; gap:4px; margin-left:10px;">
+                    <input type="checkbox" id="calShowRevisions" onchange="renderCalendar()"> 👁️ Mostrar Revisões
+                </label>
+
                 <label style="font-size:0.85rem;">Mês de Início:</label>
                 <input type="date" id="calendarStartDate" onchange="renderCalendar()">
                 <button class="btn btn-primary" onclick="document.getElementById('calAutoPanel').style.display = document.getElementById('calAutoPanel').style.display==='flex'?'none':'flex'">⚡ Automático</button>
@@ -586,6 +644,7 @@
     const DAILY_DATE_KEY = 'tjce_daily_date';
     const CALENDAR_START_KEY = 'tjce_cal_start';
     const CALENDAR_EVENTS_KEY = 'tjce_cal_events'; 
+    const CALENDAR_SHOW_REV_KEY = 'tjce_cal_show_rev'; // NEW
 
     const EXCLUDE_LIST = ['youtube', 'link do material', 'cumpriu a meta?', 'cumpriu a meta', 'link qconcursos', '% líq.', '% liq', '% acertos', '% de acertos'];
     const URL_REGEX = /((https?:\/\/|www\.)[^\s,]+)/gi;
@@ -705,13 +764,17 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V62) ---
+    // --- CALENDAR LOGIC (Configurable Revisions) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
         
         const savedCalStart = localStorage.getItem(CALENDAR_START_KEY);
         if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart;
+        
+        // Restore Show/Hide Revisions Toggle
+        const showRev = localStorage.getItem(CALENDAR_SHOW_REV_KEY);
+        document.getElementById('calShowRevisions').checked = (showRev === 'true');
     }
 
     function openCalendarModal() {
@@ -726,11 +789,15 @@
         renderCalendar();
     }
 
-    // --- AUTO-FILL LOGIC (Overwrite + Filter) ---
+    // --- AUTO-FILL LOGIC (Overwrite + Filter + Toggle Config) ---
     function runAutoFill() {
         const startDateVal = document.getElementById('calendarStartDate').value;
         if(!startDateVal || !globalWorkbook) return alert("Defina uma data de início e carregue a planilha primeiro.");
         
+        // Get Config
+        const showRevisions = document.getElementById('calShowRevisions').checked;
+        localStorage.setItem(CALENDAR_SHOW_REV_KEY, showRevisions);
+
         // Days config
         const daysMap = [
             document.getElementById('da_0').checked, // Dom
@@ -744,15 +811,17 @@
         
         const qtyPerDay = parseInt(document.getElementById('autoQty').value) || 2;
         
-        // Build task queue from all non-revision sheets
+        // Build task queue from sheets
         let taskQueue = [];
         globalWorkbook.SheetNames.forEach(sheet => {
-            if (sheet.toUpperCase().includes("[REVISÃO]")) return;
+            // Check sheet level revision
+            if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
+
             const info = analyzeSheet(sheet);
             if(info) {
                  info.rows.forEach(r => {
-                     // Strict revision filter
-                     if (r.isRevision) return; 
+                     // Check row level revision
+                     if (!showRevisions && r.isRevision) return; 
                      
                      let label = r.subject || sheet;
                      if (r.contentText && r.contentText.length > 3) {
@@ -824,10 +893,14 @@
         grid.innerHTML = '';
         sidebar.innerHTML = '';
         
+        // Get Config
+        const showRevisions = document.getElementById('calShowRevisions').checked;
+        localStorage.setItem(CALENDAR_SHOW_REV_KEY, showRevisions);
+        
         if(globalWorkbook) {
             globalWorkbook.SheetNames.forEach(sheet => {
-                // Ignore revision sheets in sidebar
-                if (sheet.toUpperCase().includes("[REVISÃO]")) return;
+                // Ignore revision sheets if config is off
+                if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
 
                 const group = document.createElement('div');
                 group.className = 'cal-sheet-group';
@@ -848,21 +921,16 @@
                 if(info) {
                     const uniqueTopics = new Set();
                     info.rows.forEach(r => {
-                        // FIX V60: SKIP REVISIONS ENTIRELY IN SIDEBAR
-                        if (r.isRevision) return;
+                        // Ignore row revision if config is off
+                        if (!showRevisions && r.isRevision) return;
 
                         let itemLabel = "";
                         
-                        // FIX V59: Logic to handle Subject vs Content duplication
                         if (r.subject) {
                             itemLabel = r.subject;
-                            
-                            // Check if content exists and is DIFFERENT from subject
                             if (r.contentText && r.contentText.length > 3) {
                                 const normSub = r.subject.trim().toLowerCase();
                                 const normCont = r.contentText.trim().toLowerCase();
-                                
-                                // Only append if they are NOT virtually identical
                                 if (normCont !== normSub && !normCont.includes(normSub)) {
                                     itemLabel += " - " + r.contentText; 
                                 }
@@ -880,7 +948,6 @@
                         div.draggable = true;
                         div.innerText = topic;
                         div.title = `Origem: ${sheet}`; // Tooltip sidebar
-                        // Pass JSON with source info
                         div.ondragstart = (e) => { 
                             e.dataTransfer.setData('application/json', JSON.stringify({ text: topic, sheet: sheet })); 
                             e.dataTransfer.effectAllowed = 'copy'; 
@@ -889,7 +956,7 @@
                     });
                     
                     if(uniqueTopics.size === 0) {
-                        content.innerHTML = '<div style="font-size:0.7rem; color:var(--text-sec);">Sem tópicos identificados.</div>';
+                        content.innerHTML = '<div style="font-size:0.7rem; color:var(--text-sec);">Sem tópicos disponíveis.</div>';
                     }
                 }
                 
@@ -907,12 +974,9 @@
         }
         localStorage.setItem(CALENDAR_START_KEY, startDateVal);
 
-        // V62: Dynamic Total Weeks
-        // Determine number of weeks needed based on sheet count, with a buffer
-        let totalWeeks = 6; // Default to ~1 month if nothing loaded
+        // Dynamic Weeks
+        let totalWeeks = 6; 
         if (globalWorkbook) {
-            // Count sheets that are not revisions to be more precise, or just all sheets
-            // Since revision sheets are filtered, using length is a safe upper bound
             totalWeeks = globalWorkbook.SheetNames.length + 4; 
         }
 
