@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v61 (Limpar e Sobrescrever)</title>
+    <title>Cronograma TJCE - v62 (Calendário Expansivo)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +13,7 @@
 
     <style>
         :root {
-            --primary: #2b579a; /* Azul Office */
+            --primary: #2b579a;
             --primary-hover: #1e3e70;
             --bg: #f3f2f1;
             --surface: #ffffff;
@@ -78,7 +78,6 @@
         .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
         .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
         .quote-box:hover { color: var(--primary); }
-        
         .header-actions { display: flex; gap: 6px; align-items: center; }
 
         .btn {
@@ -88,10 +87,8 @@
         }
         .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-primary:hover { background: var(--primary-hover); }
-        
         .btn-success { background: var(--success); color: white; border-color: var(--success); }
         .btn-success:hover { background: var(--success-hover); }
-
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
         .btn-outline:hover { background: var(--btn-hover); border-color: var(--text-sec); }
         .btn-danger-outline { background: transparent; border-color: var(--danger); color: var(--danger); }
@@ -102,7 +99,6 @@
 
         input[type="file"] { display: none; }
 
-        /* Drop Zone */
         .drop-zone {
             border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px;
             color: var(--text-sec); font-size: 0.8rem; cursor: pointer;
@@ -110,7 +106,6 @@
         }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
 
-        /* Productivity Bar (Timer + Goal) */
         .prod-bar {
             display: flex; gap: 10px; align-items: center; background: var(--highlight);
             padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
@@ -122,7 +117,6 @@
         .goal-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
         .goal-text { font-size: 0.75rem; color: var(--text-sec); min-width: 60px; text-align: right;}
 
-        /* Stats Bar */
         .global-stats {
             background: var(--highlight); padding: 6px 15px;
             border-bottom: 1px solid var(--border); display: flex; gap: 20px;
@@ -134,7 +128,6 @@
         .progress-track { flex-grow: 1; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; max-width: 150px; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
 
-        /* Controls */
         .sheet-controls {
             padding: 6px 15px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex;
@@ -148,7 +141,6 @@
         select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
         .search-box { flex-grow: 1; min-width: 150px; }
 
-        /* Tabela */
         .content-area { flex-grow: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
         .table-scroll { flex-grow: 1; overflow: auto; display: none; scroll-behavior: smooth; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -174,7 +166,6 @@
         .pct-low { background: rgba(164, 38, 44, 0.2); color: var(--danger); }
         .pct-none { color: var(--text-sec); }
 
-        /* DASHBOARD */
         .dashboard-view { padding: 15px 20px; height: 100%; overflow-y: auto; display: none; background: var(--surface); }
         .dash-header-compact { text-align: center; margin-bottom: 15px; }
         .dash-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
@@ -214,12 +205,10 @@
         .is-link a { color: var(--primary); text-decoration: none; }
         .is-link a:hover { text-decoration: underline; }
 
-        /* Context Menu */
         .context-menu { position: absolute; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; display: none; z-index: 1000; padding: 5px 0; min-width: 150px; }
         .context-menu-item { padding: 8px 15px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
         .context-menu-item:hover { background: var(--highlight); color: var(--primary); }
 
-        /* Modal Generico */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: none; justify-content: center; align-items: center; }
         .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; position: relative;}
         .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
@@ -227,7 +216,6 @@
         .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 4px; border: 1px solid var(--border); }
         .drive-group .btn { border: none; background: transparent; padding: 4px 10px; font-size: 0.75rem; }
         
-        /* Sync Status Indicator */
         .sync-status { 
             width: 10px; height: 10px; border-radius: 50%; 
             background: var(--text-sec); display: inline-block; margin-left: 5px; 
@@ -239,71 +227,29 @@
         .sync-status.loading { background: var(--warning); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* ==================== REMINDERS / NOTES STYLES ==================== */
-        .split-view { 
-            display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; 
-            position: relative;
-        }
-        
-        .split-sidebar { 
-            width: 250px; min-width: 150px; max-width: 500px;
-            background: var(--bg); border-right: 1px solid var(--border); 
-            display: flex; flex-direction: column; flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
+        .split-view { display: flex; height: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; position: relative; }
+        .split-sidebar { width: 250px; min-width: 150px; max-width: 500px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; transition: transform 0.3s ease; }
         .split-sidebar.collapsed { display: none; }
-
-        .resizer-handle {
-            width: 5px; cursor: col-resize; background: var(--border);
-            transition: background 0.2s; z-index: 10; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .resizer-handle { width: 5px; cursor: col-resize; background: var(--border); transition: background 0.2s; z-index: 10; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .resizer-handle:hover, .resizer-handle.active { background: var(--primary); }
         .resizer-handle::after { content: '⋮'; color: var(--text-sec); font-size: 10px; }
-        
         .split-content { flex-grow: 1; display: flex; flex-direction: column; background: var(--surface); min-width: 0; }
         .split-header { padding: 8px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; align-items: center; }
-        
-        .toggle-sidebar-btn {
-            background: transparent; border: 1px solid var(--border); color: var(--text-sec);
-            cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px;
-        }
+        .toggle-sidebar-btn { background: transparent; border: 1px solid var(--border); color: var(--text-sec); cursor: pointer; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; margin-right: 5px; }
         .toggle-sidebar-btn:hover { background: var(--highlight); color: var(--primary); }
 
-        /* --- WORD-LIKE TOOLBAR --- */
-        .editor-toolbar {
-            padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg);
-            display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px;
-        }
-        
-        .toolbar-group {
-            display: flex; gap: 2px; align-items: center; 
-            padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px;
-        }
+        .editor-toolbar { padding: 5px 8px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 40px; }
+        .toolbar-group { display: flex; gap: 2px; align-items: center; padding-right: 6px; border-right: 1px solid var(--toolbar-border); margin-right: 2px; }
         .toolbar-group:last-child { border-right: none; }
-
-        .toolbar-btn {
-            background: transparent; border: 1px solid transparent; border-radius: 3px; 
-            padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); 
-            min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center;
-            transition: all 0.1s;
-        }
+        .toolbar-btn { background: transparent; border: 1px solid transparent; border-radius: 3px; padding: 3px 6px; cursor: pointer; font-size: 0.9rem; color: var(--text); min-width: 26px; height: 28px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
         .toolbar-btn:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         select.toolbar-btn { min-width: auto; text-align: left; -webkit-appearance: auto; padding-right: 2px;}
-        
-        .color-wrapper {
-            position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 1px solid transparent; border-radius: 3px;
-        }
+        .color-wrapper { position: relative; width: 34px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid transparent; border-radius: 3px; }
         .color-wrapper:hover { background: var(--btn-hover); border-color: var(--btn-active); }
         .color-bar { width: 22px; height: 4px; margin-top: 15px; position: absolute; pointer-events: none;}
         .color-input-hidden { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        .editor-area { 
-            flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; 
-            font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); 
-            font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; 
-        }
+        .editor-area { flex-grow: 1; padding: 40px; outline: none; overflow-y: auto; font-size: 1rem; line-height: 1.5; background: var(--surface); color: var(--text); font-family: 'Calibri', 'Segoe UI', sans-serif; print-color-adjust: exact; }
         .editor-area img { max-width: 100%; border-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
         .editor-area table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
         .editor-area th, .editor-area td { border: 1px solid var(--border); padding: 4px 8px; }
@@ -312,15 +258,8 @@
         .editor-area blockquote { border-left: 3px solid var(--primary); margin: 10px 0; padding-left: 10px; color: var(--text-sec); background: rgba(43,87,154,0.05); }
         .editor-placeholder { color: var(--text-sec); display: flex; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; font-size: 0.9rem; }
 
-        /* Image Resizer Overlay */
-        #imgResizeOverlay {
-            position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000;
-        }
-        .resize-handle {
-            width: 10px; height: 10px; background: var(--primary); border: 1px solid white;
-            position: absolute; bottom: -5px; right: -5px;
-            cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3);
-        }
+        #imgResizeOverlay { position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000; }
+        .resize-handle { width: 10px; height: 10px; background: var(--primary); border: 1px solid white; position: absolute; bottom: -5px; right: -5px; cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3); }
 
         /* --- CALENDAR STYLES (BR + SIDEBAR) --- */
         .calendar-wrapper { display: flex; height: 100%; gap: 10px; overflow: hidden; }
@@ -376,7 +315,6 @@
         }
         .close-modal-btn:hover { color: var(--danger); }
 
-        /* Note Search */
         .note-search-input {
             padding: 4px 8px; border-radius: 3px; border: 1px solid var(--border);
             font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text);
@@ -396,7 +334,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v61</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v62</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -767,7 +705,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V61) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V62) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -969,6 +907,15 @@
         }
         localStorage.setItem(CALENDAR_START_KEY, startDateVal);
 
+        // V62: Dynamic Total Weeks
+        // Determine number of weeks needed based on sheet count, with a buffer
+        let totalWeeks = 6; // Default to ~1 month if nothing loaded
+        if (globalWorkbook) {
+            // Count sheets that are not revisions to be more precise, or just all sheets
+            // Since revision sheets are filtered, using length is a safe upper bound
+            totalWeeks = globalWorkbook.SheetNames.length + 4; 
+        }
+
         const parts = startDateVal.split('-');
         const start = new Date(parts[0], parts[1] - 1, parts[2]);
         const dayOfWeek = start.getDay(); 
@@ -983,7 +930,6 @@
             grid.appendChild(div);
         });
 
-        const totalWeeks = 6; 
         const todayStr = new Date().toDateString();
 
         for (let i = 0; i < totalWeeks * 7; i++) {
