@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v66 (Team Drive System)</title>
+    <title>Cronograma TJCE - v67 (Sistema Team Drive)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,7 +22,7 @@
             --highlight: #f3f2f1; --drag-over: #deecf9;
             --toolbar-bg: #f8f9fa; --toolbar-border: #e1dfdd;
             --btn-hover: #edebe9; --btn-active: #c8c6c4;
-            --team: #6264A7; /* Cor Teams/Discord para diferenciar */
+            --team: #6264A7;
         }
 
         body.dark-mode {
@@ -121,13 +121,18 @@
         .attention-section { max-width: 900px; margin: 25px auto; border-top: 1px dashed var(--border); padding-top: 20px; }
         .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 10px; }
         .att-card { background: rgba(164, 38, 44, 0.04); border: 1px solid rgba(164, 38, 44, 0.15); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+        body.dark-mode .att-card { background: rgba(164, 38, 44, 0.1); border-color: rgba(164, 38, 44, 0.3); }
         .att-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .att-disc { font-size: 0.7rem; font-weight: 700; color: var(--text-sec); text-transform: uppercase; }
         .att-title { font-weight: 600; margin-bottom: 10px; font-size: 0.9rem; color: var(--text); line-height: 1.3; }
         .att-btn { align-self: flex-start; font-size: 0.75rem; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border); color: var(--primary); border-radius: 4px; cursor: pointer; }
         
+        /* REPOSITÓRIO TREE VIEW */
         .repo-container { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-        .repo-toolbar { display: flex; gap: 5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+        .repo-toolbar { 
+            display: flex; gap: 5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); 
+            flex-wrap: wrap; align-items: center;
+        }
         .repo-tree { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 10px; background: var(--bg); }
         .tree-node { margin-left: 15px; border-left: 1px solid var(--border); padding-left: 5px; }
         .tree-content { display: flex; align-items: center; padding: 4px 8px; border-radius: 3px; cursor: pointer; margin-bottom: 2px; transition: background 0.1s; }
@@ -142,10 +147,12 @@
         .is-link a { color: var(--primary); text-decoration: none; }
         .is-link a:hover { text-decoration: underline; }
 
+        /* Context Menu */
         .context-menu { position: absolute; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; display: none; z-index: 1000; padding: 5px 0; min-width: 150px; }
         .context-menu-item { padding: 8px 15px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
         .context-menu-item:hover { background: var(--highlight); color: var(--primary); }
 
+        /* Modal Generico */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: none; justify-content: center; align-items: center; }
         .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; position: relative;}
         .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
@@ -153,6 +160,7 @@
         .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 4px; border: 1px solid var(--border); }
         .drive-group .btn { border: none; background: transparent; padding: 4px 10px; font-size: 0.75rem; }
         
+        /* Sync Status Indicator */
         .sync-status { width: 10px; height: 10px; border-radius: 50%; background: var(--text-sec); display: inline-block; margin-left: 5px; transition: background 0.3s; cursor: help; }
         .sync-status.active { background: var(--success); box-shadow: 0 0 5px var(--success); }
         .sync-status.error { background: var(--danger); }
@@ -193,6 +201,7 @@
         #imgResizeOverlay { position: absolute; border: 2px solid var(--primary); pointer-events: none; display: none; z-index: 1000; }
         .resize-handle { width: 10px; height: 10px; background: var(--primary); border: 1px solid white; position: absolute; bottom: -5px; right: -5px; cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3); }
 
+        /* CALENDAR LAYOUT */
         .calendar-wrapper { display: flex; height: 100%; gap: 10px; overflow: hidden; }
         .cal-sidebar { width: 240px; border-right: 1px solid var(--border); padding-right: 10px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
         .cal-main { flex-grow: 1; overflow-y: auto; }
@@ -233,10 +242,11 @@
         .icon-option { font-size: 1.5rem; text-align: center; cursor: pointer; padding: 5px; border-radius: 6px; border: 1px solid transparent; }
         .icon-option:hover { background: var(--highlight); border-color: var(--primary); transform: scale(1.1); }
         
-        /* TEAM MODAL */
         .team-status-box { padding: 15px; background: var(--highlight); border-radius: 6px; border: 1px solid var(--border); margin-bottom: 15px; }
         .team-status-title { font-weight: bold; margin-bottom: 5px; color: var(--primary); display:flex; justify-content:space-between; }
         .team-status-val { font-family: monospace; background: var(--bg); padding: 5px; border-radius: 4px; border: 1px solid var(--border); user-select: all;}
+        
+        #localhost-warning { display: none; background: var(--warning); color: #000; padding: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -245,9 +255,11 @@
 <div id="imgResizeOverlay"><div class="resize-handle" id="imgResizeHandle"></div></div>
 
 <div class="container">
+    <div id="localhost-warning">⚠️ A conexão com o Google Drive só funciona se você usar um servidor local (ex: Live Server). O modo "file://" não é suportado pelo Google.</div>
+
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v66</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v67</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -320,7 +332,6 @@
                 <div class="d-card"><div class="d-val" style="color: var(--success);" id="dTotalA">0</div><div class="d-label">Acertos</div></div>
                 <div class="d-card"><div class="d-val" id="dTotalPct">-</div><div class="d-label">% Geral</div></div>
             </div>
-            
             <div class="chart-wrapper"><canvas id="perfChart"></canvas></div>
             <table class="dash-table" id="dashTable"><thead><tr><th>Disciplina</th><th style="text-align: center;">Questões</th><th style="text-align: center;">Acertos</th><th style="text-align: center;">%</th></tr></thead><tbody></tbody></table>
             <div class="attention-section"><h3 style="color: var(--danger); display:flex; align-items:center; gap:8px;">⚠️ Pontos de Atenção (< 70%)</h3><div id="attentionList" class="att-grid"></div></div>
@@ -346,7 +357,6 @@
 
         <div id="teamDisconnected">
             <p style="font-size:0.9rem; color:var(--text-sec);">Conecte-se a uma pasta compartilhada para centralizar backups ou crie um Hub para sua equipe.</p>
-            
             <div style="margin-bottom:20px; padding-bottom:15px; border-bottom:1px dashed var(--border);">
                 <h4 style="margin:0 0 10px 0; font-size:0.95rem;">👑 Sou Administrador</h4>
                 <button class="btn btn-primary" onclick="createTeamFolder()" style="width:100%;">Criar Hub Central</button>
@@ -356,7 +366,6 @@
                     <div class="team-status-val" id="newFolderId"></div>
                 </div>
             </div>
-
             <div>
                 <h4 style="margin:0 0 10px 0; font-size:0.95rem;">👋 Sou Convidado</h4>
                 <input type="text" id="inputTeamId" placeholder="Cole o ID da Pasta aqui..." style="width:100%; box-sizing:border-box; padding:8px; margin-bottom:10px;">
@@ -369,7 +378,6 @@
 <div class="modal-overlay" id="calendarModal">
     <div class="modal" style="width: 95%; max-width: 1200px; height: 95vh;">
         <span class="close-modal-btn" onclick="document.getElementById('calendarModal').style.display='none'">×</span>
-        
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top:10px;">
             <h3>📅 Calendário de Estudos</h3>
             <div style="display:flex; gap:10px; align-items:center;">
@@ -388,13 +396,7 @@
             <div class="cal-auto-row">
                 <span style="font-size:0.8rem; font-weight:bold;">Dias de Estudo:</span>
                 <div class="cal-auto-days">
-                    <label><input type="checkbox" id="da_1" checked> Seg</label>
-                    <label><input type="checkbox" id="da_2" checked> Ter</label>
-                    <label><input type="checkbox" id="da_3" checked> Qua</label>
-                    <label><input type="checkbox" id="da_4" checked> Qui</label>
-                    <label><input type="checkbox" id="da_5" checked> Sex</label>
-                    <label><input type="checkbox" id="da_6" checked> Sáb</label>
-                    <label><input type="checkbox" id="da_0"> Dom</label>
+                    <label><input type="checkbox" id="da_1" checked> Seg</label><label><input type="checkbox" id="da_2" checked> Ter</label><label><input type="checkbox" id="da_3" checked> Qua</label><label><input type="checkbox" id="da_4" checked> Qui</label><label><input type="checkbox" id="da_5" checked> Sex</label><label><input type="checkbox" id="da_6" checked> Sáb</label><label><input type="checkbox" id="da_0"> Dom</label>
                 </div>
             </div>
             <div class="cal-auto-row">
@@ -514,7 +516,7 @@
 </div>
 
 <script>
-    // CONFIGURAÇÃO
+    // CREDENCIAIS (Para funcionar localmente, use http://localhost:5500)
     const CLIENT_ID = '110553511396-kpng54oo67ign1hjp3rmc444lg9ho4u0.apps.googleusercontent.com'; 
     const API_KEY = 'AIzaSyDUik5IzfQce1hPFXIu8_gv430E3CXgO78'; 
     const SHEET_FILE_ID = '1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok'; 
@@ -536,7 +538,7 @@
     const CALENDAR_START_KEY = 'tjce_cal_start';
     const CALENDAR_EVENTS_KEY = 'tjce_cal_events'; 
     const CALENDAR_SHOW_REV_KEY = 'tjce_cal_show_rev';
-    const TEAM_FOLDER_KEY = 'tjce_team_folder_id'; // NEW
+    const TEAM_FOLDER_KEY = 'tjce_team_folder_id'; 
 
     const EXCLUDE_LIST = ['youtube', 'link do material', 'cumpriu a meta?', 'cumpriu a meta', 'link qconcursos', '% líq.', '% liq', '% acertos', '% de acertos'];
     const URL_REGEX = /((https?:\/\/|www\.)[^\s,]+)/gi;
@@ -547,100 +549,37 @@
     let currentResizingImg = null; let startX = 0, startY = 0; let startWidth = 0, startHeight = 0;
     let timerInterval = null; let timeRemaining = 25 * 60; let isTimerRunning = false;
     let calendarEvents = {}; 
-    let currentUserEmail = ""; // NEW
+    let currentUserEmail = ""; 
 
-    // MOTIVATIONAL QUOTES
-    const QUOTES = [
-        "O sucesso é a soma de pequenos esforços repetidos dia após dia.", "Não pare até se orgulhar.", "A dor da disciplina é menor que a dor do arrependimento.",
-        "Seus sonhos não têm data de validade. Respire fundo e tente de novo.", "Estude enquanto eles dormem, trabalhe enquanto eles se divertem.",
-        "O único lugar onde o sucesso vem antes do trabalho é no dicionário.", "Disciplina é liberdade.", "Foco, força e fé. O TJCE te espera!",
-        "A constância é a chave da aprovação.", "Cada questão resolvida é um passo rumo à posse."
-    ];
-
+    const QUOTES = ["O sucesso é a soma de pequenos esforços repetidos dia após dia.", "Não pare até se orgulhar.", "A dor da disciplina é menor que a dor do arrependimento.", "Seus sonhos não têm data de validade.", "Estude enquanto eles dormem.", "Disciplina é liberdade.", "Foco, força e fé. O TJCE te espera!", "A constância é a chave da aprovação.", "Cada questão resolvida é um passo rumo à posse."];
     const AVAILABLE_ICONS = ['📄', '📝', '📕', '📗', '📘', '📙', '📓', '📒', '📚', '🔖', '📁', '📂', '🗂️', '📊', '📈', '📋', '📌', '📍', '📎', '🔒', '💡', '🔦', '🔥', '⭐', '🌟', '🎯', '🏆', '🏅', '⚠️', '⛔', '✅', '❌', '❓', '❗', '🛑', '📅', '⏰', '⏳', '🧠', '💼'];
 
+    // --- MAIN INITIALIZATION ---
     window.onload = function() {
+        if(window.location.protocol === 'file:') document.getElementById('localhost-warning').style.display = 'block';
+        
         initRepo(); initReminders(); initResizeLogic(); initImageResizer(); updateTimerDisplay(); initCalendar();
         showRandomQuote(); checkDailyReset(); updateGoalDisplay(); updateTeamUI();
         if (localStorage.getItem(THEME_KEY) === 'dark') document.body.classList.add('dark-mode');
         
-        if(CLIENT_ID && API_KEY && CLIENT_ID !== 'SEU_CLIENT_ID_AQUI') {
-            gapi.load('client', intializeGapiClient);
-            tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '', });
-            gisInited = true;
-        } else {
-            if(EMBEDDED_FILE && EMBEDDED_FILE.length > 100) loadEmbeddedFile();
-        }
+        // Initialize Google Scripts safely
+        if(typeof gapi !== 'undefined' && typeof google !== 'undefined') {
+             gapi.load('client', intializeGapiClient);
+             try {
+                tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' });
+                gisInited = true;
+             } catch(e) { console.error("GIS Init Error", e); }
+        } else { console.warn("Google Libraries not loaded."); }
+        
+        if(EMBEDDED_FILE && EMBEDDED_FILE.length > 100) loadEmbeddedFile();
         
         const editor = document.getElementById('noteEditor');
         editor.addEventListener('mouseup', saveSelection);
         editor.addEventListener('keyup', saveSelection);
         editor.addEventListener('focus', saveSelection);
-        const savedCalStart = localStorage.getItem(CALENDAR_START_KEY);
-        if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart;
     };
 
-    // --- TEAM DRIVE SYSTEM (V66) ---
-    function updateTeamUI() {
-        const teamId = localStorage.getItem(TEAM_FOLDER_KEY);
-        if(teamId) {
-            document.getElementById('teamConnected').style.display = 'block';
-            document.getElementById('teamDisconnected').style.display = 'none';
-            document.getElementById('displayTeamId').innerText = teamId;
-        } else {
-            document.getElementById('teamConnected').style.display = 'none';
-            document.getElementById('teamDisconnected').style.display = 'block';
-        }
-    }
-
-    function openTeamModal() { document.getElementById('teamModal').style.display = 'flex'; }
-    
-    function joinTeam() {
-        const id = document.getElementById('inputTeamId').value.trim();
-        if(!id) return alert("Por favor, insira o ID da Pasta.");
-        localStorage.setItem(TEAM_FOLDER_KEY, id);
-        updateTeamUI();
-        // Trigger sync to switch context
-        syncFileId = null; // Reset current file reference
-        loadFromDrive();
-        alert("Conectado ao Time! Seus dados agora serão salvos na pasta central.");
-    }
-
-    function leaveTeam() {
-        if(!confirm("Deseja desconectar do time? Seus dados voltarão a ser salvos na sua raiz pessoal.")) return;
-        localStorage.removeItem(TEAM_FOLDER_KEY);
-        updateTeamUI();
-        syncFileId = null;
-        loadFromDrive(); // Reload from personal root
-    }
-
-    async function createTeamFolder() {
-        if (!gapi.client.getToken()) return alert("Faça login no Google primeiro.");
-        try {
-            const fileMetadata = {
-                'name': 'TJCE_Study_Hub',
-                'mimeType': 'application/vnd.google-apps.folder'
-            };
-            const response = await gapi.client.drive.files.create({
-                resource: fileMetadata,
-                fields: 'id'
-            });
-            const folderId = response.result.id;
-            document.getElementById('newFolderResult').style.display = 'block';
-            document.getElementById('newFolderId').innerText = folderId;
-            // Auto connect admin to their own folder? Optional, but good UX.
-            if(confirm("Pasta criada! Deseja conectar seu sistema a ela agora?")) {
-                localStorage.setItem(TEAM_FOLDER_KEY, folderId);
-                updateTeamUI();
-                loadFromDrive();
-            }
-        } catch(err) {
-            console.error(err);
-            alert("Erro ao criar pasta. Verifique permissões.");
-        }
-    }
-
-    // --- GOOGLE DRIVE CORE (MODIFIED FOR TEAM) ---
+    // --- GOOGLE DRIVE & TEAM DRIVE ---
     async function intializeGapiClient() { 
         await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS }); 
         gapiInited = true; 
@@ -651,31 +590,19 @@
                 if (Date.now() < storedToken.expiry) { 
                     gapi.client.setToken(storedToken); 
                     checkAuthDisplay(); 
-                    await getUserInfo(); // Get email
+                    await getUserInfo(); 
                     await loadFromDrive(); 
-                } else { 
-                    localStorage.removeItem(TOKEN_KEY); 
-                    checkAuthDisplay(); 
-                } 
+                } else { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); } 
             } catch (e) { localStorage.removeItem(TOKEN_KEY); } 
         } else { checkAuthDisplay(); } 
     }
 
     async function getUserInfo() {
-        try {
-            // Need 'https://www.googleapis.com/auth/userinfo.email' scope usually, or try about
-            // Simple approach with about.get
-            const res = await gapi.client.drive.about.get({ fields: 'user' });
-            if(res.result.user && res.result.user.emailAddress) {
-                currentUserEmail = res.result.user.emailAddress;
-                console.log("Logged in as:", currentUserEmail);
-            }
-        } catch(e) { console.log("Could not get user info", e); }
+        try { const res = await gapi.client.drive.about.get({ fields: 'user' }); if(res.result.user && res.result.user.emailAddress) { currentUserEmail = res.result.user.emailAddress; } } catch(e) {}
     }
 
-    function checkAuthDisplay() { const btnAuth = document.getElementById('btnGoogleAuth'), btnSignout = document.getElementById('btnGoogleSignout'), btnOpen = document.getElementById('btnOpen'); if (gapiInited && gapi.client.getToken()) { btnAuth.style.display = 'none'; btnSignout.style.display = 'inline-flex'; btnOpen.innerText = "📂 Abrir Local"; } else { btnAuth.style.display = 'inline-flex'; btnSignout.style.display = 'none'; } }
-    
     function handleAuthClick() { 
+        if(!tokenClient) return alert("Erro: Google Identity Service não inicializado. Verifique sua conexão ou se está usando 'http'.");
         tokenClient.callback = async (resp) => { 
             if (resp.error !== undefined) throw (resp); 
             const tokenRecord = { ...resp, expiry: Date.now() + (resp.expires_in * 1000) }; 
@@ -688,14 +615,16 @@
         else tokenClient.requestAccessToken({prompt: ''}); 
     }
 
+    function checkAuthDisplay() { const btnAuth = document.getElementById('btnGoogleAuth'), btnSignout = document.getElementById('btnGoogleSignout'), btnOpen = document.getElementById('btnOpen'); if (gapiInited && gapi.client.getToken()) { btnAuth.style.display = 'none'; btnSignout.style.display = 'inline-flex'; btnOpen.innerText = "📂 Abrir Local"; } else { btnAuth.style.display = 'inline-flex'; btnSignout.style.display = 'none'; } }
+    function handleSignoutClick() { const token = gapi.client.getToken(); if (token !== null) { google.accounts.oauth2.revoke(token.access_token); gapi.client.setToken(''); localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Desconectado."); } }
+
     async function loadFromDrive() { 
         updateSyncStatus('loading'); 
         try { 
             const accessToken = gapi.client.getToken().access_token; 
             const teamFolderId = localStorage.getItem(TEAM_FOLDER_KEY);
             
-            // 1. Download Spreadsheet (Standard)
-            document.getElementById('fileName').innerText = "Verificando Planilha..."; 
+            document.getElementById('fileName').innerText = "Baixando..."; 
             const metaResp = await fetch(`https://www.googleapis.com/drive/v3/files/${SHEET_FILE_ID}?fields=mimeType`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
             if (metaResp.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Sessão expirada."); return; } 
             const meta = await metaResp.json(); 
@@ -705,22 +634,14 @@
             if(!fetchSheet.ok) throw new Error(`Erro ao baixar: ${fetchSheet.status}`); 
             const arrayBufferSheet = await fetchSheet.arrayBuffer(); 
             
-            // 2. Download JSON Data (Team Logic)
-            document.getElementById('fileName').innerText = "Sincronizando Dados...";
-            let query = "";
-            
+            let query = `name = '${SYNC_FILE_NAME}' and trashed = false`;
             if (teamFolderId && currentUserEmail) {
-                // TEAM MODE: Search for specific user file in folder
                 const filename = `${currentUserEmail}_tjce_data.json`;
                 query = `name = '${filename}' and '${teamFolderId}' in parents and trashed = false`;
-            } else {
-                // PERSONAL MODE: Root
-                query = `name = '${SYNC_FILE_NAME}' and trashed = false`;
             }
 
             const responseSearch = await gapi.client.drive.files.list({ q: query, fields: 'files(id, name)', spaces: 'drive' }); 
             const files = responseSearch.result.files; 
-            
             if (files && files.length > 0) { 
                 syncFileId = files[0].id; 
                 const fetchJson = await fetch(`https://www.googleapis.com/drive/v3/files/${syncFileId}?alt=media`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
@@ -728,283 +649,211 @@
                 Object.keys(jsonData).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, jsonData[k]); }); 
                 if(jsonData[REPO_KEY]) { localStorage.setItem(REPO_KEY, jsonData[REPO_KEY]); initRepo(); } 
                 if(jsonData[REMINDERS_KEY]) { localStorage.setItem(REMINDERS_KEY, jsonData[REMINDERS_KEY]); initReminders(); } 
-                // Load calendar events
                 if(jsonData[CALENDAR_EVENTS_KEY]) { localStorage.setItem(CALENDAR_EVENTS_KEY, jsonData[CALENDAR_EVENTS_KEY]); initCalendar(); }
-            } else { 
-                syncFileId = null; 
-            } 
+            } else { syncFileId = null; } 
             
-            loadWorkbook(new Uint8Array(arrayBufferSheet), teamFolderId ? "☁️ Team Drive" : "☁️ Google Drive"); 
+            loadWorkbook(new Uint8Array(arrayBufferSheet), teamFolderId ? "☁️ Team" : "☁️ Drive"); 
             updateSyncStatus('active'); 
-        } catch (err) { console.error(err); alert("Erro ao carregar do Drive: " + err.message); updateSyncStatus('error'); } 
+        } catch (err) { console.error(err); alert("Erro Drive: " + err.message); updateSyncStatus('error'); } 
     }
 
     async function syncToDrive() { 
         if (!gapi.client.getToken()) return; 
         updateSyncStatus('loading'); 
+        const data = {}; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY) || k === CALENDAR_EVENTS_KEY) data[k] = localStorage.getItem(k); } 
+        const fileContent = JSON.stringify(data); const file = new Blob([fileContent], {type: 'application/json'}); 
         
-        // Collect Data
-        const data = {}; 
-        for(let i=0; i<localStorage.length; i++) { 
-            const k=localStorage.key(i); 
-            if(k.startsWith(STORAGE_KEY) || k === CALENDAR_EVENTS_KEY) data[k] = localStorage.getItem(k); 
-        } 
-        
-        const fileContent = JSON.stringify(data); 
-        const file = new Blob([fileContent], {type: 'application/json'}); 
-        
-        // Determine Target
         const teamFolderId = localStorage.getItem(TEAM_FOLDER_KEY);
         let filename = SYNC_FILE_NAME;
         let parents = [];
-        
-        if (teamFolderId && currentUserEmail) {
-            filename = `${currentUserEmail}_tjce_data.json`;
-            parents = [teamFolderId];
-        }
+        if (teamFolderId && currentUserEmail) { filename = `${currentUserEmail}_tjce_data.json`; parents = [teamFolderId]; }
 
         const metadata = { 'name': filename, 'mimeType': 'application/json' };
-        if(parents.length > 0 && !syncFileId) metadata.parents = parents; // Only set parents on create
+        if(parents.length > 0 && !syncFileId) metadata.parents = parents; 
         
         const accessToken = gapi.client.getToken().access_token; 
-        const form = new FormData(); 
-        form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'})); 
-        form.append('file', file); 
-        
+        const form = new FormData(); form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'})); form.append('file', file); 
         try { 
-            let method = 'POST'; 
-            let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'; 
-            if (syncFileId) { 
-                method = 'PATCH'; 
-                url = `https://www.googleapis.com/upload/drive/v3/files/${syncFileId}?uploadType=multipart`; 
-            } 
+            let method = 'POST'; let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart'; 
+            if (syncFileId) { method = 'PATCH'; url = `https://www.googleapis.com/upload/drive/v3/files/${syncFileId}?uploadType=multipart`; } 
             const response = await fetch(url, { method: method, headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }), body: form }); 
             const jsonResp = await response.json(); 
-            if(jsonResp.id) { 
-                syncFileId = jsonResp.id; 
-                updateSyncStatus('active'); 
-            } else { throw new Error('Falha no upload'); } 
-        } catch (e) { 
-            console.error("Erro sync", e); 
-            updateSyncStatus('error'); 
-            if(e.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); } 
+            if(jsonResp.id) { syncFileId = jsonResp.id; updateSyncStatus('active'); } else { throw new Error('Falha no upload'); } 
+        } catch (e) { console.error("Erro sync", e); updateSyncStatus('error'); if(e.status === 401) { localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); } } 
+    }
+    
+    function updateSyncStatus(status, percentText) { const el = document.getElementById('syncIndicator'); el.className = 'sync-status ' + status; if (status === 'active') el.title = "Sincronizado"; else if (status === 'loading') el.title = "Sincronizando..."; else el.title = "Erro"; }
+
+    // --- TEAM UI ---
+    function updateTeamUI() { const teamId = localStorage.getItem(TEAM_FOLDER_KEY); if(teamId) { document.getElementById('teamConnected').style.display = 'block'; document.getElementById('teamDisconnected').style.display = 'none'; document.getElementById('displayTeamId').innerText = teamId; } else { document.getElementById('teamConnected').style.display = 'none'; document.getElementById('teamDisconnected').style.display = 'block'; } }
+    function openTeamModal() { document.getElementById('teamModal').style.display = 'flex'; }
+    function joinTeam() { const id = document.getElementById('inputTeamId').value.trim(); if(!id) return alert("ID inválido"); localStorage.setItem(TEAM_FOLDER_KEY, id); updateTeamUI(); syncFileId = null; loadFromDrive(); alert("Conectado ao Time!"); }
+    function leaveTeam() { if(!confirm("Desconectar?")) return; localStorage.removeItem(TEAM_FOLDER_KEY); updateTeamUI(); syncFileId = null; loadFromDrive(); }
+    async function createTeamFolder() { if (!gapi.client.getToken()) return alert("Login necessário"); try { const fileMetadata = { 'name': 'TJCE_Study_Hub', 'mimeType': 'application/vnd.google-apps.folder' }; const response = await gapi.client.drive.files.create({ resource: fileMetadata, fields: 'id' }); const folderId = response.result.id; document.getElementById('newFolderResult').style.display = 'block'; document.getElementById('newFolderId').innerText = folderId; if(confirm("Conectar agora?")) { localStorage.setItem(TEAM_FOLDER_KEY, folderId); updateTeamUI(); loadFromDrive(); } } catch(err) { console.error(err); alert("Erro ao criar pasta."); } }
+
+    // --- CALENDAR LOGIC (COMPLETE FIX) ---
+    function initCalendar() { const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY); if(savedEvents) calendarEvents = JSON.parse(savedEvents); const savedCalStart = localStorage.getItem(CALENDAR_START_KEY); if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart; const showRev = localStorage.getItem(CALENDAR_SHOW_REV_KEY); document.getElementById('calShowRevisions').checked = (showRev === 'true'); }
+    function openCalendarModal() { document.getElementById('calendarModal').style.display = 'flex'; renderCalendar(); }
+    function clearCalendar() { if(!confirm("Limpar tudo?")) return; calendarEvents = {}; saveCalendarEvents(); renderCalendar(); }
+    
+    function toggleCalendarEvent(dateKey, id, event) { 
+        if(event) event.stopPropagation(); 
+        if(calendarEvents[dateKey]) { 
+            const evt = calendarEvents[dateKey].find(e => e.id === id); 
+            if(evt) { evt.completed = !evt.completed; saveCalendarEvents(); renderCalendar(); } 
         } 
     }
 
-    // --- STANDARD FUNCTIONS (Unchanged logic, just keeping them here) ---
+    function runAutoFill() {
+        const startDateVal = document.getElementById('calendarStartDate').value;
+        if(!startDateVal || !globalWorkbook) return alert("Defina data e carregue planilha.");
+        const showRevisions = document.getElementById('calShowRevisions').checked;
+        localStorage.setItem(CALENDAR_SHOW_REV_KEY, showRevisions);
+        const daysMap = [document.getElementById('da_0').checked, document.getElementById('da_1').checked, document.getElementById('da_2').checked, document.getElementById('da_3').checked, document.getElementById('da_4').checked, document.getElementById('da_5').checked, document.getElementById('da_6').checked];
+        const qtyPerDay = parseInt(document.getElementById('autoQty').value) || 2;
+        let taskQueue = [];
+        globalWorkbook.SheetNames.forEach(sheet => {
+            if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
+            const info = analyzeSheet(sheet);
+            if(info) {
+                 info.rows.forEach(r => {
+                     if (!showRevisions && r.isRevision) return;
+                     let label = r.subject || sheet;
+                     if (r.contentText && r.contentText.length > 3) {
+                        const normSub = label.trim().toLowerCase(); const normCont = r.contentText.trim().toLowerCase();
+                        if (normCont !== normSub && !normCont.includes(normSub)) { label += " - " + r.contentText; }
+                     }
+                     if (r.isRevision) label = "[R] " + label;
+                     taskQueue.push({ text: label, sheet: sheet });
+                 });
+            }
+        });
+        taskQueue = taskQueue.filter((item, index, self) => index === self.findIndex((t) => (t.text === item.text && t.sheet === item.sheet)));
+        if(taskQueue.length === 0) return alert("Nada para agendar.");
+        if(!confirm(`Agendar ${taskQueue.length} tarefas?`)) return;
+        calendarEvents = {}; // Overwrite
+        const parts = startDateVal.split('-');
+        let currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        let taskIdx = 0;
+        for(let d=0; d<365; d++) {
+            if(taskIdx >= taskQueue.length) break;
+            if (daysMap[currentDate.getDay()]) {
+                const dateKey = currentDate.getFullYear() + '-' + String(currentDate.getMonth()+1).padStart(2,'0') + '-' + String(currentDate.getDate()).padStart(2,'0');
+                if(!calendarEvents[dateKey]) calendarEvents[dateKey] = [];
+                for(let q=0; q<qtyPerDay; q++) {
+                    if(taskIdx >= taskQueue.length) break;
+                    const task = taskQueue[taskIdx];
+                    calendarEvents[dateKey].push({ id: Date.now().toString() + Math.random(), text: task.text, sheet: task.sheet, completed: false });
+                    taskIdx++;
+                }
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        saveCalendarEvents(); renderCalendar(); alert("Pronto!");
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const sidebar = document.getElementById('calSubjectsList');
+        grid.innerHTML = ''; sidebar.innerHTML = '';
+        const showRevisions = document.getElementById('calShowRevisions').checked;
+        localStorage.setItem(CALENDAR_SHOW_REV_KEY, showRevisions);
+        
+        if(globalWorkbook) {
+            globalWorkbook.SheetNames.forEach(sheet => {
+                if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
+                const group = document.createElement('div'); group.className = 'cal-sheet-group';
+                const header = document.createElement('div'); header.className = 'cal-sheet-header';
+                header.innerHTML = `<span>${sheet}</span> <span style="font-size:0.7em;">▼</span>`;
+                header.onclick = () => { header.nextElementSibling.classList.toggle('expanded'); };
+                group.appendChild(header);
+                const content = document.createElement('div'); content.className = 'cal-sheet-items';
+                const info = analyzeSheet(sheet);
+                if(info) {
+                    const uniqueTopics = new Set();
+                    info.rows.forEach(r => {
+                        if (!showRevisions && r.isRevision) return;
+                        let itemLabel = "";
+                        if (r.subject) {
+                            itemLabel = r.subject;
+                            if (r.contentText && r.contentText.length > 3) {
+                                const normSub = r.subject.trim().toLowerCase(); const normCont = r.contentText.trim().toLowerCase();
+                                if (normCont !== normSub && !normCont.includes(normSub)) { itemLabel += " - " + r.contentText; }
+                            }
+                        } else if (r.contentText && r.contentText.length > 3) { itemLabel = r.contentText; }
+                        if (r.isRevision) itemLabel = "[R] " + itemLabel;
+                        if(itemLabel) uniqueTopics.add(itemLabel);
+                    });
+                    uniqueTopics.forEach(topic => {
+                        const div = document.createElement('div'); div.className = 'draggable-subject';
+                        div.draggable = true; div.innerText = topic; div.title = `Origem: ${sheet}`;
+                        div.ondragstart = (e) => { e.dataTransfer.setData('application/json', JSON.stringify({ text: topic, sheet: sheet, completed: false })); e.dataTransfer.effectAllowed = 'copy'; };
+                        content.appendChild(div);
+                    });
+                }
+                group.appendChild(content); sidebar.appendChild(group);
+            });
+        }
+        
+        const startDateVal = document.getElementById('calendarStartDate').value;
+        if(!startDateVal) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">Defina data.</div>'; return; }
+        localStorage.setItem(CALENDAR_START_KEY, startDateVal);
+        let totalWeeks = globalWorkbook ? globalWorkbook.SheetNames.length + 4 : 6;
+        const parts = startDateVal.split('-');
+        const start = new Date(parts[0], parts[1] - 1, parts[2]);
+        const dayOfWeek = start.getDay(); 
+        const calendarStart = new Date(start); calendarStart.setDate(start.getDate() - dayOfWeek);
+        const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        days.forEach(d => { const div = document.createElement('div'); div.className = 'cal-day-header'; div.innerText = d; grid.appendChild(div); });
+        const todayStr = new Date().toDateString();
+        for (let i = 0; i < totalWeeks * 7; i++) {
+            const currentDate = new Date(calendarStart); currentDate.setDate(calendarStart.getDate() + i);
+            const dateKey = currentDate.getFullYear() + '-' + String(currentDate.getMonth()+1).padStart(2,'0') + '-' + String(currentDate.getDate()).padStart(2,'0');
+            const div = document.createElement('div'); div.className = 'cal-day'; div.dataset.date = dateKey;
+            if (currentDate.toDateString() === todayStr) div.classList.add('today');
+            div.ondragover = (e) => { e.preventDefault(); div.classList.add('dragover'); };
+            div.ondragleave = () => { div.classList.remove('dragover'); };
+            div.ondrop = (e) => {
+                e.preventDefault(); div.classList.remove('dragover');
+                try { const data = JSON.parse(e.dataTransfer.getData('application/json')); if(data && data.text) addCalendarEvent(dateKey, data.text, data.sheet); } catch(err) {}
+            };
+            div.innerHTML = `<div class="cal-date">${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}</div>`;
+            if (calendarEvents[dateKey]) {
+                calendarEvents[dateKey].forEach(evt => {
+                    const evDiv = document.createElement('div');
+                    const isDone = evt.completed ? 'completed' : '';
+                    evDiv.className = `cal-event ${isDone}`; evDiv.draggable = true; if(evt.sheet) evDiv.title = `Origem: ${evt.sheet}`;
+                    evDiv.innerHTML = `<div style="display:flex;align-items:center;gap:4px;overflow:hidden;"><input type="checkbox" class="cal-check" ${evt.completed ? 'checked' : ''} onclick="toggleCalendarEvent('${dateKey}', '${evt.id}', event)"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${evt.text}</span></div><span class="cal-event-del" onclick="removeCalendarEvent('${dateKey}', '${evt.id}')">×</span>`;
+                    evDiv.ondragstart = (e) => { e.dataTransfer.setData('application/json', JSON.stringify({ text: evt.text, sheet: evt.sheet, completed: evt.completed })); };
+                    div.appendChild(evDiv);
+                });
+            }
+            grid.appendChild(div);
+        }
+    }
+    
+    function addCalendarEvent(date, text, sheet) { if(!calendarEvents[date]) calendarEvents[date] = []; calendarEvents[date].push({ id: Date.now().toString() + Math.random(), text: text, sheet: sheet, completed: false }); saveCalendarEvents(); renderCalendar(); }
+    function removeCalendarEvent(date, id) { if(calendarEvents[date]) { calendarEvents[date] = calendarEvents[date].filter(e => e.id !== id); if(calendarEvents[date].length === 0) delete calendarEvents[date]; saveCalendarEvents(); renderCalendar(); } }
+    function saveCalendarEvents() { localStorage.setItem(CALENDAR_EVENTS_KEY, JSON.stringify(calendarEvents)); }
+
+    // --- OTHER HELPERS ---
     function showRandomQuote() { const q = QUOTES[Math.floor(Math.random() * QUOTES.length)]; document.getElementById('quoteDisplay').innerText = `"${q}"`; }
     function checkDailyReset() { const today = new Date().toDateString(); const savedDate = localStorage.getItem(DAILY_DATE_KEY); if (savedDate !== today) { localStorage.setItem(DAILY_COUNT_KEY, '0'); localStorage.setItem(DAILY_DATE_KEY, today); } }
     function updateGoalDisplay() { const target = parseInt(localStorage.getItem(DAILY_GOAL_KEY) || '50'); const count = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0'); const pct = Math.min((count / target) * 100, 100); document.getElementById('goalText').innerText = `${count}/${target}`; document.getElementById('goalBar').style.width = `${pct}%`; const barFill = document.getElementById('goalBar'); if(pct >= 100) barFill.style.backgroundColor = '#107c10'; else if(pct >= 50) barFill.style.backgroundColor = '#ca5010'; else barFill.style.backgroundColor = '#2b579a'; }
     function configureGoal() { const current = localStorage.getItem(DAILY_GOAL_KEY) || '50'; const newVal = prompt("Defina sua meta diária de questões:", current); if(newVal && !isNaN(newVal)) { localStorage.setItem(DAILY_GOAL_KEY, newVal); updateGoalDisplay(); } }
     function incrementDailyGoal(amount) { checkDailyReset(); let count = parseInt(localStorage.getItem(DAILY_COUNT_KEY) || '0'); count += amount; if(count < 0) count = 0; localStorage.setItem(DAILY_COUNT_KEY, count); updateGoalDisplay(); }
-    function handleSignoutClick() { const token = gapi.client.getToken(); if (token !== null) { google.accounts.oauth2.revoke(token.access_token); gapi.client.setToken(''); localStorage.removeItem(TOKEN_KEY); checkAuthDisplay(); alert("Desconectado."); } }
     function triggerDriveSync() { if(syncTimeout) clearTimeout(syncTimeout); updateSyncStatus('loading'); syncTimeout = setTimeout(() => { syncToDrive(); }, 2000); }
-    function updateSyncStatus(status, percentText) { const el = document.getElementById('syncIndicator'); el.className = 'sync-status ' + status; if (status === 'active') el.title = "Status: 100% Sincronizado"; else if (status === 'loading') el.title = percentText || "Sincronizando..."; else if (status === 'error') el.title = "Erro na sincronização"; }
     function loadEmbeddedFile() { try { const binaryString = window.atob(EMBEDDED_FILE); const bytes = new Uint8Array(binaryString.length); for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i); loadWorkbook(bytes, "Local"); } catch(e) {} }
     function loadWorkbook(data, filename) { document.getElementById('fileName').innerText = filename; globalWorkbook = XLSX.read(data, {type: 'array'}); const select = document.getElementById('sheetSelect'); select.innerHTML = ''; globalWorkbook.SheetNames.forEach(name => { const opt = document.createElement('option'); opt.value = name; opt.innerText = name; select.appendChild(opt); }); document.getElementById('btnDash').style.display = 'inline-flex'; document.getElementById('globalStats').style.display = 'flex'; document.getElementById('sheetControls').style.display = 'flex'; document.getElementById('tableView').style.display = 'block'; populateGlobalSubjects(); loadSheetView(globalWorkbook.SheetNames[0]); renderCalendar(); }
-    
-    // CALENDAR (Same logic v65)
-    function initCalendar() { const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY); if(savedEvents) calendarEvents = JSON.parse(savedEvents); const savedCalStart = localStorage.getItem(CALENDAR_START_KEY); if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart; const showRev = localStorage.getItem(CALENDAR_SHOW_REV_KEY); document.getElementById('calShowRevisions').checked = (showRev === 'true'); }
-    function openCalendarModal() { document.getElementById('calendarModal').style.display = 'flex'; renderCalendar(); }
-    function clearCalendar() { if(!confirm("Tem certeza que deseja limpar todo o cronograma?")) return; calendarEvents = {}; saveCalendarEvents(); renderCalendar(); }
-    function toggleCalendarEvent(dateKey, id, event) { if(event) event.stopPropagation(); if(calendarEvents[dateKey]) { const evt = calendarEvents[dateKey].find(e => e.id === id); if(evt) { evt.completed = !evt.completed; saveCalendarEvents(); renderCalendar(); } } }
-    function runAutoFill() { const startDateVal = document.getElementById('calendarStartDate').value; if(!startDateVal || !globalWorkbook) return alert("Defina uma data de início e carregue a planilha primeiro."); const showRevisions = document.getElementById('calShowRevisions').checked; localStorage.setItem(CALENDAR_SHOW_REV_KEY, showRevisions); const daysMap = [ document.getElementById('da_0').checked, document.getElementById('da_1').checked, document.getElementById('da_2').checked, document.getElementById('da_3').checked, document.getElementById('da_4').checked, document.getElementById('da_5').checked, document.getElementById('da_6').checked ]; const qtyPerDay = parseInt(document.getElementById('autoQty').value) || 2; let taskQueue = []; globalWorkbook.SheetNames.forEach(sheet => { if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return; const info = analyzeSheet(sheet); if(info) { info.rows.forEach(r => { if (!showRevisions && r.isRevision) return; let label = r.subject || sheet; if (r.contentText && r.contentText.length > 3) { const normSub = label.trim().toLowerCase(); const normCont = r.contentText.trim().toLowerCase(); if (normCont !== normSub && !normCont.includes(normSub)) { label += " - " + r.contentText; } } if (r.isRevision) label = "[R] " + label; taskQueue.push({ text: label, sheet: sheet }); }); } }); taskQueue = taskQueue.filter((item, index, self) => index === self.findIndex((t) => ( t.text === item.text && t.sheet === item.sheet )) ); if(taskQueue.length === 0) return alert("Nenhuma tarefa encontrada para agendar."); if(!confirm(`Serão agendadas ${taskQueue.length} tarefas a partir de ${startDateVal}. O cronograma anterior será substituído. Continuar?`)) return; calendarEvents = {}; const parts = startDateVal.split('-'); let currentDate = new Date(parts[0], parts[1] - 1, parts[2]); let taskIdx = 0; for(let d=0; d<365; d++) { if(taskIdx >= taskQueue.length) break; if (daysMap[currentDate.getDay()]) { const dateKey = currentDate.getFullYear() + '-' + String(currentDate.getMonth()+1).padStart(2,'0') + '-' + String(currentDate.getDate()).padStart(2,'0'); if(!calendarEvents[dateKey]) calendarEvents[dateKey] = []; for(let q=0; q<qtyPerDay; q++) { if(taskIdx >= taskQueue.length) break; const task = taskQueue[taskIdx]; calendarEvents[dateKey].push({ id: Date.now().toString() + Math.random(), text: task.text, sheet: task.sheet, completed: false }); taskIdx++; } } currentDate.setDate(currentDate.getDate() + 1); } saveCalendarEvents(); renderCalendar(); alert("Cronograma gerado com sucesso!"); }
-    function renderCalendar() { const grid = document.getElementById('calendarGrid'); const sidebar = document.getElementById('calSubjectsList'); grid.innerHTML = ''; sidebar.innerHTML = ''; const showRevisions = document.getElementById('calShowRevisions').checked; localStorage.setItem(CALENDAR_SHOW_REV_KEY, showRevisions); if(globalWorkbook) { globalWorkbook.SheetNames.forEach(sheet => { if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return; const group = document.createElement('div'); group.className = 'cal-sheet-group'; const header = document.createElement('div'); header.className = 'cal-sheet-header'; header.innerHTML = `<span>${sheet}</span> <span style="font-size:0.7em;">▼</span>`; header.onclick = () => { const content = header.nextElementSibling; content.classList.toggle('expanded'); }; group.appendChild(header); const content = document.createElement('div'); content.className = 'cal-sheet-items'; const info = analyzeSheet(sheet); if(info) { const uniqueTopics = new Set(); info.rows.forEach(r => { if (!showRevisions && r.isRevision) return; let itemLabel = ""; if (r.subject) { itemLabel = r.subject; if (r.contentText && r.contentText.length > 3) { const normSub = r.subject.trim().toLowerCase(); const normCont = r.contentText.trim().toLowerCase(); if (normCont !== normSub && !normCont.includes(normSub)) { itemLabel += " - " + r.contentText; } } } else if (r.contentText && r.contentText.length > 3) { itemLabel = r.contentText; } if (r.isRevision) itemLabel = "[R] " + itemLabel; if(itemLabel) uniqueTopics.add(itemLabel); }); uniqueTopics.forEach(topic => { const div = document.createElement('div'); div.className = 'draggable-subject'; div.draggable = true; div.innerText = topic; div.title = `Origem: ${sheet}`; div.ondragstart = (e) => { e.dataTransfer.setData('application/json', JSON.stringify({ text: topic, sheet: sheet, completed: false })); e.dataTransfer.effectAllowed = 'copy'; }; content.appendChild(div); }); if(uniqueTopics.size === 0) { content.innerHTML = '<div style="font-size:0.7rem; color:var(--text-sec);">Sem tópicos disponíveis.</div>'; } } group.appendChild(content); sidebar.appendChild(group); }); } else { sidebar.innerHTML = '<div style="padding:10px; color:var(--text-sec); font-size:0.8rem;">Abra uma planilha para ver as disciplinas.</div>'; } const startDateVal = document.getElementById('calendarStartDate').value; if(!startDateVal) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-sec);">Defina uma data de início.</div>'; return; } localStorage.setItem(CALENDAR_START_KEY, startDateVal); let totalWeeks = 6; if (globalWorkbook) { totalWeeks = globalWorkbook.SheetNames.length + 4; } const parts = startDateVal.split('-'); const start = new Date(parts[0], parts[1] - 1, parts[2]); const dayOfWeek = start.getDay(); const calendarStart = new Date(start); calendarStart.setDate(start.getDate() - dayOfWeek); const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; days.forEach(d => { const div = document.createElement('div'); div.className = 'cal-day-header'; div.innerText = d; grid.appendChild(div); }); const todayStr = new Date().toDateString(); for (let i = 0; i < totalWeeks * 7; i++) { const currentDate = new Date(calendarStart); currentDate.setDate(calendarStart.getDate() + i); const dateKey = currentDate.getFullYear() + '-' + String(currentDate.getMonth()+1).padStart(2,'0') + '-' + String(currentDate.getDate()).padStart(2,'0'); const div = document.createElement('div'); div.className = 'cal-day'; div.dataset.date = dateKey; div.ondragover = (e) => { e.preventDefault(); div.classList.add('dragover'); }; div.ondragleave = () => { div.classList.remove('dragover'); }; div.ondrop = (e) => { e.preventDefault(); div.classList.remove('dragover'); try { const data = JSON.parse(e.dataTransfer.getData('application/json')); if(data && data.text) addCalendarEvent(dateKey, data.text, data.sheet); } catch(err) {} }; if (currentDate.toDateString() === todayStr) div.classList.add('today'); const dateSpan = document.createElement('div'); dateSpan.className = 'cal-date'; dateSpan.innerText = `${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`; div.appendChild(dateSpan); if (calendarEvents[dateKey]) { calendarEvents[dateKey].forEach(evt => { const evDiv = document.createElement('div'); const isDone = evt.completed ? 'completed' : ''; evDiv.className = `cal-event ${isDone}`; evDiv.draggable = true; if(evt.sheet) evDiv.title = `Origem: ${evt.sheet}`; const content = `<div style="display:flex; align-items:center; gap:4px; overflow:hidden;"><input type="checkbox" class="cal-check" ${evt.completed ? 'checked' : ''} onclick="toggleCalendarEvent('${dateKey}', '${evt.id}', event)"><span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${evt.text}</span></div><span class="cal-event-del" onclick="removeCalendarEvent('${dateKey}', '${evt.id}')">×</span>`; evDiv.innerHTML = content; evDiv.ondragstart = (e) => { e.dataTransfer.setData('application/json', JSON.stringify({ text: evt.text, sheet: evt.sheet, completed: evt.completed })); }; div.appendChild(evDiv); }); } grid.appendChild(div); } }
-    function addCalendarEvent(date, text, sheet) { if(!calendarEvents[date]) calendarEvents[date] = []; calendarEvents[date].push({ id: Date.now().toString() + Math.random(), text: text, sheet: sheet, completed: false }); saveCalendarEvents(); renderCalendar(); }
-    function removeCalendarEvent(date, id) { if(calendarEvents[date]) { calendarEvents[date] = calendarEvents[date].filter(e => e.id !== id); if(calendarEvents[date].length === 0) delete calendarEvents[date]; saveCalendarEvents(); renderCalendar(); } }
-    function saveCalendarEvents() { localStorage.setItem(CALENDAR_EVENTS_KEY, JSON.stringify(calendarEvents)); }
-
-    // Helpers (same as before)
-    function initRepo() { const raw = localStorage.getItem(REPO_KEY); if(raw) { repoData = JSON.parse(raw); } else { repoData = [{ id: 'root', type: 'folder', name: 'Raiz', children: [], isRoot: true }]; } }
-    function initReminders() { const raw = localStorage.getItem(REMINDERS_KEY); if(raw) { remindersData = JSON.parse(raw); } else { remindersData = [{ id: 'root-rem', type: 'folder', name: 'Minhas Notas', children: [], isRoot: true }]; } }
-    function saveRepo() { localStorage.setItem(REPO_KEY, JSON.stringify(repoData)); triggerDriveSync(); renderRepoTree(); updateFolderSelect(); }
-    function saveReminders() { localStorage.setItem(REMINDERS_KEY, JSON.stringify(remindersData)); triggerDriveSync(); renderRemindersTree(); }
-    function openRepoModal() { document.getElementById('repoModal').style.display = 'flex'; updateFolderSelect(); renderRepoTree(); }
-    function closeRepoModal() { document.getElementById('repoModal').style.display = 'none'; }
-    function openRemindersModal() { document.getElementById('remindersModal').style.display = 'flex'; renderRemindersTree(); }
-    function closeRemindersModal() { document.getElementById('remindersModal').style.display = 'none'; }
-    function getAllFolders(nodes, depth = 0, list = []) { nodes.forEach(node => { if (node.type === 'folder') { list.push({ id: node.id, name: node.name, depth: depth, isRoot: !!node.isRoot }); if (node.children) getAllFolders(node.children, depth + 1, list); } }); return list; }
-    function updateFolderSelect() { const select = document.getElementById('targetFolderSelect'); const currentVal = select.value; select.innerHTML = ''; const folders = getAllFolders(repoData); folders.forEach(f => { const opt = document.createElement('option'); opt.value = f.id; opt.innerText = (f.depth > 0 ? '\u00A0\u00A0'.repeat(f.depth) + '└ ' : '') + (f.isRoot ? '📂 Raiz' : '📁 ' + f.name); select.appendChild(opt); }); if(folders.find(f => f.id === currentVal)) select.value = currentVal; else if(folders.length > 0) select.value = folders[0].id; }
-    function findNode(id, nodes) { for(let node of nodes) { if(node.id === id) return node; if(node.children) { const found = findNode(id, node.children); if(found) return found; } } return null; }
-    function removeNode(id, nodes) { for(let i=0; i<nodes.length; i++) { if(nodes[i].id === id) { nodes.splice(i, 1); return true; } if(nodes[i].children) { if(removeNode(id, nodes[i].children)) return true; } } return false; }
-    function addNewFolder(context) { const name = context === 'repo' ? document.getElementById('newFolderInput').value.trim() : prompt("Nome da Pasta:"); if(!name) return; const newFolder = { id: 'f-'+Date.now(), type: 'folder', name: name, children: [] }; if(context === 'repo') { repoData[0].children.push(newFolder); document.getElementById('newFolderInput').value = ''; saveRepo(); } else { remindersData[0].children.push(newFolder); saveReminders(); } }
-    function addNewLink() { const name = document.getElementById('newLinkName').value.trim(); let url = document.getElementById('newLinkUrl').value.trim(); const targetId = document.getElementById('targetFolderSelect').value; if(!name || !url) return; if(!url.startsWith('http')) url = 'https://' + url; const targetFolder = findNode(targetId, repoData); if(!targetFolder) return alert('Pasta de destino não encontrada.'); targetFolder.children.push({ id: 'l-'+Date.now(), type: 'link', name: name, url: url }); document.getElementById('newLinkName').value = ''; document.getElementById('newLinkUrl').value = ''; saveRepo(); }
-    function addNewNote() { const name = prompt("Título da Nota:"); if(!name) return; const newNote = { id: 'n-'+Date.now(), type: 'note', name: name, content: '', icon: '📄' }; remindersData[0].children.push(newNote); saveReminders(); openNote(newNote.id); }
-    function openNote(id) { selectedNoteId = id; const note = findNode(id, remindersData); const editor = document.getElementById('noteEditor'); const placeholder = document.getElementById('notePlaceholder'); const toolbar = document.getElementById('editorToolbar'); document.querySelectorAll('.tree-content.selected').forEach(el => el.classList.remove('selected')); const el = document.getElementById('node-'+id); if(el) el.classList.add('selected'); if(note) { placeholder.style.display = 'none'; editor.style.display = 'block'; toolbar.style.display = 'flex'; editor.innerHTML = note.content || ''; } }
-    function handleNoteInput() { if(!selectedNoteId) return; if(noteDebounce) clearTimeout(noteDebounce); noteDebounce = setTimeout(() => { const note = findNode(selectedNoteId, remindersData); if(note) { note.content = document.getElementById('noteEditor').innerHTML; saveReminders(); } }, 1000); }
-    function formatDoc(cmd, value = null) { if (value && (cmd === 'foreColor' || cmd === 'hiliteColor')) { restoreSelection(); } document.execCommand(cmd, false, value); document.getElementById('noteEditor').focus(); saveSelection(); }
-    function openIconPicker(nodeId) { selectedNodeForIcon = nodeId; const grid = document.getElementById('iconGrid'); grid.innerHTML = ''; AVAILABLE_ICONS.forEach(icon => { const div = document.createElement('div'); div.className = 'icon-option'; div.innerText = icon; div.onclick = () => selectIcon(icon); grid.appendChild(div); }); document.getElementById('iconPickerModal').style.display = 'flex'; }
-    function selectIcon(icon) { if(selectedNodeForIcon) { const node = findNode(selectedNodeForIcon, remindersData); if(node) { node.icon = icon; saveReminders(); } } document.getElementById('iconPickerModal').style.display = 'none'; selectedNodeForIcon = null; }
-    function handleDragStart(e, id, ctx) { draggedId = id; dragContext = ctx; e.dataTransfer.effectAllowed = 'move'; e.stopPropagation(); }
-    function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); e.stopPropagation(); }
-    function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); e.stopPropagation(); }
-    function handleDrop(e, targetId, ctx) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); e.stopPropagation(); if (draggedId === targetId || dragContext !== ctx) return; const root = ctx === 'repo' ? repoData : remindersData; const item = findNode(draggedId, root); const target = findNode(targetId, root); if(!item || !target || target.type !== 'folder') return; if(item.type === 'folder') { const isChild = findNode(targetId, item.children); if(isChild) return alert("Ciclo detectado."); } removeNode(draggedId, root); target.children.push(item); ctx === 'repo' ? saveRepo() : saveReminders(); }
-    function renderNode(node, context) { const container = document.createElement('div'); container.className = 'tree-node'; if(node.isRoot) container.style.marginLeft = '0'; const content = document.createElement('div'); content.className = 'tree-content'; content.id = 'node-'+node.id; if(node.type === 'folder') content.style.fontWeight = 'bold'; const iconSpan = document.createElement('span'); iconSpan.className = 'tree-icon'; let displayIcon = ''; if (node.icon) displayIcon = node.icon; else if(node.type === 'folder') displayIcon = node.isRoot ? '📂' : '📁'; else if(node.type === 'link') displayIcon = '🔗'; else displayIcon = '📄'; iconSpan.innerText = displayIcon; content.appendChild(iconSpan); const text = document.createElement('span'); text.className = 'tree-text'; if(node.type === 'link') { text.innerHTML = `<a href="${node.url}" target="_blank">${node.name}</a>`; content.classList.add('is-link'); } else { text.innerText = node.name; } content.appendChild(text); if(!node.isRoot) { content.draggable = true; content.ondragstart = (e) => handleDragStart(e, node.id, context); content.oncontextmenu = (e) => showContextMenu(e, node, context); } if(node.type === 'folder') { content.ondragover = handleDragOver; content.ondragleave = handleDragLeave; content.ondrop = (e) => handleDrop(e, node.id, context); content.onclick = (e) => { if(e.target.tagName !== 'A') container.classList.toggle('expanded'); }; container.classList.add('expanded'); } else if(node.type === 'note') { content.onclick = () => openNote(node.id); } container.appendChild(content); if(node.children && node.children.length > 0) { const childrenContainer = document.createElement('div'); childrenContainer.className = 'tree-children'; node.children.forEach(child => childrenContainer.appendChild(renderNode(child, context))); container.appendChild(childrenContainer); } return container; }
-    function renderRepoTree() { const root = document.getElementById('repoTree'); root.innerHTML = ''; if(repoData.length > 0) root.appendChild(renderNode(repoData[0], 'repo')); }
-    function renderRemindersTree() { const root = document.getElementById('remindersTree'); root.innerHTML = ''; if(remindersData.length > 0) root.appendChild(renderNode(remindersData[0], 'reminders')); }
-    function showContextMenu(e, node, context) { e.preventDefault(); const ctxMenu = document.getElementById('customContextMenu'); ctxMenu.innerHTML = ''; if(context === 'reminders' && !node.isRoot) { const iconBtn = document.createElement('div'); iconBtn.className = 'context-menu-item'; iconBtn.innerText = '🎨 Mudar Ícone'; iconBtn.onclick = () => { openIconPicker(node.id); ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(iconBtn); } const renameBtn = document.createElement('div'); renameBtn.className = 'context-menu-item'; renameBtn.innerText = '✏️ Renomear'; renameBtn.onclick = () => { const newName = prompt("Novo nome:", node.name); if(newName) { node.name = newName; context === 'repo' ? saveRepo() : saveReminders(); } ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(renameBtn); if(node.type === 'link') { const editUrlBtn = document.createElement('div'); editUrlBtn.className = 'context-menu-item'; editUrlBtn.innerText = '🔗 Editar URL'; editUrlBtn.onclick = () => { const newUrl = prompt("Nova URL:", node.url); if(newUrl) { node.url = newUrl; saveRepo(); } ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(editUrlBtn); } const delBtn = document.createElement('div'); delBtn.className = 'context-menu-item'; delBtn.style.color = 'var(--danger)'; delBtn.innerText = '🗑️ Excluir'; delBtn.onclick = () => { if(confirm(`Excluir "${node.name}"?`)) { const root = context === 'repo' ? repoData : remindersData; removeNode(node.id, root); context === 'repo' ? saveRepo() : saveReminders(); if(context === 'reminders' && selectedNoteId === node.id) { document.getElementById('noteEditor').style.display='none'; document.getElementById('editorToolbar').style.display='none'; document.getElementById('notePlaceholder').style.display='flex'; selectedNoteId = null; } } ctxMenu.style.display = 'none'; }; ctxMenu.appendChild(delBtn); ctxMenu.style.left = e.pageX + 'px'; ctxMenu.style.top = e.pageY + 'px'; ctxMenu.style.display = 'block'; }
-    document.addEventListener('click', () => { document.getElementById('customContextMenu').style.display = 'none'; });
-    function handleNoteSearch() { const query = document.getElementById('noteSearch').value.toLowerCase().trim(); const treeRoot = document.getElementById('remindersTree'); if (query.length === 0) { renderRemindersTree(); return; } const results = []; findNotesByQuery(remindersData[0], query, results); treeRoot.innerHTML = ''; if (results.length === 0) { treeRoot.innerHTML = '<div style="padding:10px; color:var(--text-sec);">Nenhuma nota encontrada.</div>'; return; } results.forEach(note => { const div = document.createElement('div'); div.className = 'tree-content'; div.style.paddingLeft = '10px'; div.innerHTML = `<span class="tree-icon">📄</span> <span class="tree-text">${note.name}</span> <span style="font-size:0.7em; color:var(--text-sec); margin-left:auto;">(Encontrado)</span>`; div.onclick = () => openNote(note.id); treeRoot.appendChild(div); }); }
-    function findNotesByQuery(node, query, results) { if (node.type === 'note') { const contentText = node.content ? node.content.replace(/<[^>]*>?/gm, '').toLowerCase() : ''; if (node.name.toLowerCase().includes(query) || contentText.includes(query)) { results.push(node); } } if (node.children) { node.children.forEach(child => findNotesByQuery(child, query, results)); } }
-    function saveSelection() { const sel = window.getSelection(); if (sel.rangeCount > 0) { const editor = document.getElementById('noteEditor'); if (editor.contains(sel.anchorNode)) { savedRange = sel.getRangeAt(0); } } }
-    function restoreSelection() { if (savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(savedRange); } }
-    function updateColorBar(input) { const bar = input.parentElement.querySelector('.color-bar'); if(bar) bar.style.backgroundColor = input.value; }
-    function initImageResizer() { const editor = document.getElementById('noteEditor'); const handle = document.getElementById('imgResizeHandle'); editor.addEventListener('click', (e) => { if (e.target.tagName === 'IMG') { showResizer(e.target); } else { hideResizer(); } }); editor.addEventListener('scroll', hideResizer); editor.addEventListener('keyup', hideResizer); handle.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); if(!currentResizingImg) return; startX = e.clientX; startY = e.clientY; startWidth = currentResizingImg.offsetWidth; startHeight = currentResizingImg.offsetHeight; document.documentElement.addEventListener('mousemove', doResize); document.documentElement.addEventListener('mouseup', stopResize); }); }
-    function showResizer(img) { currentResizingImg = img; const overlay = document.getElementById('imgResizeOverlay'); const rect = img.getBoundingClientRect(); const scrollTop = window.pageYOffset || document.documentElement.scrollTop; const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft; overlay.style.width = rect.width + 'px'; overlay.style.height = rect.height + 'px'; overlay.style.top = (rect.top + scrollTop) + 'px'; overlay.style.left = (rect.left + scrollLeft) + 'px'; overlay.style.display = 'block'; }
-    function hideResizer() { document.getElementById('imgResizeOverlay').style.display = 'none'; currentResizingImg = null; }
-    function doResize(e) { if(!currentResizingImg) return; const dx = e.clientX - startX; const dy = e.clientY - startY; const newWidth = startWidth + dx; const newHeight = startHeight + dy; if (newWidth > 20) currentResizingImg.style.width = newWidth + 'px'; if (newHeight > 20) currentResizingImg.style.height = newHeight + 'px'; showResizer(currentResizingImg); }
-    function stopResize() { document.documentElement.removeEventListener('mousemove', doResize); document.documentElement.removeEventListener('mouseup', stopResize); handleNoteInput(); }
-    function initResizeLogic() { const resizer = document.getElementById('notesResizer'); const sidebar = document.getElementById('notesSidebar'); let isResizing = false; resizer.addEventListener('mousedown', (e) => { isResizing = true; resizer.classList.add('active'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; }); document.addEventListener('mousemove', (e) => { if (!isResizing) return; const containerRect = sidebar.parentElement.getBoundingClientRect(); let newWidth = e.clientX - containerRect.left; if (newWidth < 150) newWidth = 150; if (newWidth > 600) newWidth = 600; sidebar.style.width = newWidth + 'px'; }); document.addEventListener('mouseup', () => { if(isResizing) { isResizing = false; resizer.classList.remove('active'); document.body.style.cursor = ''; document.body.style.userSelect = ''; } }); }
-    function toggleNotesSidebar() { const sidebar = document.getElementById('notesSidebar'); const resizer = document.getElementById('notesResizer'); const collapsedHeader = document.getElementById('collapsedHeader'); if (sidebar.classList.contains('collapsed')) { sidebar.classList.remove('collapsed'); resizer.style.display = 'flex'; collapsedHeader.style.display = 'none'; } else { sidebar.classList.add('collapsed'); resizer.style.display = 'none'; collapsedHeader.style.display = 'flex'; } }
-    function exportNoteToPDF() { const element = document.getElementById('noteEditor'); const note = findNode(selectedNoteId, remindersData); const title = note ? note.name : 'Nota_Exportada'; if(!note || !element.innerHTML.trim()) { alert("A nota está vazia."); return; } const opt = { margin: 15, filename: `${title}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
-    function handleFile(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { loadWorkbook(new Uint8Array(e.target.result), file.name); }; reader.readAsArrayBuffer(file); }
-    function populateGlobalSubjects() { let allSubjects = new Set(); globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if (info) info.rows.forEach(r => { if (r.subject) allSubjects.add(r.subject); }); }); const filterSelect = document.getElementById('subjectFilter'); filterSelect.innerHTML = '<option value="all">Ver Aba Atual</option>'; const sorted = [...allSubjects].sort(); if(sorted.length > 0) { const grp = document.createElement('optgroup'); grp.label = "Filtrar em TODAS as Semanas"; sorted.forEach(subj => { const opt = document.createElement('option'); opt.value = subj; opt.innerText = subj; grp.appendChild(opt); }); filterSelect.appendChild(grp); } }
-    function applyGlobalFilter() { const subject = document.getElementById('subjectFilter').value; const sheetSelect = document.getElementById('sheetSelect'); if (subject === 'all') { sheetSelect.disabled = false; loadSheetView(sheetSelect.value); } else { sheetSelect.disabled = true; renderGlobalView(subject); } document.getElementById('searchInput').value = ''; }
-    function renderGlobalView(targetSubject) { let aggregatedRows = []; let referenceInfo = null; globalWorkbook.SheetNames.forEach(sheet => { const info = analyzeSheet(sheet); if (info) { if (!referenceInfo) referenceInfo = info; info.rows.forEach(r => { if (r.subject === targetSubject) { r.sheetName = sheet; aggregatedRows.push(r); } }); } }); if (referenceInfo) renderTable(referenceInfo.headers, aggregatedRows, referenceInfo.colMap, true); }
-    function loadSheetView(sheetName) { currentSheetName = sheetName; document.getElementById('sheetSelect').value = sheetName; document.getElementById('sheetSelect').disabled = false; const info = analyzeSheet(sheetName); if (!info) return; info.rows.forEach(r => r.sheetName = sheetName); renderTable(info.headers, info.rows, info.colMap, false); updateGlobalStats(); }
-    
-    function renderTable(headers, rows, colMap, isGlobalMode) {
-        const thead = document.querySelector('#mainTable thead'); const tbody = document.querySelector('#mainTable tbody'); thead.innerHTML = ''; tbody.innerHTML = '';
-        const trHead = document.createElement('tr'); let thOk = document.createElement('th'); thOk.className='check-cell'; thOk.innerText='OK'; trHead.appendChild(thOk);
-        headers.forEach(h => { let th = document.createElement('th'); th.innerText = h; trHead.appendChild(th); }); if (colMap.feitas !== -1) { let thPct = document.createElement('th'); thPct.innerText = '% Acertos'; thPct.style.textAlign='center'; trHead.appendChild(thPct); } thead.appendChild(trHead);
-        rows.forEach(item => {
-            const tr = document.createElement('tr'); tr.id = `row-${item.sheetName.replace(/[^a-zA-Z0-9]/g,'')}-${item.idx}`; if (item.state.checked) tr.classList.add('completed');
-            let tdCheck = document.createElement('td'); tdCheck.className='check-cell'; let cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!item.state.checked; cb.onchange = (e) => saveRowState(item.sheetName, item.idx, 'checked', e.target.checked); tdCheck.appendChild(cb); tr.appendChild(tdCheck);
-            item.data.forEach((val, cIdx) => { let td = document.createElement('td'); if (isGlobalMode && cIdx === 0) { const tag = document.createElement('span'); tag.className = 'source-tag'; tag.innerText = item.sheetName; td.appendChild(tag); } if (cIdx === colMap.feitas) td.appendChild(createInput(item.sheetName, item.idx, 'feitas', item.fVal)); else if (cIdx === colMap.acertadas) td.appendChild(createInput(item.sheetName, item.idx, 'acertadas', item.aVal)); else { const links = (typeof val === 'string') ? val.match(URL_REGEX) : null; if (links && links.length > 0) { const div = document.createElement('div'); div.className='links-wrapper'; links.forEach((l, i) => { let url = l.trim(); if(url.toLowerCase().startsWith('www.')) url = 'http://'+url; let a = document.createElement('a'); a.href=url; a.target='_blank'; a.className='btn-link'; a.innerHTML = '🔗 Abrir'; div.appendChild(a); }); td.appendChild(div); } else { const span = document.createElement('span'); span.className = 'content-text'; span.innerText = val !== undefined ? val : ''; td.appendChild(span); } } tr.appendChild(td); });
-            if (colMap.feitas !== -1) { let tdPct = document.createElement('td'); tdPct.style.textAlign='center'; const safeName = item.sheetName.replace(/[^a-zA-Z0-9]/g, ''); tdPct.id = `pct-${safeName}-${item.idx}`; tdPct.innerHTML = getBadge(item.fVal, item.aVal); tr.appendChild(tdPct); } tbody.appendChild(tr);
-        });
-    }
-    function createInput(sheetName, idx, field, val) { let inp = document.createElement('input'); inp.type = 'number'; inp.className = 'input-q'; inp.value = val !== undefined ? val : ''; inp.placeholder = '0'; inp.onchange = (e) => saveRowState(sheetName, idx, field, e.target.value, val); return inp; }
-    function saveRowState(sheetName, rowIdx, field, value, oldValue) { 
-        const key = STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, ''); 
-        let data = JSON.parse(localStorage.getItem(key) || '{}'); 
-        if (!data[rowIdx]) data[rowIdx] = {}; 
-        if(field === 'feitas') {
-            const newVal = parseInt(value) || 0;
-            const oldVal = parseInt(oldValue) || 0;
-            const diff = newVal - oldVal;
-            if (diff !== 0) incrementDailyGoal(diff);
-        }
-        data[rowIdx][field] = value; 
-        localStorage.setItem(key, JSON.stringify(data)); 
-        triggerDriveSync(); 
-        if (field !== 'checked') { 
-            let f = data[rowIdx].feitas || 0; let a = data[rowIdx].acertadas || 0; 
-            const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); 
-            const cell = document.getElementById(`pct-${safeName}-${rowIdx}`); 
-            if(cell) cell.innerHTML = getBadge(f, a); 
-        } else { 
-            if (document.getElementById('subjectFilter').value === 'all') { 
-                const safeName = sheetName.replace(/[^a-zA-Z0-9]/g, ''); 
-                const tr = document.getElementById(`row-${safeName}-${rowIdx}`); 
-                if(tr) { if(value) tr.classList.add('completed'); else tr.classList.remove('completed'); } 
-            } 
-        } 
-        updateGlobalStats(); 
-    }
-    
     function analyzeSheet(sheetName) { 
-        const ws = globalWorkbook.Sheets[sheetName]; 
-        if(!ws) return null; 
-        const rawData = XLSX.utils.sheet_to_json(ws, {header: 1}); 
-        if (!rawData || rawData.length === 0) return null; 
-        
-        const originalHeader = rawData[0] || []; 
-        const originalBody = rawData.slice(1); 
-        const totalCols = originalHeader.length; 
-        const cutOffIndex = totalCols > 2 ? totalCols - 2 : totalCols; 
-        let headers = []; let indices = []; 
-        
-        originalHeader.forEach((h, idx) => { 
-            if (idx >= cutOffIndex) return; 
-            const hStr = (h || '').toString().trim(); 
-            const hLower = hStr.toLowerCase(); 
-            if (EXCLUDE_LIST.includes(hLower) || hStr === '') return; 
-            indices.push(idx); headers.push(hStr); 
-        }); 
-        
-        let qIdx = -1, aIdx = -1, discIdx = -1, metaIdxRaw = -1; 
-        headers.forEach((h, idx) => { 
-            const hLower = h.toLowerCase(); 
-            if (hLower.includes('questões feitas') || hLower === 'questões') qIdx = idx; 
-            else if (hLower.includes('questões acertadas') || hLower.includes('acertos')) aIdx = idx; 
-        }); 
-        
-        originalHeader.forEach((h, idx) => { 
-            const s = String(h).toLowerCase().trim(); 
-            if (s.includes('disciplina') || s.includes('matéria')) discIdx = idx; 
-            if (!s.includes('cumpriu') && !s.includes('status') && (s === 'meta' || s.startsWith('meta '))) metaIdxRaw = idx; 
-        }); 
-        if (metaIdxRaw === -1) originalHeader.forEach((h, idx) => { if (String(h).toLowerCase().includes('meta') && !String(h).toLowerCase().includes('cumpriu')) metaIdxRaw = idx; }); 
-        if (metaIdxRaw === -1) metaIdxRaw = 0; 
-        
-        let injectAcertos = (qIdx !== -1 && aIdx === -1); 
-        let finalHeaders = [...headers]; 
-        if (injectAcertos) { finalHeaders.splice(qIdx + 1, 0, "Acertos"); aIdx = qIdx + 1; } 
-        const colMap = { feitas: qIdx, acertadas: aIdx }; 
-        const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, '')) || '{}'); 
-        let processedData = []; let lastMetaVal = null; let lastDiscVal = null; let totalQ = 0, totalA = 0; let subjects = {}; 
-        
-        originalBody.forEach((row, rIdx) => { 
-            if (row.length === 0) return; 
-            
-            let metaVal = row[metaIdxRaw]; 
-            if (isCellVoid(metaVal)) { if (lastMetaVal !== null) metaVal = lastMetaVal; } else { lastMetaVal = metaVal; } 
-            
-            let rawDisc = sheetName; 
-            if (discIdx !== -1) { 
-                let val = row[discIdx]; 
-                if (isCellVoid(val)) { if (lastDiscVal !== null) val = lastDiscVal; } else { lastDiscVal = val; } 
-                if (val) rawDisc = val; 
-            } 
-            
-            let isRowRevision = false;
-            const revCheck = (str) => str && (str.toString().toUpperCase().includes("[REVISÃO]") || str.toString().toUpperCase().includes("(REVISÃO)"));
-
-            if (revCheck(rawDisc)) isRowRevision = true;
-
-            let normalizedDisc = normalizeSubject(rawDisc); 
-            
-            let contentText = "Tópico sem nome";
-            for(let i=0; i<row.length; i++) {
-                 if (revCheck(row[i])) isRowRevision = true;
-                 if(i === discIdx || i === metaIdxRaw || i === qIdx || i === aIdx) continue;
-                 if(!indices.includes(i)) continue;
-
-                 const val = row[i];
-                 if(typeof val === 'string' && val.trim().length > 3) {
-                     const vLower = val.trim().toLowerCase();
-                     const dLower = normalizedDisc.toLowerCase();
-                     if (vLower !== dLower) {
-                         contentText = val.trim();
-                         break; 
-                     }
-                 }
-            }
-
-            let newRow = indices.map(i => row[i]); 
-            if (injectAcertos) newRow.splice(colMap.acertadas, 0, ""); 
-            
-            let s = savedState[rIdx] || {}; 
-            let fVal = s.feitas !== undefined ? s.feitas : newRow[colMap.feitas]; 
-            let aVal = s.acertadas !== undefined ? s.acertadas : newRow[colMap.acertadas]; 
-            let fNum = parseFloat(fVal) || 0; let aNum = parseFloat(aVal) || 0; 
-            
-            if (colMap.feitas !== -1) { 
-                totalQ += fNum; totalA += aNum; 
-                if (!subjects[normalizedDisc]) subjects[normalizedDisc] = { q: 0, a: 0 }; 
-                subjects[normalizedDisc].q += fNum; subjects[normalizedDisc].a += aNum; 
-            } 
-            
-            processedData.push({ 
-                idx: rIdx, data: newRow, state: s, fVal: fVal, aVal: aVal, 
-                subject: normalizedDisc, contentText: contentText, isRevision: isRowRevision 
-            }); 
-        }); 
-        
-        return { headers: finalHeaders, rows: processedData, colMap: colMap, stats: { q: totalQ, a: totalA }, subjectStats: subjects }; 
+        const ws = globalWorkbook.Sheets[sheetName]; if(!ws) return null; const rawData = XLSX.utils.sheet_to_json(ws, {header: 1}); if (!rawData || rawData.length === 0) return null; 
+        const originalHeader = rawData[0] || []; const originalBody = rawData.slice(1); const totalCols = originalHeader.length; const cutOffIndex = totalCols > 2 ? totalCols - 2 : totalCols; let headers = []; let indices = []; 
+        originalHeader.forEach((h, idx) => { if (idx >= cutOffIndex) return; const hStr = (h || '').toString().trim(); const hLower = hStr.toLowerCase(); if (EXCLUDE_LIST.includes(hLower) || hStr === '') return; indices.push(idx); headers.push(hStr); }); 
+        let qIdx = -1, aIdx = -1, discIdx = -1, metaIdxRaw = -1; headers.forEach((h, idx) => { const hLower = h.toLowerCase(); if (hLower.includes('questões feitas') || hLower === 'questões') qIdx = idx; else if (hLower.includes('questões acertadas') || hLower.includes('acertos')) aIdx = idx; }); originalHeader.forEach((h, idx) => { const s = String(h).toLowerCase().trim(); if (s.includes('disciplina') || s.includes('matéria')) discIdx = idx; if (!s.includes('cumpriu') && !s.includes('status') && (s === 'meta' || s.startsWith('meta '))) metaIdxRaw = idx; }); if (metaIdxRaw === -1) originalHeader.forEach((h, idx) => { if (String(h).toLowerCase().includes('meta') && !String(h).toLowerCase().includes('cumpriu')) metaIdxRaw = idx; }); if (metaIdxRaw === -1) metaIdxRaw = 0; 
+        let injectAcertos = (qIdx !== -1 && aIdx === -1); let finalHeaders = [...headers]; if (injectAcertos) { finalHeaders.splice(qIdx + 1, 0, "Acertos"); aIdx = qIdx + 1; } const colMap = { feitas: qIdx, acertadas: aIdx }; const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY + sheetName.replace(/[^a-zA-Z0-9]/g, '')) || '{}'); let processedData = []; let lastMetaVal = null; let lastDiscVal = null; let totalQ = 0, totalA = 0; let subjects = {}; 
+        originalBody.forEach((row, rIdx) => { if (row.length === 0) return; let metaVal = row[metaIdxRaw]; if (isCellVoid(metaVal)) { if (lastMetaVal !== null) metaVal = lastMetaVal; } else { lastMetaVal = metaVal; } if (indices.includes(metaIdxRaw)) row[metaIdxRaw] = metaVal; let rawDisc = sheetName; if (discIdx !== -1) { let val = row[discIdx]; if (isCellVoid(val)) { if (lastDiscVal !== null) val = lastDiscVal; } else { lastDiscVal = val; } if (val) rawDisc = val; } 
+        let isRowRevision = false; const revCheck = (str) => str && (str.toString().toUpperCase().includes("[REVISÃO]") || str.toString().toUpperCase().includes("(REVISÃO)")); if (revCheck(rawDisc)) isRowRevision = true; let normalizedDisc = normalizeSubject(rawDisc); let contentText = "Tópico sem nome"; for(let i=0; i<row.length; i++) { if (revCheck(row[i])) isRowRevision = true; if(i === discIdx || i === metaIdxRaw || i === qIdx || i === aIdx) continue; if(!indices.includes(i)) continue; const val = row[i]; if(typeof val === 'string' && val.trim().length > 3) { const vLower = val.trim().toLowerCase(); const dLower = normalizedDisc.toLowerCase(); if (vLower !== dLower) { contentText = val.trim(); break; } } } let newRow = indices.map(i => row[i]); if (injectAcertos) newRow.splice(colMap.acertadas, 0, ""); let s = savedState[rIdx] || {}; let fVal = s.feitas !== undefined ? s.feitas : newRow[colMap.feitas]; let aVal = s.acertadas !== undefined ? s.acertadas : newRow[colMap.acertadas]; let fNum = parseFloat(fVal) || 0; let aNum = parseFloat(aVal) || 0; if (colMap.feitas !== -1) { totalQ += fNum; totalA += aNum; if (!subjects[normalizedDisc]) subjects[normalizedDisc] = { q: 0, a: 0 }; subjects[normalizedDisc].q += fNum; subjects[normalizedDisc].a += aNum; } processedData.push({ idx: rIdx, data: newRow, state: s, fVal: fVal, aVal: aVal, subject: normalizedDisc, contentText: contentText, isRevision: isRowRevision }); }); return { headers: finalHeaders, rows: processedData, colMap: colMap, stats: { q: totalQ, a: totalA }, subjectStats: subjects }; 
     }
-
     function isCellVoid(val) { return (val === undefined || val === null || String(val).trim() === ''); }
     function normalizeSubject(name) { if(!name) return ""; let s = String(name).trim(); if(s.toUpperCase().includes("REVISÃO SEMANAL")) return "REVISÃO SEMANAL"; s = s.replace(/^\[REVISÃO\]\s*/i, "").replace(/^\(REVISÃO\)\s*/i, "").replace(/^REVISÃO\s+[-–]?\s*/i, "").trim(); return s; }
     function getBadge(f, a) { f = parseFloat(f)||0; a = parseFloat(a)||0; if(f<=0) return '<span class="pct-badge pct-none">-</span>'; let p = Math.round((a/f)*100); let c = 'pct-low'; if(p>=80) c='pct-high'; else if(p>=50) c='pct-mid'; return `<span class="pct-badge ${c}">${p}%</span>`; }
@@ -1019,6 +868,11 @@
     function restoreData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = function(e) { try { const d = JSON.parse(e.target.result); Object.keys(d).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, d[k]); }); alert('Dados carregados com sucesso!'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); checkDailyReset(); updateGoalDisplay(); } catch(err) { alert('Erro ao carregar arquivo!'); } }; r.readAsText(f); }
     function resetSheet() { if(confirm(`Apagar progresso da aba "${currentSheetName}"?`)) { localStorage.removeItem(STORAGE_KEY + currentSheetName.replace(/[^a-zA-Z0-9]/g, '')); loadSheetView(currentSheetName); triggerDriveSync(); } }
     function resetAllData() { if(confirm('ATENÇÃO: Isso apagará TODO o seu progresso.\n\nTem certeza?')) { if(confirm('Confirmação final: Todos os dados serão perdidos. Continuar?')) { const kR=[]; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) kR.push(k); } kR.forEach(k=>localStorage.removeItem(k)); alert('Apagado.'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); checkDailyReset(); updateGoalDisplay(); } } }
+
+    function updateTimerDisplay() { const m = Math.floor(timeRemaining / 60); const s = timeRemaining % 60; document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
+    function toggleTimer() { if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; } else { isTimerRunning = true; timerInterval = setInterval(() => { timeRemaining--; if (timeRemaining <= 0) { clearInterval(timerInterval); isTimerRunning = false; timeRemaining = 0; alert("⏰ O tempo acabou!"); } updateTimerDisplay(); }, 1000); } }
+    function configureTimer() { const choice = prompt("Configurar Timer:\n1. Foco (25min)\n2. Pausa (5min)\n3. Personalizar (minutos)"); if (!choice) return; clearInterval(timerInterval); isTimerRunning = false; if (choice === '1') timeRemaining = 25 * 60; else if (choice === '2') timeRemaining = 5 * 60; else if (choice === '3') { const min = parseInt(prompt("Quantos minutos?"), 10); if (!isNaN(min) && min > 0) timeRemaining = min * 60; } updateTimerDisplay(); }
+
 </script>
 </body>
 </html>
