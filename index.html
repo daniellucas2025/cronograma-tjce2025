@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v64 (Indicativo [R])</title>
+    <title>Cronograma TJCE - v66 (Gestão de Acesso)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -30,6 +30,8 @@
             --toolbar-border: #e1dfdd;
             --btn-hover: #edebe9;
             --btn-active: #c8c6c4;
+            --admin-color: #692b9a; /* Roxo para Admin */
+            --student-color: #0078d4; /* Azul padrão para Aluno */
         }
 
         body.dark-mode {
@@ -50,6 +52,7 @@
             --toolbar-border: #484644;
             --btn-hover: #3b3a39;
             --btn-active: #484644;
+            --admin-color: #a865d6;
         }
 
         body {
@@ -75,7 +78,10 @@
             background: var(--surface); flex-wrap: wrap; gap: 10px; flex-shrink: 0;
         }
         .brand { display: flex; flex-direction: column; }
-        .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
+        .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; display: flex; align-items: center; gap: 8px;}
+        .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; color: white; background: var(--admin-color); text-transform: uppercase; letter-spacing: 1px; cursor: pointer;}
+        .role-badge.student { background: var(--text-sec); }
+        
         .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
         .quote-box:hover { color: var(--primary); }
         
@@ -99,6 +105,10 @@
         .btn-google { background: var(--surface); color: var(--text); border-color: var(--border); position: relative;}
         .btn-google::before { content: 'G'; font-weight: bold; color: #4285F4; margin-right: 5px; }
         .btn-icon { padding: 5px; border-radius: 50%; }
+        
+        /* Special button for Access Control */
+        .btn-access { border: 1px solid var(--admin-color); color: var(--admin-color); background: transparent; }
+        .btn-access:hover { background: rgba(105, 43, 154, 0.1); }
 
         input[type="file"] { display: none; }
 
@@ -322,7 +332,7 @@
             cursor: nwse-resize; pointer-events: auto; box-shadow: 0 0 2px rgba(0,0,0,0.3);
         }
 
-        /* --- CALENDAR STYLES (BR + SIDEBAR) --- */
+        /* --- CALENDAR STYLES (BR + SIDEBAR + CHECKBOXES) --- */
         .calendar-wrapper { display: flex; height: 100%; gap: 10px; overflow: hidden; }
         .cal-sidebar { width: 240px; border-right: 1px solid var(--border); padding-right: 10px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
         .cal-main { flex-grow: 1; overflow-y: auto; }
@@ -338,14 +348,19 @@
         .cal-date { font-weight: bold; font-size: 0.85rem; margin-bottom: 3px; color: var(--primary); }
         
         .cal-event { 
-            font-size: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--success);
+            font-size: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--primary);
             padding: 4px; border-radius: 3px; cursor: grab; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); gap: 5px;
         }
         .cal-event:hover { background: var(--highlight); }
         .cal-event-del { color: var(--text-sec); cursor: pointer; font-weight: bold; padding: 0 4px; font-size: 0.9em; display: none;}
         .cal-event:hover .cal-event-del { display: block; }
         .cal-event-del:hover { color: var(--danger); }
+        
+        /* Checkbox style for completion */
+        .cal-event.completed { background-color: rgba(16, 124, 16, 0.1); border-left-color: var(--success); }
+        .cal-event.completed span { text-decoration: line-through; color: var(--text-sec); }
+        .cal-check { cursor: pointer; margin-right: 4px; }
 
         /* Styles for expandable sidebar in calendar */
         .cal-sheet-group { margin-bottom: 5px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
@@ -385,6 +400,17 @@
         .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
         .icon-option { font-size: 1.5rem; text-align: center; cursor: pointer; padding: 5px; border-radius: 6px; border: 1px solid transparent; }
         .icon-option:hover { background: var(--highlight); border-color: var(--primary); transform: scale(1.1); }
+        
+        /* ACCESS PANEL STYLES */
+        .access-modal-content { display: flex; flex-direction: column; gap: 15px; align-items: center; text-align: center; padding: 20px; }
+        .access-code-box { 
+            width: 100%; min-height: 80px; background: var(--bg); border: 1px solid var(--border); 
+            padding: 10px; font-family: monospace; font-size: 0.8rem; word-break: break-all; 
+            border-radius: 4px; margin: 10px 0;
+        }
+        
+        .hidden-for-student { display: inherit; }
+        body.role-student .hidden-for-student { display: none !important; }
     </style>
 </head>
 <body>
@@ -395,7 +421,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v60</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span id="roleBadge" class="role-badge" onclick="openAccessModal()">Admin</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -411,12 +437,14 @@
                     <button class="btn btn-outline btn-icon" style="padding:0 4px; font-size:0.7rem; border:none;" onclick="configureGoal()">🎯</button>
                 </div>
             </div>
+            
+            <button class="btn btn-access" onclick="openAccessModal()" title="Gerenciar Acesso">👤 Acesso</button>
 
             <button class="btn btn-outline" onclick="openCalendarModal()" title="Ver Calendário">📅 Calendário</button>
             <button class="btn btn-google" id="btnGoogleAuth" onclick="handleAuthClick()">Conectar</button>
             <button class="btn btn-outline" id="btnGoogleSignout" onclick="handleSignoutClick()" style="display:none;">Sair</button>
 
-            <label for="fileInput" class="btn btn-primary" id="btnOpen">📂 Abrir</label>
+            <label for="fileInput" class="btn btn-primary hidden-for-student" id="btnOpen">📂 Abrir</label>
             <input type="file" id="fileInput" accept=".ods, .xlsx, .xls">
             
             <button class="btn btn-outline" onclick="openRepoModal()">🔗 Links</button>
@@ -425,12 +453,12 @@
             
             <a href="https://docs.google.com/spreadsheets/d/1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok/edit?gid=1635975097#gid=1635975097" target="_blank" class="btn btn-success">📑 Planilha Oficial</a>
             
-            <div class="drive-group">
+            <div class="drive-group hidden-for-student">
                 <button class="btn" onclick="backupData()" title="Backup Drive Local">💾</button>
             </div>
-            <label for="restoreInput" class="drop-zone" id="dropZone" title="Restaurar Backup">📥</label>
+            <label for="restoreInput" class="drop-zone hidden-for-student" id="dropZone" title="Restaurar Backup">📥</label>
             <input type="file" id="restoreInput" accept=".json" onchange="restoreData(this)">
-            <button class="btn btn-danger-outline" onclick="resetAllData()" title="Limpar TUDO">🧨</button>
+            <button class="btn btn-danger-outline hidden-for-student" onclick="resetAllData()" title="Limpar TUDO">🧨</button>
             <button class="btn btn-outline btn-icon" onclick="toggleTheme()">🌙</button>
             <span id="fileName" style="font-size: 0.7rem; color: var(--text-sec); max-width: 80px; overflow:hidden; text-overflow:ellipsis;"></span>
         </div>
@@ -455,7 +483,7 @@
             </select>
             <input type="text" id="searchInput" class="search-box" placeholder="🔍 Buscar..." onkeyup="filterTableText()">
         </div>
-        <button class="btn btn-danger-outline" onclick="resetSheet()">🗑️ Limpar Aba</button>
+        <button class="btn btn-danger-outline hidden-for-student" onclick="resetSheet()">🗑️ Limpar Aba</button>
     </div>
 
     <div class="content-area">
@@ -476,6 +504,49 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="accessModal">
+    <div class="modal" style="width: 400px; height: auto;">
+        <span class="close-modal-btn" onclick="closeAccessModal()">×</span>
+        <h3 style="text-align:center;">Gerenciar Acesso</h3>
+        
+        <div id="adminPanelContent" class="access-modal-content" style="display:none;">
+            <p style="font-size:0.9rem;">Você é <b>Administrador</b>.</p>
+            <button class="btn btn-primary" onclick="generateInviteCode()">📤 Gerar Convite (Aluno)</button>
+            <textarea id="inviteCodeDisplay" class="access-code-box" readonly placeholder="O código aparecerá aqui..." style="display:none;"></textarea>
+            <button class="btn btn-outline" id="copyCodeBtn" style="display:none;" onclick="copyInviteCode()">Copiar Código</button>
+            <hr style="width:100%; border:0; border-top:1px solid var(--border);">
+            <div style="width:100%; text-align:left;">
+                <label style="font-size:0.8rem; font-weight:bold;">Definir Senha de Admin:</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="password" id="newAdminPass" placeholder="Nova Senha" style="flex:1;">
+                    <button class="btn btn-success" onclick="saveAdminPass()">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="studentPanelContent" class="access-modal-content" style="display:none;">
+            <p style="font-size:0.9rem;">Modo: <b style="color:var(--student-color);">Aluno (Visualização)</b></p>
+            <p style="font-size:0.8rem; color:var(--text-sec);">Você pode marcar progresso, mas não pode alterar a estrutura.</p>
+            <hr style="width:100%; border:0; border-top:1px solid var(--border);">
+            <label style="font-size:0.8rem; font-weight:bold;">Voltar para Admin:</label>
+            <div style="display:flex; gap:5px;">
+                <input type="password" id="unlockPass" placeholder="Senha Mestre" style="flex:1;">
+                <button class="btn btn-danger-outline" onclick="unlockAdmin()">Desbloquear</button>
+            </div>
+        </div>
+        
+        <div id="loginPanelContent" class="access-modal-content">
+             <button class="btn btn-primary" onclick="showSection('admin')">Sou Admin</button>
+             <button class="btn btn-outline" onclick="showSection('enterInvite')">Entrar com Convite</button>
+             
+             <div id="inviteEntryArea" style="display:none; width:100%; margin-top:10px;">
+                 <textarea id="inputInviteCode" class="access-code-box" placeholder="Cole o código do convite aqui..."></textarea>
+                 <button class="btn btn-success" onclick="processInvite()">Validar Convite</button>
+             </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="calendarModal">
     <div class="modal" style="width: 95%; max-width: 1200px; height: 95vh;">
         <span class="close-modal-btn" onclick="document.getElementById('calendarModal').style.display='none'">×</span>
@@ -490,8 +561,8 @@
 
                 <label style="font-size:0.85rem;">Mês de Início:</label>
                 <input type="date" id="calendarStartDate" onchange="renderCalendar()">
-                <button class="btn btn-primary" onclick="document.getElementById('calAutoPanel').style.display = document.getElementById('calAutoPanel').style.display==='flex'?'none':'flex'">⚡ Automático</button>
-                <button class="btn btn-danger-outline" onclick="clearCalendar()" title="Limpar todo o cronograma">🗑️ Limpar</button>
+                <button class="btn btn-primary hidden-for-student" onclick="document.getElementById('calAutoPanel').style.display = document.getElementById('calAutoPanel').style.display==='flex'?'none':'flex'">⚡ Automático</button>
+                <button class="btn btn-danger-outline hidden-for-student" onclick="clearCalendar()" title="Limpar todo o cronograma">🗑️ Limpar</button>
             </div>
         </div>
 
@@ -537,7 +608,7 @@
         <span class="close-modal-btn" onclick="closeRepoModal()">×</span>
         <h3>🔗 Gerenciador de Links</h3>
         <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: -10px; margin-bottom: 10px;">Arraste para organizar.</p>
-        <div class="repo-toolbar">
+        <div class="repo-toolbar hidden-for-student">
             <input type="text" id="newFolderInput" placeholder="Nome da Pasta..." style="padding:6px; width: 120px;">
             <button class="btn btn-outline" onclick="addNewFolder('repo')">📁 Criar Pasta</button>
             <div style="width:1px; background:var(--border); margin:0 5px; height:20px;"></div>
@@ -564,7 +635,7 @@
         
         <div class="split-view">
             <div class="split-sidebar" id="notesSidebar">
-                <div class="split-header">
+                <div class="split-header hidden-for-student">
                     <button class="toggle-sidebar-btn" onclick="toggleNotesSidebar()" title="Recolher">◀</button>
                     <button class="btn btn-outline" style="flex:1; font-size:0.75rem;" onclick="addNewFolder('reminders')">📁 Pasta</button>
                     <button class="btn btn-primary" style="flex:1; font-size:0.75rem;" onclick="addNewNote()">📄 Nota</button>
@@ -653,6 +724,8 @@
     const CALENDAR_START_KEY = 'tjce_cal_start';
     const CALENDAR_EVENTS_KEY = 'tjce_cal_events'; 
     const CALENDAR_SHOW_REV_KEY = 'tjce_cal_show_rev'; 
+    const ROLE_KEY = 'tjce_user_role';
+    const ADMIN_PASS_KEY = 'tjce_admin_pass';
 
     const EXCLUDE_LIST = ['youtube', 'link do material', 'cumpriu a meta?', 'cumpriu a meta', 'link qconcursos', '% líq.', '% liq', '% acertos', '% de acertos'];
     const URL_REGEX = /((https?:\/\/|www\.)[^\s,]+)/gi;
@@ -663,6 +736,7 @@
     let currentResizingImg = null; let startX = 0, startY = 0; let startWidth = 0, startHeight = 0;
     let timerInterval = null; let timeRemaining = 25 * 60; let isTimerRunning = false;
     let calendarEvents = {}; 
+    let currentUserRole = 'admin'; // 'admin' or 'student'
 
     // MOTIVATIONAL QUOTES
     const QUOTES = [
@@ -702,7 +776,7 @@
 
     window.onload = function() {
         initRepo(); initReminders(); initResizeLogic(); initImageResizer(); updateTimerDisplay(); initCalendar();
-        showRandomQuote(); checkDailyReset(); updateGoalDisplay();
+        showRandomQuote(); checkDailyReset(); updateGoalDisplay(); initRole();
         
         if (localStorage.getItem(THEME_KEY) === 'dark') document.body.classList.add('dark-mode');
         
@@ -723,6 +797,154 @@
         const savedCalStart = localStorage.getItem(CALENDAR_START_KEY);
         if(savedCalStart) document.getElementById('calendarStartDate').value = savedCalStart;
     };
+
+    // --- ACCESS CONTROL SYSTEM (V66) ---
+    function initRole() {
+        const savedRole = localStorage.getItem(ROLE_KEY);
+        if (savedRole === 'student') {
+            setRole('student');
+        } else {
+            setRole('admin');
+        }
+    }
+
+    function setRole(role) {
+        currentUserRole = role;
+        localStorage.setItem(ROLE_KEY, role);
+        const badge = document.getElementById('roleBadge');
+        
+        if (role === 'student') {
+            document.body.classList.add('role-student');
+            badge.innerText = 'Aluno';
+            badge.classList.add('student');
+        } else {
+            document.body.classList.remove('role-student');
+            badge.innerText = 'Admin';
+            badge.classList.remove('student');
+        }
+    }
+
+    function openAccessModal() {
+        document.getElementById('accessModal').style.display = 'flex';
+        // Reset view
+        document.getElementById('adminPanelContent').style.display = 'none';
+        document.getElementById('studentPanelContent').style.display = 'none';
+        document.getElementById('loginPanelContent').style.display = 'none';
+
+        if (currentUserRole === 'admin') {
+            document.getElementById('adminPanelContent').style.display = 'flex';
+        } else {
+            document.getElementById('studentPanelContent').style.display = 'flex';
+        }
+    }
+    
+    function closeAccessModal() {
+        document.getElementById('accessModal').style.display = 'none';
+    }
+
+    function showSection(sec) {
+        if(sec === 'admin') {
+            // Already handled by initial check, but for manual nav
+            document.getElementById('loginPanelContent').style.display = 'none';
+            document.getElementById('adminPanelContent').style.display = 'flex';
+        } else if (sec === 'enterInvite') {
+            document.getElementById('inviteEntryArea').style.display = 'flex';
+        }
+    }
+
+    // Admin: Generate Invite
+    function generateInviteCode() {
+        if(!globalWorkbook) return alert("Carregue uma planilha primeiro para gerar o convite.");
+        
+        // Bundle everything: Workbook (ArrayBuffer) + Repo + Reminders + Settings
+        // Since ArrayBuffer to JSON is hard, we rely on LocalStorage Data primarily
+        // Construct a huge JSON
+        const exportData = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            // Only export relevant data keys
+            if (k.startsWith(STORAGE_KEY) || k === REPO_KEY || k === REMINDERS_KEY) {
+                exportData[k] = localStorage.getItem(k);
+            }
+        }
+        // Also need to flag that this is a STUDENT profile
+        exportData['__IS_STUDENT_INVITE__'] = true;
+        
+        // Include workbook binary if possible? 
+        // For simplicity: We will assume the student has the excel OR we embed it.
+        // Embedding 5MB excel in Base64 is heavy but works for text copy.
+        // Better: Just config. Assuming student loads same excel manually OR provide embedded file content here.
+        // Let's assume invite includes current localStorage config only (Planilha Data). 
+        // If the user hasn't loaded the excel, they need to load it. 
+        // To make it seamless, let's suggest sharing the file separately.
+        
+        const jsonString = JSON.stringify(exportData);
+        const encoded = btoa(unescape(encodeURIComponent(jsonString))); // Base64 safe
+        
+        const box = document.getElementById('inviteCodeDisplay');
+        box.value = encoded;
+        box.style.display = 'block';
+        document.getElementById('copyCodeBtn').style.display = 'inline-block';
+    }
+
+    function copyInviteCode() {
+        const box = document.getElementById('inviteCodeDisplay');
+        box.select();
+        document.execCommand('copy');
+        alert("Código copiado!");
+    }
+    
+    function saveAdminPass() {
+        const p = document.getElementById('newAdminPass').value;
+        if(p) {
+            localStorage.setItem(ADMIN_PASS_KEY, p);
+            alert("Senha definida!");
+        }
+    }
+
+    // Student: Process Invite
+    function processInvite() {
+        const code = document.getElementById('inputInviteCode').value.trim();
+        if(!code) return;
+        
+        try {
+            const jsonString = decodeURIComponent(escape(window.atob(code)));
+            const data = JSON.parse(jsonString);
+            
+            if(!data['__IS_STUDENT_INVITE__']) return alert("Código inválido.");
+
+            if(confirm("Isso substituirá seus dados atuais pelos do convite. Continuar?")) {
+                // Apply Data
+                Object.keys(data).forEach(k => {
+                    if(k !== '__IS_STUDENT_INVITE__') {
+                        localStorage.setItem(k, data[k]);
+                    }
+                });
+                
+                setRole('student');
+                alert("Bem-vindo, Aluno! Modo de visualização ativado.");
+                location.reload();
+            }
+        } catch(e) {
+            alert("Erro ao ler convite. Código corrompido?");
+            console.error(e);
+        }
+    }
+    
+    function unlockAdmin() {
+        const input = document.getElementById('unlockPass').value;
+        const saved = localStorage.getItem(ADMIN_PASS_KEY);
+        
+        // If no password set, allow reset (default) or require 'admin'
+        if (!saved || input === saved || input === 'admin') {
+            setRole('admin');
+            alert("Modo Admin restaurado.");
+            closeAccessModal();
+            location.reload(); // Refresh to show buttons
+        } else {
+            alert("Senha incorreta.");
+        }
+    }
 
     // --- QUOTES LOGIC ---
     function showRandomQuote() {
@@ -772,7 +994,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V60) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V64) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -795,6 +1017,19 @@
         calendarEvents = {};
         saveCalendarEvents();
         renderCalendar();
+    }
+    
+    // FUNCTION TO TOGGLE CALENDAR EVENT COMPLETION (V65)
+    function toggleCalendarEvent(dateKey, id, event) {
+        if(event) event.stopPropagation();
+        if(calendarEvents[dateKey]) {
+            const evt = calendarEvents[dateKey].find(e => e.id === id);
+            if(evt) {
+                evt.completed = !evt.completed;
+                saveCalendarEvents();
+                renderCalendar();
+            }
+        }
     }
 
     // --- AUTO-FILL LOGIC (Overwrite + Filter + Toggle Config) ---
@@ -822,14 +1057,14 @@
         // Build task queue from sheets
         let taskQueue = [];
         globalWorkbook.SheetNames.forEach(sheet => {
-            // Check sheet level revision for Auto Fill
+            // Check sheet level revision
             if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
 
             const info = analyzeSheet(sheet);
             if(info) {
                  info.rows.forEach(r => {
-                     // FIX V60: FILTER REVISIONS BY FLAG
-                     if (!showRevisions && r.isRevision) return;
+                     // Check row level revision
+                     if (!showRevisions && r.isRevision) return; 
                      
                      let label = r.subject || sheet;
                      if (r.contentText && r.contentText.length > 3) {
@@ -839,7 +1074,7 @@
                             label += " - " + r.contentText; 
                         }
                      }
-                     // Add [R] indicator if needed
+                     // Add [R] indicator if needed (V64)
                      if (r.isRevision) label = "[R] " + label;
 
                      // Add source sheet for tooltip
@@ -884,7 +1119,8 @@
                     calendarEvents[dateKey].push({ 
                         id: Date.now().toString() + Math.random(), 
                         text: task.text,
-                        sheet: task.sheet // Store source sheet
+                        sheet: task.sheet,
+                        completed: false // Init V65
                     });
                     taskIdx++;
                 }
@@ -932,7 +1168,7 @@
                 if(info) {
                     const uniqueTopics = new Set();
                     info.rows.forEach(r => {
-                        // FIX V60: FILTER ROW REVISIONS BY FLAG
+                        // Ignore row revision if config is off
                         if (!showRevisions && r.isRevision) return;
 
                         let itemLabel = "";
@@ -963,7 +1199,7 @@
                         div.innerText = topic;
                         div.title = `Origem: ${sheet}`; // Tooltip sidebar
                         div.ondragstart = (e) => { 
-                            e.dataTransfer.setData('application/json', JSON.stringify({ text: topic, sheet: sheet })); 
+                            e.dataTransfer.setData('application/json', JSON.stringify({ text: topic, sheet: sheet, completed: false })); 
                             e.dataTransfer.effectAllowed = 'copy'; 
                         };
                         content.appendChild(div);
@@ -988,7 +1224,7 @@
         }
         localStorage.setItem(CALENDAR_START_KEY, startDateVal);
 
-        // Dynamic Weeks
+        // Dynamic Weeks (V62)
         let totalWeeks = 6; 
         if (globalWorkbook) {
             totalWeeks = globalWorkbook.SheetNames.length + 4; 
@@ -1040,14 +1276,24 @@
             if (calendarEvents[dateKey]) {
                 calendarEvents[dateKey].forEach(evt => {
                     const evDiv = document.createElement('div');
-                    evDiv.className = 'cal-event';
+                    // V65: CHECKBOX LOGIC
+                    const isDone = evt.completed ? 'completed' : '';
+                    evDiv.className = `cal-event ${isDone}`;
                     evDiv.draggable = true;
-                    evDiv.innerHTML = `<span>${evt.text}</span><span class="cal-event-del" onclick="removeCalendarEvent('${dateKey}', '${evt.id}')">×</span>`;
-                    
                     if(evt.sheet) evDiv.title = `Origem: ${evt.sheet}`; 
 
+                    // Checkbox + Text container
+                    const content = `
+                        <div style="display:flex; align-items:center; gap:4px; overflow:hidden;">
+                            <input type="checkbox" class="cal-check" ${evt.completed ? 'checked' : ''} onclick="toggleCalendarEvent('${dateKey}', '${evt.id}', event)">
+                            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${evt.text}</span>
+                        </div>
+                        <span class="cal-event-del" onclick="removeCalendarEvent('${dateKey}', '${evt.id}')">×</span>
+                    `;
+                    evDiv.innerHTML = content;
+                    
                     evDiv.ondragstart = (e) => { 
-                        e.dataTransfer.setData('application/json', JSON.stringify({ text: evt.text, sheet: evt.sheet })); 
+                        e.dataTransfer.setData('application/json', JSON.stringify({ text: evt.text, sheet: evt.sheet, completed: evt.completed })); 
                     };
                     
                     div.appendChild(evDiv);
@@ -1062,7 +1308,8 @@
         calendarEvents[date].push({ 
             id: Date.now().toString() + Math.random(), 
             text: text,
-            sheet: sheet 
+            sheet: sheet,
+            completed: false // Default V65
         });
         saveCalendarEvents();
         renderCalendar();
