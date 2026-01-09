@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v63 (Config Revisão)</title>
+    <title>Cronograma TJCE - v64 (Indicativo [R])</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -78,6 +78,7 @@
         .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
         .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
         .quote-box:hover { color: var(--primary); }
+        
         .header-actions { display: flex; gap: 6px; align-items: center; }
 
         .btn {
@@ -87,8 +88,10 @@
         }
         .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-primary:hover { background: var(--primary-hover); }
+        
         .btn-success { background: var(--success); color: white; border-color: var(--success); }
         .btn-success:hover { background: var(--success-hover); }
+
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
         .btn-outline:hover { background: var(--btn-hover); border-color: var(--text-sec); }
         .btn-danger-outline { background: transparent; border-color: var(--danger); color: var(--danger); }
@@ -99,6 +102,7 @@
 
         input[type="file"] { display: none; }
 
+        /* Drop Zone */
         .drop-zone {
             border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px;
             color: var(--text-sec); font-size: 0.8rem; cursor: pointer;
@@ -106,6 +110,7 @@
         }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
 
+        /* Productivity Bar (Timer + Goal) */
         .prod-bar {
             display: flex; gap: 10px; align-items: center; background: var(--highlight);
             padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
@@ -117,6 +122,7 @@
         .goal-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
         .goal-text { font-size: 0.75rem; color: var(--text-sec); min-width: 60px; text-align: right;}
 
+        /* Stats Bar */
         .global-stats {
             background: var(--highlight); padding: 6px 15px;
             border-bottom: 1px solid var(--border); display: flex; gap: 20px;
@@ -128,6 +134,7 @@
         .progress-track { flex-grow: 1; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; max-width: 150px; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
 
+        /* Controls */
         .sheet-controls {
             padding: 6px 15px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex;
@@ -141,6 +148,7 @@
         select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
         .search-box { flex-grow: 1; min-width: 150px; }
 
+        /* Tabela */
         .content-area { flex-grow: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
         .table-scroll { flex-grow: 1; overflow: auto; display: none; scroll-behavior: smooth; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -166,6 +174,7 @@
         .pct-low { background: rgba(164, 38, 44, 0.2); color: var(--danger); }
         .pct-none { color: var(--text-sec); }
 
+        /* DASHBOARD */
         .dashboard-view { padding: 15px 20px; height: 100%; overflow-y: auto; display: none; background: var(--surface); }
         .dash-header-compact { text-align: center; margin-bottom: 15px; }
         .dash-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
@@ -367,7 +376,6 @@
         }
         .close-modal-btn:hover { color: var(--danger); }
 
-        /* Note Search */
         .note-search-input {
             padding: 4px 8px; border-radius: 3px; border: 1px solid var(--border);
             font-size: 0.85rem; margin-right: 8px; background: var(--bg); color: var(--text);
@@ -387,7 +395,7 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v63</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v60</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
@@ -644,7 +652,7 @@
     const DAILY_DATE_KEY = 'tjce_daily_date';
     const CALENDAR_START_KEY = 'tjce_cal_start';
     const CALENDAR_EVENTS_KEY = 'tjce_cal_events'; 
-    const CALENDAR_SHOW_REV_KEY = 'tjce_cal_show_rev'; // NEW
+    const CALENDAR_SHOW_REV_KEY = 'tjce_cal_show_rev'; 
 
     const EXCLUDE_LIST = ['youtube', 'link do material', 'cumpriu a meta?', 'cumpriu a meta', 'link qconcursos', '% líq.', '% liq', '% acertos', '% de acertos'];
     const URL_REGEX = /((https?:\/\/|www\.)[^\s,]+)/gi;
@@ -764,7 +772,7 @@
         updateGoalDisplay();
     }
 
-    // --- CALENDAR LOGIC (Configurable Revisions) ---
+    // --- CALENDAR LOGIC (Interactive + Sidebar + Revision Filter V60) ---
     function initCalendar() {
         const savedEvents = localStorage.getItem(CALENDAR_EVENTS_KEY);
         if(savedEvents) calendarEvents = JSON.parse(savedEvents);
@@ -814,14 +822,14 @@
         // Build task queue from sheets
         let taskQueue = [];
         globalWorkbook.SheetNames.forEach(sheet => {
-            // Check sheet level revision
+            // Check sheet level revision for Auto Fill
             if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
 
             const info = analyzeSheet(sheet);
             if(info) {
                  info.rows.forEach(r => {
-                     // Check row level revision
-                     if (!showRevisions && r.isRevision) return; 
+                     // FIX V60: FILTER REVISIONS BY FLAG
+                     if (!showRevisions && r.isRevision) return;
                      
                      let label = r.subject || sheet;
                      if (r.contentText && r.contentText.length > 3) {
@@ -831,6 +839,9 @@
                             label += " - " + r.contentText; 
                         }
                      }
+                     // Add [R] indicator if needed
+                     if (r.isRevision) label = "[R] " + label;
+
                      // Add source sheet for tooltip
                      taskQueue.push({ text: label, sheet: sheet });
                  });
@@ -899,7 +910,7 @@
         
         if(globalWorkbook) {
             globalWorkbook.SheetNames.forEach(sheet => {
-                // Ignore revision sheets if config is off
+                // Ignore revision sheets if config is off (Sidebar)
                 if (!showRevisions && sheet.toUpperCase().includes("[REVISÃO]")) return;
 
                 const group = document.createElement('div');
@@ -921,7 +932,7 @@
                 if(info) {
                     const uniqueTopics = new Set();
                     info.rows.forEach(r => {
-                        // Ignore row revision if config is off
+                        // FIX V60: FILTER ROW REVISIONS BY FLAG
                         if (!showRevisions && r.isRevision) return;
 
                         let itemLabel = "";
@@ -938,6 +949,9 @@
                         } else if (r.contentText && r.contentText.length > 3) {
                              itemLabel = r.contentText;
                         }
+
+                        // Add [R] indicator if needed
+                        if (r.isRevision) itemLabel = "[R] " + itemLabel;
                         
                         if(itemLabel) uniqueTopics.add(itemLabel);
                     });
