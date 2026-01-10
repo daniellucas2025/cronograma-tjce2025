@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v69 (Team Manager & Fixes)</title>
+    <title>Cronograma TJCE - v70 (Team Manager & Fixes)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -262,7 +262,7 @@
 
 <div class="container">
     <div id="localhost-warning">
-        ⚠️ Atenção: Para usar a conexão com o Google Drive (Login e Equipe), você precisa rodar este arquivo em um servidor local (ex: usando a extensão 'Live Server' no VS Code).
+        ⚠️ Atenção: Para usar a conexão com o Google Drive (Login e Equipe), você precisa rodar este arquivo em um servidor local (ex: usando a extensão 'Live Server' no VS Code). O protocolo 'file://' não é suportado pelo Google.
     </div>
 
     <div class="header">
@@ -593,7 +593,7 @@
                 tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' });
                 gisInited = true;
              } catch(e) { console.error("GIS Init Error", e); }
-        }
+        } else { console.warn("Google Libraries not loaded."); }
         
         if(EMBEDDED_FILE && EMBEDDED_FILE.length > 100) loadEmbeddedFile();
         
