@@ -10,8 +10,6 @@
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script type="module" src="./firebase.js"></script>
-
 
     <style>
         :root {
@@ -390,23 +388,11 @@
     </style>
 </head>
 <body>
-<div id="loginScreen" style="
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
-">
-  <h2>Acesso ao Cronograma</h2>
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
-</div>
 
 <div id="customContextMenu" class="context-menu"></div>
 <div id="imgResizeOverlay"><div class="resize-handle" id="imgResizeHandle"></div></div>
 
-<div class="container" style="display:none;">
+<div class="container">
     <div class="header">
         <div class="brand">
             <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v60</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
@@ -1366,40 +1352,6 @@
     function restoreData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = function(e) { try { const d = JSON.parse(e.target.result); Object.keys(d).forEach(k => { if(k.startsWith(STORAGE_KEY)) localStorage.setItem(k, d[k]); }); alert('Dados carregados com sucesso!'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); checkDailyReset(); updateGoalDisplay(); } catch(err) { alert('Erro ao carregar arquivo!'); } }; r.readAsText(f); }
     function resetSheet() { if(confirm(`Apagar progresso da aba "${currentSheetName}"?`)) { localStorage.removeItem(STORAGE_KEY + currentSheetName.replace(/[^a-zA-Z0-9]/g, '')); loadSheetView(currentSheetName); triggerDriveSync(); } }
     function resetAllData() { if(confirm('ATENÇÃO: Isso apagará TODO o seu progresso.\n\nTem certeza?')) { if(confirm('Confirmação final: Todos os dados serão perdidos. Continuar?')) { const kR=[]; for(let i=0; i<localStorage.length; i++) { const k=localStorage.key(i); if(k.startsWith(STORAGE_KEY)) kR.push(k); } kR.forEach(k=>localStorage.removeItem(k)); alert('Apagado.'); if(currentSheetName) loadSheetView(currentSheetName); initRepo(); initReminders(); triggerDriveSync(); checkDailyReset(); updateGoalDisplay(); } } }
-</script>
-
-<script type="module">
-import { signInWithEmailAndPassword, onAuthStateChanged } 
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { auth, db } from "./firebase.js";
-import { doc, getDoc, setDoc } 
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* 🔹 TORNA A FUNÇÃO GLOBAL */
-window.login = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  await signInWithEmailAndPassword(auth, email, password);
-};
-
-/* 🔹 OBSERVA LOGIN */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      createdAt: new Date(),
-      data: {}
-    });
-  }
-
-  document.getElementById("loginScreen").style.display = "none";
-  document.querySelector(".container").style.display = "block";
-});
 </script>
 </body>
 </html>
