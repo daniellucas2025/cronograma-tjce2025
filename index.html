@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v70 (Scroll Fix + Layout Otimizado)</title>
+    <title>Cronograma TJCE - v71 (Scroll Vertical Fix)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -54,10 +54,10 @@
         body {
             font-family: 'Segoe UI', Calibri, Arial, sans-serif;
             background: var(--bg); color: var(--text);
-            margin: 0; padding: 5px; height: 100vh; /* Padding reduzido para mobile */
+            margin: 0; padding: 5px; height: 100vh;
             display: flex; flex-direction: column; box-sizing: border-box;
             transition: background 0.3s, color 0.3s;
-            overflow: hidden; /* Impede scroll no body, mantendo scroll apenas nas áreas internas */
+            overflow: hidden; /* Mantém app fixo, scroll interno */
         }
 
         .container {
@@ -82,7 +82,6 @@
             display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1;
         }
 
-        /* Grade de Botões para Mobile/Tablet */
         .buttons-grid {
             display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
         }
@@ -106,7 +105,6 @@
         .drop-zone { border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px; color: var(--text-sec); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; }
         .drop-zone:hover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
 
-        /* Prod Bar */
         .prod-bar {
             display: flex; gap: 8px; align-items: center; background: var(--highlight);
             padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); margin-right: 5px;
@@ -117,38 +115,32 @@
         .goal-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
         .goal-text { font-size: 0.7rem; color: var(--text-sec); min-width: 50px; text-align: right;}
 
-        /* CSS RESPONSIVO PARA OS BOTÕES (CELULAR/TABLET) */
         @media (max-width: 1024px) {
             .header { flex-direction: column; align-items: stretch; height: auto; }
             .brand { display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
-            .quote-box { display: none; } /* Oculta frase em telas pequenas */
+            .quote-box { display: none; }
             
             .header-actions { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; }
-            
-            /* Linha 1: Admin e Timer */
             .top-actions-row { display: flex; justify-content: space-between; width: 100%; gap: 5px; }
             .prod-bar { flex-grow: 1; margin: 0; justify-content: space-between; }
             
-            /* Linha 2 e 3: Grade de Botões */
             .buttons-grid { 
                 display: grid; 
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Distribui botões automaticamente */
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
                 gap: 6px; 
                 width: 100%;
             }
             .btn { width: 100%; font-size: 0.75rem; padding: 8px 4px; }
-            .drive-group { display: contents; } /* Remove container visual para grid funcionar */
-            #fileName { display: none; } /* Oculta nome do arquivo em mobile */
+            .drive-group { display: contents; }
+            #fileName { display: none; }
         }
-
-        /* --- FIM HEADER --- */
 
         /* Stats Bar */
         .global-stats {
             background: var(--highlight); padding: 6px 15px;
             border-bottom: 1px solid var(--border); display: flex; gap: 20px;
             font-size: 0.85rem; display: none; align-items: center; flex-shrink: 0;
-            overflow-x: auto; /* Scroll horizontal em mobile se necessário */
+            overflow-x: auto; 
         }
         .g-stat { display: flex; flex-direction: column; line-height: 1.1; white-space: nowrap; }
         .g-label { font-size: 0.7rem; color: var(--text-sec); text-transform: uppercase; }
@@ -169,9 +161,24 @@
         }
         .search-box { flex-grow: 1; min-width: 150px; }
 
-        /* Tabela */
-        .content-area { flex-grow: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
-        .table-scroll { flex-grow: 1; overflow: auto; display: none; scroll-behavior: smooth; }
+        /* ÁREA DE CONTEÚDO E SCROLL */
+        .content-area { 
+            flex-grow: 1; 
+            overflow: hidden; /* Contém o scroll dos filhos */
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 0; /* Crítico para flexbox scroll funcionar */
+        }
+        
+        .table-scroll { 
+            flex-grow: 1; 
+            overflow: auto; /* Scroll Vertical e Horizontal Automático */
+            display: none; 
+            scroll-behavior: smooth;
+            height: 100%; /* Ocupa altura total do pai */
+        }
+        
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         thead th {
             position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 8px 10px;
@@ -198,11 +205,11 @@
         /* DASHBOARD - CORREÇÃO DE SCROLL */
         .dashboard-view { 
             padding: 15px 20px; 
-            overflow-y: auto; /* Garante scroll vertical */
+            overflow-y: auto; 
             display: none; 
             background: var(--surface); 
-            flex: 1; /* Ocupa o espaço restante do container */
-            max-height: 100%; /* Limita a altura para forçar o scroll interno */
+            flex: 1; 
+            height: 100%;
             box-sizing: border-box;
         }
         .dash-header-compact { text-align: center; margin-bottom: 15px; }
@@ -460,7 +467,7 @@
 <div class="container" style="display:none;">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v70</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v71</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
