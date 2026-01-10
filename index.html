@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v71 (Scroll Vertical Fix)</title>
+    <title>Cronograma TJCE - v72 (Scroll Garantido)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -51,13 +51,21 @@
             --btn-active: #484644;
         }
 
+        /* ESTILIZAÇÃO DA BARRA DE ROLAGEM (SCROLLBAR) */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 5px; border: 2px solid var(--bg); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+        body.dark-mode ::-webkit-scrollbar-thumb { background: #555; border-color: var(--bg); }
+        body.dark-mode ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
         body {
             font-family: 'Segoe UI', Calibri, Arial, sans-serif;
             background: var(--bg); color: var(--text);
             margin: 0; padding: 5px; height: 100vh;
             display: flex; flex-direction: column; box-sizing: border-box;
             transition: background 0.3s, color 0.3s;
-            overflow: hidden; /* Mantém app fixo, scroll interno */
+            overflow: hidden; /* Impede scroll na página inteira, força scroll interno */
         }
 
         .container {
@@ -161,22 +169,23 @@
         }
         .search-box { flex-grow: 1; min-width: 150px; }
 
-        /* ÁREA DE CONTEÚDO E SCROLL */
+        /* --- ÁREA DE CONTEÚDO PRINCIPAL (COM SCROLL FIX) --- */
         .content-area { 
-            flex-grow: 1; 
-            overflow: hidden; /* Contém o scroll dos filhos */
-            position: relative; 
+            flex: 1; /* Ocupa o restante da tela */
             display: flex; 
             flex-direction: column; 
-            min-height: 0; /* Crítico para flexbox scroll funcionar */
+            overflow: hidden; /* O pai não scrola, os filhos sim */
+            position: relative; 
+            min-height: 0; /* IMPORTANTE para o flex funcionar no scroll */
         }
         
         .table-scroll { 
-            flex-grow: 1; 
-            overflow: auto; /* Scroll Vertical e Horizontal Automático */
-            display: none; 
-            scroll-behavior: smooth;
-            height: 100%; /* Ocupa altura total do pai */
+            flex: 1; /* Cresce para ocupar tudo */
+            overflow-y: auto; /* Habilita Scroll Vertical */
+            overflow-x: auto; /* Habilita Scroll Horizontal */
+            display: none; /* JS troca para block */
+            width: 100%;
+            height: 100%; /* Força altura */
         }
         
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -202,14 +211,15 @@
         .pct-low { background: rgba(164, 38, 44, 0.2); color: var(--danger); }
         .pct-none { color: var(--text-sec); }
 
-        /* DASHBOARD - CORREÇÃO DE SCROLL */
+        /* --- DASHBOARD COM SCROLL FIX --- */
         .dashboard-view { 
+            flex: 1; /* Cresce para ocupar tudo */
             padding: 15px 20px; 
-            overflow-y: auto; 
+            overflow-y: auto; /* Scroll Vertical */
             display: none; 
             background: var(--surface); 
-            flex: 1; 
-            height: 100%;
+            height: 100%; /* Força altura */
+            min-height: 0; /* Evita expansão além do pai */
             box-sizing: border-box;
         }
         .dash-header-compact { text-align: center; margin-bottom: 15px; }
@@ -467,7 +477,7 @@
 <div class="container" style="display:none;">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v71</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v72</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
