@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma TJCE - v69 (Clean + Firebase)</title>
+    <title>Cronograma TJCE - v70 (Scroll Fix + Layout Otimizado)</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,7 +12,7 @@
 
     <style>
         :root {
-            --primary: #2b579a; /* Azul Office */
+            --primary: #2b579a;
             --primary-hover: #1e3e70;
             --bg: #f3f2f1;
             --surface: #ffffff;
@@ -54,9 +54,10 @@
         body {
             font-family: 'Segoe UI', Calibri, Arial, sans-serif;
             background: var(--bg); color: var(--text);
-            margin: 0; padding: 10px; height: 100vh;
+            margin: 0; padding: 5px; height: 100vh; /* Padding reduzido para mobile */
             display: flex; flex-direction: column; box-sizing: border-box;
             transition: background 0.3s, color 0.3s;
+            overflow: hidden; /* Impede scroll no body, mantendo scroll apenas nas áreas internas */
         }
 
         .container {
@@ -67,30 +68,34 @@
             border: 1px solid var(--border);
         }
 
-        /* Header */
+        /* --- HEADER OTIMIZADO --- */
         .header {
-            padding: 8px 15px; border-bottom: 1px solid var(--border);
+            padding: 8px 10px; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
             background: var(--surface); flex-wrap: wrap; gap: 10px; flex-shrink: 0;
         }
-        .brand { display: flex; flex-direction: column; }
+        .brand { display: flex; flex-direction: column; min-width: 150px; }
         .brand h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 700; }
-        .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
-        .quote-box:hover { color: var(--primary); }
+        .quote-box { font-size: 0.75rem; color: var(--text-sec); font-style: italic; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
         
-        .header-actions { display: flex; gap: 6px; align-items: center; }
+        .header-actions { 
+            display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1;
+        }
+
+        /* Grade de Botões para Mobile/Tablet */
+        .buttons-grid {
+            display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
+        }
 
         .btn {
             padding: 5px 10px; border-radius: 4px; cursor: pointer;
-            font-weight: 500; font-size: 0.85rem; border: 1px solid transparent;
-            transition: all 0.1s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+            font-weight: 500; font-size: 0.8rem; border: 1px solid transparent;
+            transition: all 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none;
+            white-space: nowrap;
         }
         .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-primary:hover { background: var(--primary-hover); }
-        
         .btn-success { background: var(--success); color: white; border-color: var(--success); }
-        .btn-success:hover { background: var(--success-hover); }
-
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
         .btn-outline:hover { background: var(--btn-hover); border-color: var(--text-sec); }
         .btn-danger-outline { background: transparent; border-color: var(--danger); color: var(--danger); }
@@ -98,51 +103,70 @@
         .btn-icon { padding: 5px; border-radius: 50%; }
 
         input[type="file"] { display: none; }
+        .drop-zone { border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px; color: var(--text-sec); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; }
+        .drop-zone:hover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
 
-        /* Drop Zone */
-        .drop-zone {
-            border: 1px dashed var(--text-sec); border-radius: 4px; padding: 4px 10px;
-            color: var(--text-sec); font-size: 0.8rem; cursor: pointer;
-            transition: 0.2s; display: flex; align-items: center; gap: 5px;
-        }
-        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: var(--highlight); color: var(--primary); }
-
-        /* Productivity Bar (Timer + Goal) */
+        /* Prod Bar */
         .prod-bar {
-            display: flex; gap: 10px; align-items: center; background: var(--highlight);
-            padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
+            display: flex; gap: 8px; align-items: center; background: var(--highlight);
+            padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); margin-right: 5px;
         }
         .timer-display { font-family: 'Segoe UI Mono', monospace; font-weight: 700; color: var(--primary); width: 45px; text-align: center; }
-        
-        .goal-container { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; border-left: 1px solid var(--border); padding-left: 10px; }
-        .goal-bar-bg { width: 80px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
+        .goal-container { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; border-left: 1px solid var(--border); padding-left: 8px; }
+        .goal-bar-bg { width: 60px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; position: relative; }
         .goal-bar-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
-        .goal-text { font-size: 0.75rem; color: var(--text-sec); min-width: 60px; text-align: right;}
+        .goal-text { font-size: 0.7rem; color: var(--text-sec); min-width: 50px; text-align: right;}
+
+        /* CSS RESPONSIVO PARA OS BOTÕES (CELULAR/TABLET) */
+        @media (max-width: 1024px) {
+            .header { flex-direction: column; align-items: stretch; height: auto; }
+            .brand { display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
+            .quote-box { display: none; } /* Oculta frase em telas pequenas */
+            
+            .header-actions { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; }
+            
+            /* Linha 1: Admin e Timer */
+            .top-actions-row { display: flex; justify-content: space-between; width: 100%; gap: 5px; }
+            .prod-bar { flex-grow: 1; margin: 0; justify-content: space-between; }
+            
+            /* Linha 2 e 3: Grade de Botões */
+            .buttons-grid { 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Distribui botões automaticamente */
+                gap: 6px; 
+                width: 100%;
+            }
+            .btn { width: 100%; font-size: 0.75rem; padding: 8px 4px; }
+            .drive-group { display: contents; } /* Remove container visual para grid funcionar */
+            #fileName { display: none; } /* Oculta nome do arquivo em mobile */
+        }
+
+        /* --- FIM HEADER --- */
 
         /* Stats Bar */
         .global-stats {
             background: var(--highlight); padding: 6px 15px;
             border-bottom: 1px solid var(--border); display: flex; gap: 20px;
             font-size: 0.85rem; display: none; align-items: center; flex-shrink: 0;
+            overflow-x: auto; /* Scroll horizontal em mobile se necessário */
         }
-        .g-stat { display: flex; flex-direction: column; line-height: 1.1; }
-        .g-label { font-size: 0.7rem; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; }
+        .g-stat { display: flex; flex-direction: column; line-height: 1.1; white-space: nowrap; }
+        .g-label { font-size: 0.7rem; color: var(--text-sec); text-transform: uppercase; }
         .g-val { font-weight: 700; color: var(--primary); font-size: 1rem; }
-        .progress-track { flex-grow: 1; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; max-width: 150px; }
+        .progress-track { flex-grow: 1; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; min-width: 100px; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
 
         /* Controls */
         .sheet-controls {
             padding: 6px 15px; background: var(--surface);
             border-bottom: 1px solid var(--border); display: flex;
-            justify-content: space-between; align-items: center; display: none; gap: 10px; flex-shrink: 0;
+            justify-content: space-between; align-items: center; display: none; gap: 10px; flex-shrink: 0; flex-wrap: wrap;
         }
         .filter-group { display: flex; gap: 8px; flex-grow: 1; max-width: 900px; align-items: center; flex-wrap: wrap; }
         select, input[type="text"], input[type="date"], input[type="number"] { 
             padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); 
             background: var(--surface); color: var(--text); font-size: 0.85rem; outline: none;
         }
-        select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
         .search-box { flex-grow: 1; min-width: 150px; }
 
         /* Tabela */
@@ -171,8 +195,16 @@
         .pct-low { background: rgba(164, 38, 44, 0.2); color: var(--danger); }
         .pct-none { color: var(--text-sec); }
 
-        /* DASHBOARD */
-        .dashboard-view { padding: 15px 20px; height: 100%; overflow-y: auto; display: none; background: var(--surface); }
+        /* DASHBOARD - CORREÇÃO DE SCROLL */
+        .dashboard-view { 
+            padding: 15px 20px; 
+            overflow-y: auto; /* Garante scroll vertical */
+            display: none; 
+            background: var(--surface); 
+            flex: 1; /* Ocupa o espaço restante do container */
+            max-height: 100%; /* Limita a altura para forçar o scroll interno */
+            box-sizing: border-box;
+        }
         .dash-header-compact { text-align: center; margin-bottom: 15px; }
         .dash-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
         .d-card { background: var(--highlight); border: 1px solid var(--border); padding: 12px; border-radius: 8px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -182,7 +214,7 @@
         .dash-table th { background: var(--highlight); color: var(--text); padding: 8px; }
         .dash-table td { padding: 6px 8px; }
         .chart-wrapper { width: 100%; max-width: 400px; margin: 20px auto; position: relative; height: 300px; }
-        .attention-section { max-width: 900px; margin: 25px auto; border-top: 1px dashed var(--border); padding-top: 20px; }
+        .attention-section { max-width: 900px; margin: 25px auto; border-top: 1px dashed var(--border); padding-top: 20px; padding-bottom: 40px; }
         .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 10px; }
         .att-card { background: rgba(164, 38, 44, 0.04); border: 1px solid rgba(164, 38, 44, 0.15); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
         body.dark-mode .att-card { background: rgba(164, 38, 44, 0.1); border-color: rgba(164, 38, 44, 0.3); }
@@ -221,8 +253,6 @@
         .modal { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 550px; border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; position: relative;}
         .modal textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-family: monospace; font-size: 0.8rem; resize: none; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
-        .drive-group { display: flex; align-items: center; background: var(--highlight); padding: 2px; border-radius: 4px; border: 1px solid var(--border); }
-        .drive-group .btn { border: none; background: transparent; padding: 4px 10px; font-size: 0.75rem; }
         
         /* Sync Status Indicator */
         .sync-status { 
@@ -430,44 +460,47 @@
 <div class="container" style="display:none;">
     <div class="header">
         <div class="brand">
-            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v69</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
+            <h1>Cronograma TJCE <span style="font-weight:normal; font-size:0.8em; color:var(--text-sec);">v70</span> <div id="syncIndicator" class="sync-status" title="Status de Sincronização"></div></h1>
             <div class="quote-box" id="quoteDisplay" onclick="showRandomQuote()" title="Clique para nova frase">"Carregando motivação..."</div>
         </div>
         
         <div class="header-actions">
-            <button class="btn btn-outline" id="adminBtn" onclick="document.getElementById('adminModal').style.display='flex'">👮 Admin</button>
-            <div class="prod-bar">
-                <span id="timerDisplay" class="timer-display">25:00</span>
-                <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="toggleTimer()" title="Iniciar/Pausar Timer">⏯️</button>
-                <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="configureTimer()" title="Configurar Timer">⚙️</button>
-                
-                <div class="goal-container" title="Meta de Questões Diária">
-                    <span id="goalText" class="goal-text">0/50</span>
-                    <div class="goal-bar-bg"><div id="goalBar" class="goal-bar-fill"></div></div>
-                    <button class="btn btn-outline btn-icon" style="padding:0 4px; font-size:0.7rem; border:none;" onclick="configureGoal()">🎯</button>
+            <div class="top-actions-row" style="display:flex; align-items:center; gap:5px;">
+                <button class="btn btn-outline" id="adminBtn" onclick="document.getElementById('adminModal').style.display='flex'">👮 Admin</button>
+                <div class="prod-bar">
+                    <span id="timerDisplay" class="timer-display">25:00</span>
+                    <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="toggleTimer()" title="Iniciar/Pausar Timer">⏯️</button>
+                    <button class="btn btn-outline btn-icon" style="padding:2px 6px; font-size:0.8rem;" onclick="configureTimer()" title="Configurar Timer">⚙️</button>
+                    
+                    <div class="goal-container" title="Meta de Questões Diária">
+                        <span id="goalText" class="goal-text">0/50</span>
+                        <div class="goal-bar-bg"><div id="goalBar" class="goal-bar-fill"></div></div>
+                        <button class="btn btn-outline btn-icon" style="padding:0 4px; font-size:0.7rem; border:none;" onclick="configureGoal()">🎯</button>
+                    </div>
                 </div>
             </div>
 
-            <button class="btn btn-outline" onclick="openCalendarModal()" title="Ver Calendário">📅 Calendário</button>
-
-            <label for="fileInput" class="btn btn-primary" id="btnOpen">📂 Abrir</label>
-            <input type="file" id="fileInput" accept=".ods, .xlsx, .xls">
-            
-            <button class="btn btn-outline" onclick="openRepoModal()">🔗 Links</button>
-            <button class="btn btn-outline" onclick="openRemindersModal()">📝 Notas</button>
-            <button class="btn btn-outline" id="btnDash" style="display:none;" onclick="toggleDashboard()">📊 Desempenho</button>
-            
-            <a href="https://docs.google.com/spreadsheets/d/1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok/edit?gid=1635975097#gid=1635975097" target="_blank" class="btn btn-success">📑 Planilha Oficial</a>
-            
-            <div class="drive-group">
-                <button class="btn" onclick="backupData()" title="Backup Drive Local">💾</button>
+            <div class="buttons-grid">
+                <button class="btn btn-outline" onclick="openCalendarModal()" title="Ver Calendário">📅 Calendário</button>
+                <label for="fileInput" class="btn btn-primary" id="btnOpen">📂 Abrir</label>
+                <input type="file" id="fileInput" accept=".ods, .xlsx, .xls">
+                
+                <button class="btn btn-outline" onclick="openRepoModal()">🔗 Links</button>
+                <button class="btn btn-outline" onclick="openRemindersModal()">📝 Notas</button>
+                <button class="btn btn-outline" id="btnDash" style="display:none;" onclick="toggleDashboard()">📊 Desempenho</button>
+                
+                <a href="https://docs.google.com/spreadsheets/d/1E_zj8KXO0JY8JHT4AEU-UFtfEieowPndz4GPXJb0Kok/edit?gid=1635975097#gid=1635975097" target="_blank" class="btn btn-success">📑 Planilha Oficial</a>
+                
+                <button class="btn" onclick="backupData()" title="Backup Drive Local">💾 Backup</button>
+                
+                <label for="restoreInput" class="drop-zone" id="dropZone" title="Restaurar Backup">📥 Restaurar</label>
+                <input type="file" id="restoreInput" accept=".json" onchange="restoreData(this)">
+                
+                <button class="btn btn-danger-outline" onclick="resetAllData()" title="Limpar TUDO">🧨 Limpar</button>
+                <button class="btn btn-outline btn-icon" onclick="toggleTheme()">🌙</button>
+                <button class="btn btn-outline btn-icon" onclick="logout()" title="Sair do App">🚪</button>
+                <span id="fileName" style="font-size: 0.7rem; color: var(--text-sec); max-width: 80px; overflow:hidden; text-overflow:ellipsis;"></span>
             </div>
-            <label for="restoreInput" class="drop-zone" id="dropZone" title="Restaurar Backup">📥</label>
-            <input type="file" id="restoreInput" accept=".json" onchange="restoreData(this)">
-            <button class="btn btn-danger-outline" onclick="resetAllData()" title="Limpar TUDO">🧨</button>
-            <button class="btn btn-outline btn-icon" onclick="toggleTheme()">🌙</button>
-            <button class="btn btn-outline btn-icon" onclick="logout()" title="Sair do App">🚪</button>
-            <span id="fileName" style="font-size: 0.7rem; color: var(--text-sec); max-width: 80px; overflow:hidden; text-overflow:ellipsis;"></span>
         </div>
     </div>
 
